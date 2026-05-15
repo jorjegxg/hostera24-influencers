@@ -55,7 +55,7 @@ export function LeadForm({ variant }: LeadFormProps) {
   }
 
   return (
-    <div className="mx-auto mt-6 w-[min(100%,50vw)]">
+    <div className="mx-auto mt-6 w-full md:w-[min(100%,50vw)]">
       <form
         id={formId}
         onSubmit={handleSubmit}
