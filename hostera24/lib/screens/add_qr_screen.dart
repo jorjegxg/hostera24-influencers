@@ -3,6 +3,7 @@ import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/widgets/error_snackbar.dart';
 
 class AddQrScreen extends StatefulWidget {
   const AddQrScreen({super.key});
@@ -38,10 +39,9 @@ class _AddQrScreenState extends State<AddQrScreen> {
       if (!mounted) return;
       Navigator.of(context).pop<QrEntry>(entry);
     } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      if (mounted) showErrorSnackBar(context, e.message);
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Eroare neașteptată: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

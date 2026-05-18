@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/config/api_config.dart';
-import 'package:hostera24/config/google_auth_config.dart';
 import 'package:hostera24/screens/qr_creator_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/widgets/error_snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
-  bool _isGoogleLoading = false;
 
   @override
   void dispose() {
@@ -27,8 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-
-  bool get _busy => _isLoading || _isGoogleLoading;
 
   Future<void> _goToHome(AuthSession session) async {
     if (!mounted) return;
@@ -40,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _onLogin() async {
-    if (!_formKey.currentState!.validate() || _busy) return;
+    if (!_formKey.currentState!.validate() || _isLoading) return;
 
     setState(() => _isLoading = true);
 
@@ -51,31 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       await _goToHome(session);
     } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      if (mounted) showErrorSnackBar(context, e.message);
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Eroare neașteptată: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _onGoogleLogin() async {
-    if (_busy) return;
-
-    setState(() => _isGoogleLoading = true);
-
-    try {
-      final session = await AuthService.instance.loginWithGoogle();
-      await _goToHome(session);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      if (e.message.contains('anulată')) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
-    } finally {
-      if (mounted) setState(() => _isGoogleLoading = false);
     }
   }
 
@@ -156,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 28),
                     FilledButton(
-                      onPressed: _busy ? null : _onLogin,
+                      onPressed: _isLoading ? null : _onLogin,
                       child: _isLoading
                           ? const SizedBox(
                               height: 22,
@@ -168,47 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : const Text('Intră în cont'),
                     ),
-                    const SizedBox(height: 20),
-                    const Row(
-                      children: [
-                        Expanded(child: Divider()),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'sau',
-                            style: TextStyle(color: AppColors.textSecondary),
-                          ),
-                        ),
-                        Expanded(child: Divider()),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    OutlinedButton.icon(
-                      onPressed: _busy ? null : _onGoogleLogin,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: AppColors.border),
-                      ),
-                      icon: _isGoogleLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.g_mobiledata, size: 28),
-                      label: const Text('Continuă cu Google'),
-                    ),
-                    if (!GoogleAuthConfig.isConfigured) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Google: adaugă --dart-define=GOOGLE_WEB_CLIENT_ID=... la flutter run',
-                        style: TextStyle(
-                          color: AppColors.textSecondary.withValues(alpha: 0.85),
-                          fontSize: 12,
-                          height: 1.35,
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.all(14),

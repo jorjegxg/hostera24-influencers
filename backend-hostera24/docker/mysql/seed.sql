@@ -1,5 +1,6 @@
--- Date demo (rulat după schema.sql la db:reset)
--- Parolă pentru toate conturile demo: password
+-- Date demo (UTF-8 / utf8mb4) — parolă: password
+
+SET NAMES utf8mb4;
 
 INSERT INTO firme (id, email, parola_hash) VALUES
 (1, 'cafe@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),

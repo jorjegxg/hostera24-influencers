@@ -1,6 +1,11 @@
--- Schema Hostera24 (UTF-8 / utf8mb4)
+-- Reset complet Hostera24 (UTF-8 / utf8mb4)
+-- Parolă pentru conturile demo: password
 
 SET NAMES utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS scanari, coduri_qr, firme;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- Tabela firmelor (conturi)
 CREATE TABLE firme (
@@ -28,3 +33,20 @@ CREATE TABLE scanari (
     scanat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cod_qr_id) REFERENCES coduri_qr(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Date demo
+INSERT INTO firme (id, email, parola_hash) VALUES
+(1, 'cafe@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(2, 'hotel@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+INSERT INTO coduri_qr (id, firma_id, cod, nume_postare_clienti, nume_postare_firme) VALUES
+(1, 1, 'CAFE-INSTA-2026', 'Urmărește-ne pe Instagram', 'Campanie Instagram martie'),
+(2, 1, 'CAFE-GOOGLE-2026', 'Lasă-ne un review pe Google', 'Campanie Google Reviews'),
+(3, 2, 'HOTEL-TIKTOK-2026', 'Urmărește hotelul pe TikTok', 'TikTok Q1');
+
+INSERT INTO scanari (cod_qr_id, scanat_la) VALUES
+(1, NOW() - INTERVAL 2 DAY),
+(1, NOW() - INTERVAL 1 DAY),
+(1, NOW() - INTERVAL 3 HOUR),
+(2, NOW() - INTERVAL 5 HOUR),
+(3, NOW() - INTERVAL 1 HOUR);

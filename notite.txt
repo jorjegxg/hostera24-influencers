@@ -1,7 +1,5 @@
 backend : npm run start:dev
-flutter : flutter run --dart-define=API_BASE_URL=http://192.168.1.1:3000 --dart-define=GOOGLE_WEB_CLIENT_ID=ID_WEB.apps.googleusercontent.com
 
-Google Cloud Console:
-1. Credentials → OAuth client ID → Web application → Client ID în .env GOOGLE_CLIENT_ID + dart-define GOOGLE_WEB_CLIENT_ID
-2. Android OAuth: package com.hostera24.hostera24 + SHA-1 debug keystore
-3. iOS OAuth + URL scheme (reversed client id) în Info.plist
+flutter : flutter run --dart-define=API_BASE_URL=http://192.168.1.12:3000
+
+db reset : npm run db:reset

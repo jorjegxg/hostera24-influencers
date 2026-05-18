@@ -6,6 +6,7 @@ import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:hostera24/widgets/qr_entry_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -41,10 +42,9 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
         _previewEntry = entries.isNotEmpty ? entries.first : null;
       });
     } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      if (mounted) showErrorSnackBar(context, e.message);
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Eroare la încărcare: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -80,10 +80,9 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
         }
       });
     } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      if (mounted) showErrorSnackBar(context, e.message);
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Eroare la ștergere: $e');
     }
   }
 

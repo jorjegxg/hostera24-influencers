@@ -24,6 +24,7 @@ import { Scanare } from './scanari/scanare.entity';
         username: config.get<string>('DATABASE_USER', 'hostera24'),
         password: config.get<string>('DATABASE_PASSWORD', 'hostera24'),
         database: config.get<string>('DATABASE_NAME', 'hostera24'),
+        charset: 'utf8mb4',
         entities: [Firma, CodQr, Scanare],
         synchronize: false,
       }),

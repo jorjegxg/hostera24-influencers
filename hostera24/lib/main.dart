@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hostera24/config/google_auth_config.dart';
 import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/screens/qr_creator_screen.dart';
 import 'package:hostera24/services/auth_service.dart';
-import 'package:hostera24/services/google_auth_service.dart';
 import 'package:hostera24/theme/app_theme.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (GoogleAuthConfig.isConfigured) {
-    await GoogleAuthService.instance.ensureInitialized();
-  }
+void main() {
   runApp(const Hostera24App());
 }
 

@@ -1,6 +1,5 @@
 import 'package:hostera24/services/api_client.dart';
 import 'package:hostera24/services/api_exception.dart';
-import 'package:hostera24/services/google_auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthSession {
@@ -50,23 +49,9 @@ class AuthService {
       return _persistSession(data);
     } on ApiException {
       rethrow;
-    } catch (_) {
+    } catch (e) {
       throw ApiException(
-        'Nu mă pot conecta la server. Verifică că backend-ul rulează.',
-      );
-    }
-  }
-
-  Future<AuthSession> loginWithGoogle() async {
-    try {
-      final idToken = await GoogleAuthService.instance.signInForIdToken();
-      final data = await api.loginWithGoogle(idToken: idToken);
-      return _persistSession(data);
-    } on ApiException {
-      rethrow;
-    } catch (_) {
-      throw ApiException(
-        'Nu mă pot conecta la server. Verifică că backend-ul rulează.',
+        'Nu mă pot conecta la server. Verifică că backend-ul rulează. ($e)',
       );
     }
   }
@@ -92,7 +77,6 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await GoogleAuthService.instance.signOut();
     _session = null;
     api.setToken(null);
     final prefs = await SharedPreferences.getInstance();

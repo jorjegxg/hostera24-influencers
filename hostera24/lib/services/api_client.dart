@@ -30,20 +30,6 @@ class ApiClient {
     throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
   }
 
-  Future<Map<String, dynamic>> loginWithGoogle({required String idToken}) async {
-    final response = await _http.post(
-      Uri.parse('${ApiConfig.baseUrl}/auth/google'),
-      headers: _jsonHeaders(),
-      body: jsonEncode({'idToken': idToken}),
-    );
-
-    final data = _decodeMap(response);
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return data;
-    }
-    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
-  }
-
   Future<List<QrEntry>> fetchCoduriQr() async {
     final response = await _http.get(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr'),
