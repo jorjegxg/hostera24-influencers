@@ -35,7 +35,7 @@ const FIRME_FLOW_STEPS = [
   {
     icon: "💸",
     title: "Plătești doar rezultatele",
-    body: "20% din vânzările reale generate prin campanie.",
+    body: "Un procent din vânzările reale generate prin campanie.",
   },
 ] as const;
 
@@ -54,7 +54,7 @@ export function FirmeSection() {
             Vrei clienți noi fără risc?
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
-            Plătești doar 20% din vânzare la clienții aduși de agenție. Zero cost upfront.
+            Plătești doar un procent din vânzare la clienții aduși de agenție. Zero setup cost.
           </p>
         </div>
         <div className="flex justify-center lg:justify-end">
@@ -70,11 +70,11 @@ export function FirmeSection() {
           id="heading-pasi-firme"
           className="text-2xl font-bold text-[var(--color-text-primary)]"
         >
-          Patru pași: de la codul QR la clienți noi
+          Cum ajungi la clienți noi în 4 pași
         </h2>
         <p className="mt-3 max-w-3xl text-lg text-[var(--color-text-secondary)]">
-          Totul pornește din aplicația HOSTERA24; agenția preia codul și îl
-          pune în fața publicului — tu vezi rezultatele.
+          HOSTERA24 conectează firmele cu agențiile de marketing — fără să
+          gestionezi singur promovarea sau tracking-ul.
         </p>
         <div className="mt-12 overflow-x-auto pb-2 md:overflow-visible">
           <ol className="grid min-w-[600px] list-none grid-cols-4 gap-3 md:min-w-0 md:gap-4 lg:gap-6">
@@ -242,7 +242,7 @@ export function FirmeSection() {
           Structura financiară
         </h2>
         <p className="mt-2 text-[var(--color-text-secondary)]">
-          20% din vânzare se împarte așa:
+          Procentul din vânzare se împarte așa:
         </p>
         <div className="mt-6 overflow-x-auto rounded-xl border border-neutral-200 bg-[var(--color-surface)]">
           <table className="w-full min-w-[320px] text-left text-sm">
@@ -279,7 +279,7 @@ export function FirmeSection() {
           </table>
         </div>
         <p className="mt-4 text-sm text-[var(--color-text-secondary)]">
-          Tu nu plătești nimic în plus. Totul vine din același 20%.
+          Tu nu plătești nimic în plus. Totul vine din același procent.
         </p>
       </section>
 
@@ -369,7 +369,7 @@ export function FirmeSection() {
           </li>
           <li className="flex gap-2">
             <span aria-hidden>✅</span>
-            <span>Plătești performanța – 20% clar și simplu</span>
+            <span>Plătești performanța – un procent clar și simplu</span>
           </li>
           <li className="flex gap-2">
             <span aria-hidden>✅</span>
@@ -392,7 +392,7 @@ export function FirmeSection() {
         </h2>
         <p className="mt-2 font-medium text-[var(--color-text-secondary)]">
           20 clienți × 100 lei = 2000 lei vânzări (baza de calcul pentru
-          împărțirea celor 20%)
+          împărțirea procentului)
         </p>
         <div className="mt-6 overflow-x-auto rounded-xl border border-neutral-200 bg-[var(--color-surface)]">
           <table className="w-full min-w-[300px] text-left text-sm">
@@ -454,13 +454,13 @@ export function FirmeSection() {
           </div>
           <div>
             <dt className="font-semibold text-[var(--color-text-primary)]">
-              Se plătesc cei 20% pentru fiecare client sau doar pentru cei aduși
+              Se plătește procentul pentru fiecare client sau doar pentru cei aduși
               de agenția de marketing (cu cod QR scanat)?
             </dt>
             <dd className="mt-2 text-[var(--color-text-secondary)]">
               Doar pentru clienții care vin prin campanie — cei pentru care se
               validează codul QR la tine. Clienții care nu provin din acest canal
-              nu intră în calculul celor 20%. Bineînțeles, nu toți cei care te
+              nu intră în calculul procentului. Bineînțeles, nu toți cei care te
               descoperă din videoclip vor veni și cu codul QR; pentru acei
               clienți nu plătești nimic.
             </dd>

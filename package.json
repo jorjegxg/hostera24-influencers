@@ -1,0 +1,7 @@
+{
+  "name": "hostera24-influencers",
+  "private": true,
+  "scripts": {
+    "db:reset": "bash scripts/db-reset.sh"
+  }
+}

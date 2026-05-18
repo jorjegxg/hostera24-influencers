@@ -10,7 +10,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "HOSTERA24 — Clienți noi, plată doar pe rezultate",
   description:
-    "Platformă pentru firme și agenții: urmărire vânzări prin QR, comision clar, zero cost upfront.",
+    "Platformă pentru firme și agenții: urmărire vânzări prin QR, comision clar, zero setup cost.",
 };
 
 export default function RootLayout({

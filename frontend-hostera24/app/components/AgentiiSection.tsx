@@ -95,7 +95,7 @@ export function AgentiiSection() {
           </table>
         </div>
         <p className="mt-4 text-sm text-[var(--color-text-secondary)]">
-          Firma plătește doar 20% din vânzare. Tu îți primești partea ta.
+          Firma plătește doar un procent din vânzare. Tu îți primești partea ta.
         </p>
       </section>
 
