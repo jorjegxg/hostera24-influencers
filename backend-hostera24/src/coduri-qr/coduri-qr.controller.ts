@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -12,6 +13,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CoduriQrService } from './coduri-qr.service';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
+import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
 
 type AuthRequest = { user: { firmaId: number; email: string } };
 
@@ -30,8 +32,17 @@ export class CoduriQrController {
     return this.coduriQrService.create(req.user.firmaId, dto);
   }
 
+  @Patch(':id')
+  update(
+    @Req() req: AuthRequest,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateCodQrDto,
+  ) {
+    return this.coduriQrService.update(req.user.firmaId, id, dto);
+  }
+
   @Delete(':id')
   remove(@Req() req: AuthRequest, @Param('id', ParseIntPipe) id: number) {
-    return this.coduriQrService.remove(req.user.firmaId, id);
+    return this.coduriQrService.softDelete(req.user.firmaId, id);
   }
 }

@@ -6,7 +6,10 @@ import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 
 class AddQrScreen extends StatefulWidget {
-  const AddQrScreen({super.key});
+  const AddQrScreen({super.key, this.entry});
+
+  /// Dacă e setat, ecranul funcționează în mod editare.
+  final QrEntry? entry;
 
   @override
   State<AddQrScreen> createState() => _AddQrScreenState();
@@ -14,9 +17,22 @@ class AddQrScreen extends StatefulWidget {
 
 class _AddQrScreenState extends State<AddQrScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _firmaController = TextEditingController();
-  final _clientController = TextEditingController();
+  late final TextEditingController _firmaController;
+  late final TextEditingController _clientController;
   bool _isSubmitting = false;
+
+  bool get _isEditing => widget.entry != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _firmaController = TextEditingController(
+      text: widget.entry?.firmaDescription ?? '',
+    );
+    _clientController = TextEditingController(
+      text: widget.entry?.clientDescription ?? '',
+    );
+  }
 
   @override
   void dispose() {
@@ -31,10 +47,19 @@ class _AddQrScreenState extends State<AddQrScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final entry = await AuthService.instance.api.createCodQr(
-        numePostareClienti: _clientController.text.trim(),
-        numePostareFirme: _firmaController.text.trim(),
-      );
+      final QrEntry entry;
+      if (_isEditing) {
+        entry = await AuthService.instance.api.updateCodQr(
+          id: widget.entry!.id,
+          numePostareClienti: _clientController.text.trim(),
+          numePostareFirme: _firmaController.text.trim(),
+        );
+      } else {
+        entry = await AuthService.instance.api.createCodQr(
+          numePostareClienti: _clientController.text.trim(),
+          numePostareFirme: _firmaController.text.trim(),
+        );
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop<QrEntry>(entry);
@@ -51,7 +76,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cod QR nou'),
+        title: Text(_isEditing ? 'Editează cod QR' : 'Cod QR nou'),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -64,6 +89,17 @@ class _AddQrScreenState extends State<AddQrScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (_isEditing) ...[
+                      Text(
+                        widget.entry!.cod,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.accent,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     Text(
                       'Date cod QR',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -71,9 +107,11 @@ class _AddQrScreenState extends State<AddQrScreen> {
                           ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Nume intern (firmă) și textul afișat clientului. Codul unic se generează automat pe server.',
-                      style: TextStyle(
+                    Text(
+                      _isEditing
+                          ? 'Modifică textele postării. Codul QR rămâne același.'
+                          : 'Nume intern (firmă) și textul afișat clientului. Codul unic se generează automat pe server.',
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.35,
                       ),
@@ -83,7 +121,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       controller: _firmaController,
                       maxLines: 3,
                       textCapitalization: TextCapitalization.sentences,
-                      autofocus: true,
+                      autofocus: !_isEditing,
                       enabled: !_isSubmitting,
                       decoration: const InputDecoration(
                         labelText: 'Nume postare (firmă)',
@@ -131,8 +169,12 @@ class _AddQrScreenState extends State<AddQrScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Icon(Icons.qr_code),
-                      label: Text(_isSubmitting ? 'Se salvează...' : 'Generează cod QR'),
+                          : Icon(_isEditing ? Icons.save_outlined : Icons.qr_code),
+                      label: Text(
+                        _isSubmitting
+                            ? 'Se salvează...'
+                            : (_isEditing ? 'Salvează modificările' : 'Generează cod QR'),
+                      ),
                     ),
                   ],
                 ),

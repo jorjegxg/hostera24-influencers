@@ -70,6 +70,27 @@ class ApiClient {
     throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
   }
 
+  Future<QrEntry> updateCodQr({
+    required int id,
+    required String numePostareClienti,
+    required String numePostareFirme,
+  }) async {
+    final response = await _http.patch(
+      Uri.parse('${ApiConfig.baseUrl}/coduri-qr/$id'),
+      headers: _authHeaders(),
+      body: jsonEncode({
+        'numePostareClienti': numePostareClienti,
+        'numePostareFirme': numePostareFirme,
+      }),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return QrEntry.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
   Future<void> deleteCodQr(int id) async {
     final response = await _http.delete(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr/$id'),

@@ -31,6 +31,9 @@ export class CodQr {
   @Column({ name: 'nume_postare_firme' })
   numePostareFirme: string;
 
+  @Column({ default: false })
+  sters: boolean;
+
   @CreateDateColumn({ name: 'creat_la' })
   creatLa: Date;
 

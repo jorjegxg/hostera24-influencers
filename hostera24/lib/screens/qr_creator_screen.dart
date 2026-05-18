@@ -69,7 +69,54 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
     );
   }
 
+  Future<void> _openEditScreen(QrEntry entry) async {
+    final updated = await Navigator.of(context).push<QrEntry>(
+      MaterialPageRoute<QrEntry>(
+        builder: (_) => AddQrScreen(entry: entry),
+      ),
+    );
+
+    if (!mounted || updated == null) return;
+
+    setState(() {
+      final index = _entries.indexWhere((e) => e.id == updated.id);
+      if (index >= 0) _entries[index] = updated;
+      if (_previewEntry?.id == updated.id) _previewEntry = updated;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cod QR actualizat')),
+    );
+  }
+
+  Future<bool> _confirmDelete(QrEntry entry) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ștergi codul QR?'),
+        content: Text(
+          'Codul ${entry.cod} va fi marcat ca șters și nu va mai apărea în listă.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Anulează'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Șterge'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   Future<void> _deleteEntry(QrEntry entry) async {
+    final confirmed = await _confirmDelete(entry);
+    if (!confirmed || !mounted) return;
+
     try {
       await AuthService.instance.api.deleteCodQr(entry.id);
       if (!mounted) return;
@@ -79,6 +126,9 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
           _previewEntry = _entries.isNotEmpty ? _entries.first : null;
         }
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cod QR șters')),
+      );
     } on ApiException catch (e) {
       if (mounted) showErrorSnackBar(context, e.message);
     } catch (e) {
@@ -104,7 +154,13 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _QrPreviewSheet(entry: entry),
+      builder: (context) => _QrPreviewSheet(
+        entry: entry,
+        onEdit: () {
+          Navigator.of(context).pop();
+          _openEditScreen(entry);
+        },
+      ),
     );
   }
 
@@ -191,6 +247,7 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
                         child: QrEntryCard(
                           entry: entry,
                           onTap: () => _showQrPreview(entry),
+                          onEdit: () => _openEditScreen(entry),
                           onDelete: () => _deleteEntry(entry),
                         ),
                       ),
@@ -294,9 +351,10 @@ class _InlinePreview extends StatelessWidget {
 }
 
 class _QrPreviewSheet extends StatelessWidget {
-  const _QrPreviewSheet({required this.entry});
+  const _QrPreviewSheet({required this.entry, required this.onEdit});
 
   final QrEntry entry;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -341,15 +399,29 @@ class _QrPreviewSheet extends StatelessWidget {
             text: entry.clientDescription,
           ),
           const SizedBox(height: 20),
-          OutlinedButton.icon(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: entry.payload));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Conținut copiat în clipboard')),
-              );
-            },
-            icon: const Icon(Icons.copy_outlined),
-            label: const Text('Copiază conținut JSON'),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Editează'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: entry.payload));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Conținut copiat în clipboard')),
+                    );
+                  },
+                  icon: const Icon(Icons.copy_outlined),
+                  label: const Text('Copiază'),
+                ),
+              ),
+            ],
           ),
         ],
       ),

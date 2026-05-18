@@ -7,11 +7,13 @@ class QrEntryCard extends StatelessWidget {
     super.key,
     required this.entry,
     required this.onTap,
+    required this.onEdit,
     required this.onDelete,
   });
 
   final QrEntry entry;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
@@ -26,7 +28,7 @@ class QrEntryCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -83,6 +85,11 @@ class QrEntryCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                tooltip: 'Editează',
+                icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
+                onPressed: onEdit,
               ),
               IconButton(
                 tooltip: 'Șterge',
