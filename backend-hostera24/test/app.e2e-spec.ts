@@ -26,6 +26,13 @@ describe('Hostera24 API (e2e)', () => {
       .expect(400);
   });
 
+  it('/auth/register (POST) respinge date invalide', () => {
+    return request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: 'invalid', parola: '123' })
+      .expect(400);
+  });
+
   afterEach(async () => {
     await app.close();
   });

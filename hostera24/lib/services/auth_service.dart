@@ -44,8 +44,25 @@ class AuthService {
     required String email,
     required String parola,
   }) async {
+    return _authenticate(
+      () => api.login(email: email, parola: parola),
+    );
+  }
+
+  Future<AuthSession> register({
+    required String email,
+    required String parola,
+  }) async {
+    return _authenticate(
+      () => api.register(email: email, parola: parola),
+    );
+  }
+
+  Future<AuthSession> _authenticate(
+    Future<Map<String, dynamic>> Function() request,
+  ) async {
     try {
-      final data = await api.login(email: email, parola: parola);
+      final data = await request();
       return _persistSession(data);
     } on ApiException {
       rethrow;

@@ -5,9 +5,11 @@ import 'package:hostera24/main.dart';
 void main() {
   testWidgets('Login screen is shown on launch', (WidgetTester tester) async {
     await tester.pumpWidget(const Hostera24App());
+    await tester.pumpAndSettle();
 
     expect(find.text('Autentificare'), findsOneWidget);
     expect(find.text('Intră în cont'), findsOneWidget);
+    expect(find.text('Nu ai cont? Înregistrează-te'), findsOneWidget);
   });
 
   testWidgets('Can navigate to QR creator after login', (WidgetTester tester) async {

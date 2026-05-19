@@ -43,3 +43,12 @@ flutter (Cursor – recomandat):
 db reset : npm run db:reset
 
 .....
+
+flutter cu backend de production : 
+ flutter run \
+   --dart-define=API_BASE_URL=https://api.hostera24.com \
+   --dart-define=WEB_BASE_URL=https://hostera24.com
+
+flutter run \
+   --dart-define=API_BASE_URL=http://192.168.1.12:3022 \
+   --dart-define=WEB_BASE_URL=http://192.168.1.12:3023

@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
+import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { CodQr } from './coduri-qr/cod-qr.entity';
 import { CoduriQrModule } from './coduri-qr/coduri-qr.module';
 import { Firma } from './firme/firma.entity';
@@ -33,4 +34,8 @@ import { Scanare } from './scanari/scanare.entity';
     CoduriQrModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}

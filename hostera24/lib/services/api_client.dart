@@ -20,10 +20,30 @@ class ApiClient {
     required String email,
     required String parola,
   }) async {
+    return _authRequest(
+      path: '/auth/login',
+      body: {'email': email.trim().toLowerCase(), 'parola': parola},
+    );
+  }
+
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String parola,
+  }) async {
+    return _authRequest(
+      path: '/auth/register',
+      body: {'email': email.trim().toLowerCase(), 'parola': parola},
+    );
+  }
+
+  Future<Map<String, dynamic>> _authRequest({
+    required String path,
+    required Map<String, String> body,
+  }) async {
     final response = await _http.post(
-      Uri.parse('${ApiConfig.baseUrl}/auth/login'),
+      Uri.parse('${ApiConfig.baseUrl}$path'),
       headers: _jsonHeaders(),
-      body: jsonEncode({'email': email.trim().toLowerCase(), 'parola': parola}),
+      body: jsonEncode(body),
     );
 
     final data = _decodeMap(response);

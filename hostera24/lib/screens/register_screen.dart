@@ -1,49 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/screens/home_shell.dart';
-import 'package:hostera24/screens/register_screen.dart';
+import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _goToHome(AuthSession session) async {
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(
         builder: (_) => HomeShell(email: session.email),
       ),
+      (_) => false,
     );
   }
 
-  Future<void> _onLogin() async {
+  Future<void> _onRegister() async {
     if (!_formKey.currentState!.validate() || _isLoading) return;
 
     setState(() => _isLoading = true);
 
     try {
-      final session = await AuthService.instance.login(
+      final session = await AuthService.instance.register(
         email: _emailController.text,
         parola: _passwordController.text,
       );
@@ -74,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const _BrandHeader(),
                     const SizedBox(height: 40),
                     Text(
-                      'Autentificare',
+                      'Creare cont',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
@@ -82,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Introdu emailul și parola contului firmei.',
+                      'Înregistrează firma ta pentru a genera coduri QR.',
                       style: TextStyle(color: AppColors.textSecondary, height: 1.4),
                     ),
                     const SizedBox(height: 28),
@@ -109,8 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _onLogin(),
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         labelText: 'Parolă',
                         prefixIcon: const Icon(Icons.lock_outline),
@@ -129,12 +131,47 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Introdu parola';
                         }
+                        if (value.length < 6) {
+                          return 'Parola trebuie să aibă cel puțin 6 caractere';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: _obscureConfirmPassword,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _onRegister(),
+                      decoration: InputDecoration(
+                        labelText: 'Confirmă parola',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setState(
+                              () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                            );
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Confirmă parola';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Parolele nu coincid';
+                        }
                         return null;
                       },
                     ),
                     const SizedBox(height: 28),
                     FilledButton(
-                      onPressed: _isLoading ? null : _onLogin,
+                      onPressed: _isLoading ? null : _onRegister,
                       child: _isLoading
                           ? const SizedBox(
                               height: 22,
@@ -144,52 +181,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Intră în cont'),
+                          : const Text('Creează cont'),
                     ),
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: _isLoading
                           ? null
                           : () {
-                              Navigator.of(context).push(
+                              Navigator.of(context).pushReplacement(
                                 MaterialPageRoute<void>(
-                                  builder: (_) => const RegisterScreen(),
+                                  builder: (_) => const LoginScreen(),
                                 ),
                               );
                             },
-                      child: const Text('Nu ai cont? Înregistrează-te'),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.accent.withValues(alpha: 0.25),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Demo: cafe@demo.ro / password',
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withValues(alpha: 0.95),
-                              fontSize: 13,
-                              height: 1.35,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Server: ${ApiConfig.baseUrl}',
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withValues(alpha: 0.75),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
+                      child: const Text('Ai deja cont? Autentifică-te'),
                     ),
                   ],
                 ),
