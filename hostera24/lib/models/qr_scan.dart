@@ -16,7 +16,7 @@ class QrScan {
     );
   }
 
-  String get formattedAt => formatDateTimeGmtPlus2(scanatLa);
+  String get formattedAt => formatDateTimeLocal(scanatLa);
 }
 
 String scanariCountLabel(int count) {

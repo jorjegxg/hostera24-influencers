@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { fetchPublicCodQr } from "@/lib/api";
+import { fetchPublicCodQr, resolvePublicCodUrl } from "@/lib/api";
+import { CodQrDisplay } from "./CodQrDisplay";
 import { RecordScan } from "./RecordScan";
 
 type PageProps = {
@@ -27,6 +28,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   const pretRedus = data.pretRedus?.trim();
   const logoUrl = data.firma.logoUrl;
   const numeFirma = firmaDisplayName(data.firma.email);
+  const qrUrl = await resolvePublicCodUrl(data.cod);
 
   return (
     <main className="flex min-h-full flex-col items-center justify-center px-5 py-12">
@@ -69,7 +71,14 @@ export default async function CodQrPublicPage({ params }: PageProps) {
           </p>
         ) : null}
 
-        <p className="mt-8 text-center text-xs text-[var(--color-text-secondary)]">
+        <div className="mt-8 flex justify-center">
+          <CodQrDisplay
+            url={qrUrl}
+            label="Scanează pentru a accesa oferta"
+          />
+        </div>
+
+        <p className="mt-6 text-center text-xs text-[var(--color-text-secondary)]">
           Cod: <span className="font-mono">{data.cod}</span>
         </p>
       </article>

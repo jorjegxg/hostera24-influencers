@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
@@ -9,6 +13,7 @@ import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:hostera24/widgets/qr_entry_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 class QrCreatorScreen extends StatefulWidget {
   const QrCreatorScreen({super.key});
@@ -317,6 +322,79 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
     }
   }
 
+  String _shareMessage() {
+    final url = entry.payload;
+    final client = entry.clientDescription?.trim();
+    if (client != null && client.isNotEmpty) {
+      return '$client\n\n$url';
+    }
+    return 'Scanează codul nostru QR:\n$url';
+  }
+
+  Future<void> _share() async {
+    try {
+      final validation = QrValidator.validate(
+        data: entry.payload,
+        version: QrVersions.auto,
+        errorCorrectionLevel: QrErrorCorrectLevel.M,
+      );
+      if (validation.status != QrValidationStatus.valid) {
+        if (mounted) {
+          showErrorSnackBar(context, 'Nu s-a putut genera codul QR.');
+        }
+        return;
+      }
+
+      final painter = QrPainter.withQr(
+        qr: validation.qrCode!,
+        gapless: true,
+        // ignore: deprecated_member_use — fundal alb necesar la export PNG
+        emptyColor: Colors.white,
+        eyeStyle: const QrEyeStyle(
+          eyeShape: QrEyeShape.square,
+          color: AppColors.textPrimary,
+        ),
+        dataModuleStyle: const QrDataModuleStyle(
+          dataModuleShape: QrDataModuleShape.square,
+          color: AppColors.textPrimary,
+        ),
+      );
+
+      final imageData = await painter.toImageData(
+        512,
+        format: ui.ImageByteFormat.png,
+      );
+      if (imageData == null) {
+        if (mounted) {
+          showErrorSnackBar(context, 'Nu s-a putut crea imaginea.');
+        }
+        return;
+      }
+
+      final dir = await getTemporaryDirectory();
+      final safeCod = entry.cod.replaceAll(RegExp(r'[^\w\-]'), '_');
+      final file = File('${dir.path}/qr_$safeCod.png');
+      await file.writeAsBytes(imageData.buffer.asUint8List());
+
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'image/png', name: 'qr_$safeCod.png')],
+        text: _shareMessage(),
+        subject: 'Cod QR ${entry.cod}',
+      );
+    } catch (e) {
+      if (mounted) {
+        showErrorSnackBar(context, 'Nu s-a putut partaja: $e');
+      }
+    }
+  }
+
+  void _copyLink() {
+    Clipboard.setData(ClipboardData(text: entry.payload));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Link copiat în clipboard')),
+    );
+  }
+
   Future<void> _loadMore() async {
     if (_isLoadingMore || !_hasMore) return;
 
@@ -350,91 +428,138 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        16,
-        24,
-        24 + MediaQuery.paddingOf(context).bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.border,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            entry.cod,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.accent,
-                ),
-          ),
-          const SizedBox(height: 16),
-          _ScanHistorySection(
-            isLoading: _isLoading,
-            isLoadingMore: _isLoadingMore,
-            numarScanari: _numarScanari,
-            scanari: _scanari,
-            hasMore: _hasMore,
-            onLoadMore: _loadMore,
-          ),
-          const SizedBox(height: 20),
-          _QrImage(data: entry.payload),
-          const SizedBox(height: 20),
-          if (entry.pretRedus != null && entry.pretRedus!.trim().isNotEmpty) ...[
-            _DescriptionRow(
-              icon: Icons.sell_outlined,
-              label: 'Preț redus',
-              text: entry.pretRedus,
-            ),
-            const SizedBox(height: 12),
-          ],
-          _DescriptionRow(
-            icon: Icons.business_outlined,
-            label: 'Nume postare (firmă)',
-            text: entry.firmaDescription,
-          ),
-          const SizedBox(height: 12),
-          _DescriptionRow(
-            icon: Icons.person_outline,
-            label: 'Nume postare (client)',
-            text: entry.clientDescription,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: widget.onEdit,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Editează'),
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.88;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + bottomInset),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: entry.payload));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Conținut copiat în clipboard'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.copy_outlined),
-                  label: const Text('Copiază'),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              entry.cod,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.accent,
+                  ),
+            ),
+            const SizedBox(height: 20),
+            _QrImage(data: entry.payload),
+            const SizedBox(height: 20),
+            if (entry.pretRedus != null && entry.pretRedus!.trim().isNotEmpty) ...[
+              _DescriptionRow(
+                icon: Icons.sell_outlined,
+                label: 'Preț redus',
+                text: entry.pretRedus,
+              ),
+              const SizedBox(height: 12),
+            ],
+            _DescriptionRow(
+              icon: Icons.business_outlined,
+              label: 'Nume postare (firmă)',
+              text: entry.firmaDescription,
+            ),
+            const SizedBox(height: 12),
+            _DescriptionRow(
+              icon: Icons.person_outline,
+              label: 'Nume postare (client)',
+              text: entry.clientDescription,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: widget.onEdit,
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Editează'),
+                  ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _share,
+                    icon: const Icon(Icons.share_outlined),
+                    label: const Text('Partajează'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _LinkCopyRow(url: entry.payload, onCopy: _copyLink),
+            const SizedBox(height: 20),
+            _ScanHistorySection(
+              isLoading: _isLoading,
+              isLoadingMore: _isLoadingMore,
+              numarScanari: _numarScanari,
+              scanari: _scanari,
+              hasMore: _hasMore,
+              onLoadMore: _loadMore,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LinkCopyRow extends StatelessWidget {
+  const _LinkCopyRow({required this.url, required this.onCopy});
+
+  final String url;
+  final VoidCallback onCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.accent.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onCopy,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  url,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: onCopy,
+                tooltip: 'Copiază link',
+                icon: const Icon(Icons.copy_outlined, color: AppColors.accent),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

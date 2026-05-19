@@ -20,7 +20,7 @@ class QrEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final time = formatDateTimeGmtPlus2(entry.createdAt);
+    final time = formatDateTimeLocal(entry.createdAt);
 
     final firma = entry.firmaDescription?.trim();
     final client = entry.clientDescription?.trim();
