@@ -2,7 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Flutter (telefon / emulator)",
+      "name": "Flutter (server VPS — hostera24.com)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "cwd": "${workspaceFolder}/hostera24",
+      "toolArgs": [
+        "--dart-define=API_BASE_URL=https://api.hostera24.com",
+        "--dart-define=WEB_BASE_URL=https://hostera24.com"
+      ]
+    },
+    {
+      "name": "Flutter (rețea locală)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
@@ -13,7 +24,7 @@
       ]
     },
     {
-      "name": "Flutter (Windows desktop)",
+      "name": "Flutter (Windows desktop — local)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",

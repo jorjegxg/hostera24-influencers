@@ -5,7 +5,22 @@ backend : cd backend-hostera24 && npm run start:dev
 env : cp .env.example .env   (toate variabilele la rădăcina proiectului)
 
 flutter (terminal): cd hostera24 && flutter run
-  → citește API_BASE_URL și WEB_BASE_URL din ../.env   
+  → citește API_BASE_URL și WEB_BASE_URL din ../.env
+
+flutter (backend pe server — hostera24.com):
+  → Cursor: Run and Debug → „Flutter (server VPS — hostera24.com)” → F5
+  → terminal:
+    cd hostera24 && flutter run \
+      --dart-define=API_BASE_URL=https://api.hostera24.com \
+      --dart-define=WEB_BASE_URL=https://hostera24.com
+  → sau în ../.env (fără dart-define):
+    API_BASE_URL=https://api.hostera24.com
+    WEB_BASE_URL=https://hostera24.com
+  → telefonul trebuie să aibă internet; API trebuie să fie sus pe VPS (docker compose)
+
+flutter (rețea locală — Docker pe PC):
+  → Run and Debug → „Flutter (rețea locală)”
+  → IP-ul din .env / launch.json = IP-ul PC-ului (nu localhost pe telefon fizic)
 
 next.js : cd frontend-hostera24 && npm run dev
   → citește NEXT_PUBLIC_* din ../.env
@@ -17,7 +32,7 @@ next.js : cd frontend-hostera24 && npm run dev
 
 flutter (Cursor – recomandat):
 
-  → Run and Debug (Ctrl+Shift+D) → „Flutter (telefon / emulator)” → F5
+  → Run and Debug (Ctrl+Shift+D) → alege configurația → F5
 
   → la salvare (.dart) = hot reload automat
 
@@ -27,4 +42,3 @@ flutter (Cursor – recomandat):
 
 db reset : npm run db:reset
 
-.
