@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hostera24/models/qr_entry.dart';
-import 'package:hostera24/models/qr_entry_detail.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
@@ -270,31 +269,41 @@ class _QrPreviewSheet extends StatefulWidget {
 }
 
 class _QrPreviewSheetState extends State<_QrPreviewSheet> {
-  QrEntryDetail? _detail;
+  static const _pageSize = 10;
+
+  final List<QrScan> _scanari = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _hasMore = false;
+  int _nextPage = 1;
+  int _numarScanari = 0;
 
   QrEntry get entry => widget.entry;
-
-  int get _numarScanari => _detail?.numarScanari ?? entry.numarScanari;
-
-  List<QrScan> get _scanari => _detail?.scanari ?? const [];
 
   @override
   void initState() {
     super.initState();
-    _loadDetail();
+    _numarScanari = entry.numarScanari;
+    _loadInitial();
   }
 
-  Future<void> _loadDetail() async {
+  Future<void> _loadInitial() async {
     try {
-      final detail =
-          await AuthService.instance.api.fetchCodQrDetail(entry.id);
-      if (mounted) {
-        setState(() {
-          _detail = detail;
-          _isLoading = false;
-        });
-      }
+      final page = await AuthService.instance.api.fetchCodQrScanari(
+        entry.id,
+        page: 1,
+        limit: _pageSize,
+      );
+      if (!mounted) return;
+      setState(() {
+        _numarScanari = page.total;
+        _scanari
+          ..clear()
+          ..addAll(page.scanari);
+        _hasMore = page.hasMore;
+        _nextPage = 2;
+        _isLoading = false;
+      });
     } on ApiException catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -304,6 +313,37 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
       if (mounted) {
         setState(() => _isLoading = false);
         showErrorSnackBar(context, 'Eroare la încărcarea scanărilor: $e');
+      }
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    setState(() => _isLoadingMore = true);
+
+    try {
+      final page = await AuthService.instance.api.fetchCodQrScanari(
+        entry.id,
+        page: _nextPage,
+        limit: _pageSize,
+      );
+      if (!mounted) return;
+      setState(() {
+        _scanari.addAll(page.scanari);
+        _hasMore = page.hasMore;
+        _nextPage++;
+        _isLoadingMore = false;
+      });
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingMore = false);
+        showErrorSnackBar(context, e.message);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingMore = false);
+        showErrorSnackBar(context, 'Eroare la încărcare: $e');
       }
     }
   }
@@ -339,8 +379,11 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
           const SizedBox(height: 16),
           _ScanHistorySection(
             isLoading: _isLoading,
+            isLoadingMore: _isLoadingMore,
             numarScanari: _numarScanari,
             scanari: _scanari,
+            hasMore: _hasMore,
+            onLoadMore: _loadMore,
           ),
           const SizedBox(height: 20),
           _QrImage(data: entry.payload),
@@ -397,16 +440,59 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
   }
 }
 
-class _ScanHistorySection extends StatelessWidget {
+class _ScanHistorySection extends StatefulWidget {
   const _ScanHistorySection({
     required this.isLoading,
+    required this.isLoadingMore,
     required this.numarScanari,
     required this.scanari,
+    required this.hasMore,
+    required this.onLoadMore,
   });
 
   final bool isLoading;
+  final bool isLoadingMore;
   final int numarScanari;
   final List<QrScan> scanari;
+  final bool hasMore;
+  final VoidCallback onLoadMore;
+
+  @override
+  State<_ScanHistorySection> createState() => _ScanHistorySectionState();
+}
+
+class _ScanHistorySectionState extends State<_ScanHistorySection> {
+  bool _loadMoreScheduled = false;
+
+  bool get _showFooter =>
+      widget.hasMore || widget.isLoadingMore;
+
+  int get _itemCount =>
+      widget.scanari.length + (_showFooter ? 1 : 0);
+
+  bool _handleScroll(ScrollNotification notification) {
+    if (widget.isLoading ||
+        widget.isLoadingMore ||
+        !widget.hasMore ||
+        _loadMoreScheduled) {
+      return false;
+    }
+
+    if (notification.metrics.pixels >=
+        notification.metrics.maxScrollExtent - 64) {
+      _loadMoreScheduled = true;
+      widget.onLoadMore();
+    }
+    return false;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ScanHistorySection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.isLoadingMore) {
+      _loadMoreScheduled = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -421,13 +507,13 @@ class _ScanHistorySection extends StatelessWidget {
                 const Icon(Icons.history, color: AppColors.accent, size: 22),
                 const SizedBox(width: 10),
                 Text(
-                  scanariCountLabel(numarScanari),
+                  scanariCountLabel(widget.numarScanari),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
-                if (isLoading) ...[
+                if (widget.isLoading) ...[
                   const Spacer(),
                   const SizedBox(
                     width: 18,
@@ -437,9 +523,9 @@ class _ScanHistorySection extends StatelessWidget {
                 ],
               ],
             ),
-            if (!isLoading) ...[
+            if (!widget.isLoading) ...[
               const SizedBox(height: 12),
-              if (scanari.isEmpty)
+              if (widget.scanari.isEmpty)
                 const Text(
                   'Nicio scanare încă',
                   style: TextStyle(
@@ -448,32 +534,53 @@ class _ScanHistorySection extends StatelessWidget {
                   ),
                 )
               else
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 200),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: scanari.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 12),
-                    itemBuilder: (context, index) {
-                      final scan = scanari[index];
-                      return Row(
-                        children: [
-                          Icon(
-                            Icons.qr_code_scanner,
-                            size: 18,
-                            color: AppColors.textSecondary.withValues(
-                              alpha: 0.8,
+                SizedBox(
+                  height: 220,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: _handleScroll,
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: _itemCount,
+                      itemBuilder: (context, index) {
+                        if (index >= widget.scanari.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            scan.formattedAt,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ],
-                      );
-                    },
+                          );
+                        }
+
+                        final scan = widget.scanari[index];
+                        return Column(
+                          children: [
+                            if (index > 0) const Divider(height: 12),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.qr_code_scanner,
+                                  size: 18,
+                                  color: AppColors.textSecondary.withValues(
+                                    alpha: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  scan.formattedAt,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
             ],

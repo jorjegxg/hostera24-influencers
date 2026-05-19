@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CoduriQrService } from './coduri-qr.service';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
 import { ScanCodQrDto } from './dto/scan-cod-qr.dto';
+import { ScanariPageQueryDto } from './dto/scanari-page-query.dto';
 import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
 
 type AuthRequest = { user: { firmaId: number; email: string } };
@@ -36,6 +38,20 @@ export class CoduriQrController {
   @Post('scan')
   scan(@Req() req: AuthRequest, @Body() dto: ScanCodQrDto) {
     return this.coduriQrService.scan(req.user.firmaId, dto.payload);
+  }
+
+  @Get(':id/scanari')
+  findScanari(
+    @Req() req: AuthRequest,
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: ScanariPageQueryDto,
+  ) {
+    return this.coduriQrService.findScanariPage(
+      req.user.firmaId,
+      id,
+      query.page ?? 1,
+      query.limit ?? 10,
+    );
   }
 
   @Get(':id')

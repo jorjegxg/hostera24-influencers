@@ -33,9 +33,8 @@ export class CoduriQrService {
   async findOneForFirma(firmaId: number, id: number) {
     const cod = await this.findActiveOrThrow(firmaId, id);
 
-    const scanari = await this.scanariRepo.find({
+    const numarScanari = await this.scanariRepo.count({
       where: { codQrId: id },
-      order: { scanatLa: 'DESC' },
     });
 
     return {
@@ -45,11 +44,37 @@ export class CoduriQrService {
       numePostareFirme: cod.numePostareFirme,
       pretRedus: cod.pretRedus,
       creatLa: cod.creatLa,
-      numarScanari: scanari.length,
+      numarScanari,
+    };
+  }
+
+  async findScanariPage(
+    firmaId: number,
+    id: number,
+    page: number,
+    limit: number,
+  ) {
+    await this.findActiveOrThrow(firmaId, id);
+
+    const take = limit;
+    const skip = (page - 1) * take;
+
+    const [scanari, total] = await this.scanariRepo.findAndCount({
+      where: { codQrId: id },
+      order: { scanatLa: 'DESC' },
+      take,
+      skip,
+    });
+
+    return {
       scanari: scanari.map((s) => ({
         id: s.id,
         scanatLa: s.scanatLa,
       })),
+      total,
+      page,
+      limit: take,
+      hasMore: skip + scanari.length < total,
     };
   }
 

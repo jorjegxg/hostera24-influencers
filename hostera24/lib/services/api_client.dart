@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_entry_detail.dart';
+import 'package:hostera24/models/qr_scan_page.dart';
 import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_exception.dart';
 
@@ -61,6 +62,27 @@ class ApiClient {
     final data = _decodeMap(response);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return QrEntryDetail.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
+  Future<QrScanPage> fetchCodQrScanari(
+    int id, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final uri = Uri.parse('${ApiConfig.baseUrl}/coduri-qr/$id/scanari').replace(
+      queryParameters: {
+        'page': page.toString(),
+        'limit': limit.toString(),
+      },
+    );
+
+    final response = await _http.get(uri, headers: _authHeaders());
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return QrScanPage.fromJson(data);
     }
     throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
   }
