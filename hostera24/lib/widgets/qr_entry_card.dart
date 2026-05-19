@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/utils/datetime_format.dart';
 
 class QrEntryCard extends StatelessWidget {
   const QrEntryCard({
@@ -18,10 +20,7 @@ class QrEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final d = entry.createdAt;
-    final time =
-        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} '
-        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    final time = formatDateTimeGmtPlus2(entry.createdAt);
 
     final firma = entry.firmaDescription?.trim();
     final client = entry.clientDescription?.trim();
@@ -50,14 +49,38 @@ class QrEntryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      entry.cod,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.accent,
-                        fontSize: 13,
-                        letterSpacing: 0.3,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.cod,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.accent,
+                              fontSize: 13,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            scanariCountLabel(entry.numarScanari),
+                            style: const TextStyle(
+                              color: AppColors.accent,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     if (pret != null && pret.isNotEmpty) ...[
                       const SizedBox(height: 4),

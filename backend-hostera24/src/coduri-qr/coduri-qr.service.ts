@@ -21,10 +21,36 @@ export class CoduriQrService {
   ) {}
 
   findAllForFirma(firmaId: number) {
-    return this.coduriRepo.find({
-      where: { firmaId, sters: false },
-      order: { creatLa: 'DESC' },
+    return this.coduriRepo
+      .createQueryBuilder('cod')
+      .loadRelationCountAndMap('cod.numarScanari', 'cod.scanari')
+      .where('cod.firmaId = :firmaId', { firmaId })
+      .andWhere('cod.sters = :sters', { sters: false })
+      .orderBy('cod.creatLa', 'DESC')
+      .getMany();
+  }
+
+  async findOneForFirma(firmaId: number, id: number) {
+    const cod = await this.findActiveOrThrow(firmaId, id);
+
+    const scanari = await this.scanariRepo.find({
+      where: { codQrId: id },
+      order: { scanatLa: 'DESC' },
     });
+
+    return {
+      id: cod.id,
+      cod: cod.cod,
+      numePostareClienti: cod.numePostareClienti,
+      numePostareFirme: cod.numePostareFirme,
+      pretRedus: cod.pretRedus,
+      creatLa: cod.creatLa,
+      numarScanari: scanari.length,
+      scanari: scanari.map((s) => ({
+        id: s.id,
+        scanatLa: s.scanatLa,
+      })),
+    };
   }
 
   async create(firmaId: number, dto: CreateCodQrDto) {
@@ -76,10 +102,14 @@ export class CoduriQrService {
       this.scanariRepo.create({ codQrId: entry.id }),
     );
 
+    const numarScanari = await this.scanariRepo.count({
+      where: { codQrId: entry.id },
+    });
+
     const base = this.toPublicEntry(entry);
 
     if (entry.firmaId === firmaId) {
-      return { status: 'own' as const, ...base };
+      return { status: 'own' as const, ...base, numarScanari };
     }
 
     return {

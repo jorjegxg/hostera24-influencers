@@ -5,6 +5,7 @@ class ScanResult {
     this.numePostareClienti,
     this.numePostareFirme,
     this.pretRedus,
+    this.numarScanari,
   });
 
   final ScanStatus status;
@@ -12,6 +13,7 @@ class ScanResult {
   final String? numePostareClienti;
   final String? numePostareFirme;
   final String? pretRedus;
+  final int? numarScanari;
 
   bool get isOwn => status == ScanStatus.own;
   bool get isNotFound => status == ScanStatus.notFound;
@@ -27,6 +29,7 @@ class ScanResult {
       numePostareClienti: json['numePostareClienti'] as String?,
       numePostareFirme: json['numePostareFirme'] as String?,
       pretRedus: json['pretRedus'] as String?,
+      numarScanari: json['numarScanari'] as int?,
     );
   }
 }

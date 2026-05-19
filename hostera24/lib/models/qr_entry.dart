@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:hostera24/utils/datetime_format.dart';
+
 class QrEntry {
   const QrEntry({
     required this.id,
@@ -8,6 +10,7 @@ class QrEntry {
     this.clientDescription,
     this.pretRedus,
     required this.createdAt,
+    this.numarScanari = 0,
   });
 
   final int id;
@@ -16,6 +19,7 @@ class QrEntry {
   final String? clientDescription;
   final String? pretRedus;
   final DateTime createdAt;
+  final int numarScanari;
 
   factory QrEntry.fromJson(Map<String, dynamic> json) {
     return QrEntry(
@@ -24,7 +28,8 @@ class QrEntry {
       firmaDescription: json['numePostareFirme'] as String?,
       clientDescription: json['numePostareClienti'] as String?,
       pretRedus: json['pretRedus'] as String?,
-      createdAt: DateTime.parse(json['creatLa'] as String),
+      createdAt: parseApiDateTime(json['creatLa'] as String),
+      numarScanari: json['numarScanari'] as int? ?? 0,
     );
   }
 
@@ -46,6 +51,7 @@ class QrEntry {
     String? clientDescription,
     String? pretRedus,
     DateTime? createdAt,
+    int? numarScanari,
   }) {
     return QrEntry(
       id: id ?? this.id,
@@ -54,6 +60,7 @@ class QrEntry {
       clientDescription: clientDescription ?? this.clientDescription,
       pretRedus: pretRedus ?? this.pretRedus,
       createdAt: createdAt ?? this.createdAt,
+      numarScanari: numarScanari ?? this.numarScanari,
     );
   }
 }

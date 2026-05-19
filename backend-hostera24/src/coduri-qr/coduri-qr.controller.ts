@@ -38,6 +38,14 @@ export class CoduriQrController {
     return this.coduriQrService.scan(req.user.firmaId, dto.payload);
   }
 
+  @Get(':id')
+  findOne(
+    @Req() req: AuthRequest,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.coduriQrService.findOneForFirma(req.user.firmaId, id);
+  }
+
   @Patch(':id')
   update(
     @Req() req: AuthRequest,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_entry_detail.dart';
 import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_exception.dart';
 
@@ -49,6 +50,19 @@ class ApiClient {
       _messageFromBody(data),
       statusCode: response.statusCode,
     );
+  }
+
+  Future<QrEntryDetail> fetchCodQrDetail(int id) async {
+    final response = await _http.get(
+      Uri.parse('${ApiConfig.baseUrl}/coduri-qr/$id'),
+      headers: _authHeaders(),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return QrEntryDetail.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
   }
 
   Future<ScanResult> scanCodQr(String payload) async {

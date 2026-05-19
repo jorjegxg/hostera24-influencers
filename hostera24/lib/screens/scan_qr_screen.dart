@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
@@ -408,12 +409,22 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Acest cod QR a fost creat de firma ta.',
+                      'Acest cod QR este valid.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.35,
                       ),
                     ),
+                    if (result.numarScanari != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        scanariCountLabel(result.numarScanari!),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.accent,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -439,15 +450,6 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
           text: result.numePostareFirme!,
           highlighted:
               result.pretRedus == null || result.pretRedus!.trim().isEmpty,
-        ),
-      ],
-      if (result.numePostareClienti != null &&
-          result.numePostareClienti!.trim().isNotEmpty) ...[
-        const SizedBox(height: 12),
-        _InfoCard(
-          icon: Icons.person_outline,
-          label: 'Mesaj pentru client',
-          text: result.numePostareClienti!,
         ),
       ],
     ];
@@ -524,7 +526,7 @@ class _OwnScanSuccessAnimation extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Acest cod QR aparține firmei tale',
+                    'Acest cod QR este valid.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textSecondary,

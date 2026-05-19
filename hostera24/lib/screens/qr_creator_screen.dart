@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_entry_detail.dart';
+import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
@@ -257,11 +259,54 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _QrPreviewSheet extends StatelessWidget {
+class _QrPreviewSheet extends StatefulWidget {
   const _QrPreviewSheet({required this.entry, required this.onEdit});
 
   final QrEntry entry;
   final VoidCallback onEdit;
+
+  @override
+  State<_QrPreviewSheet> createState() => _QrPreviewSheetState();
+}
+
+class _QrPreviewSheetState extends State<_QrPreviewSheet> {
+  QrEntryDetail? _detail;
+  bool _isLoading = true;
+
+  QrEntry get entry => widget.entry;
+
+  int get _numarScanari => _detail?.numarScanari ?? entry.numarScanari;
+
+  List<QrScan> get _scanari => _detail?.scanari ?? const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetail();
+  }
+
+  Future<void> _loadDetail() async {
+    try {
+      final detail =
+          await AuthService.instance.api.fetchCodQrDetail(entry.id);
+      if (mounted) {
+        setState(() {
+          _detail = detail;
+          _isLoading = false;
+        });
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        showErrorSnackBar(context, e.message);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        showErrorSnackBar(context, 'Eroare la încărcarea scanărilor: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -291,6 +336,12 @@ class _QrPreviewSheet extends StatelessWidget {
                   color: AppColors.accent,
                 ),
           ),
+          const SizedBox(height: 16),
+          _ScanHistorySection(
+            isLoading: _isLoading,
+            numarScanari: _numarScanari,
+            scanari: _scanari,
+          ),
           const SizedBox(height: 20),
           _QrImage(data: entry.payload),
           const SizedBox(height: 20),
@@ -318,7 +369,7 @@ class _QrPreviewSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: onEdit,
+                  onPressed: widget.onEdit,
                   icon: const Icon(Icons.edit_outlined),
                   label: const Text('Editează'),
                 ),
@@ -329,7 +380,9 @@ class _QrPreviewSheet extends StatelessWidget {
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: entry.payload));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Conținut copiat în clipboard')),
+                      const SnackBar(
+                        content: Text('Conținut copiat în clipboard'),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.copy_outlined),
@@ -339,6 +392,93 @@ class _QrPreviewSheet extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ScanHistorySection extends StatelessWidget {
+  const _ScanHistorySection({
+    required this.isLoading,
+    required this.numarScanari,
+    required this.scanari,
+  });
+
+  final bool isLoading;
+  final int numarScanari;
+  final List<QrScan> scanari;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.history, color: AppColors.accent, size: 22),
+                const SizedBox(width: 10),
+                Text(
+                  scanariCountLabel(numarScanari),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                if (isLoading) ...[
+                  const Spacer(),
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ],
+              ],
+            ),
+            if (!isLoading) ...[
+              const SizedBox(height: 12),
+              if (scanari.isEmpty)
+                const Text(
+                  'Nicio scanare încă',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                )
+              else
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: scanari.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 12),
+                    itemBuilder: (context, index) {
+                      final scan = scanari[index];
+                      return Row(
+                        children: [
+                          Icon(
+                            Icons.qr_code_scanner,
+                            size: 18,
+                            color: AppColors.textSecondary.withValues(
+                              alpha: 0.8,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            scan.formattedAt,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ],
+        ),
       ),
     );
   }
