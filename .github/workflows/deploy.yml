@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  DEPLOY_PATH: /var/www/hostera24-influencers
+  DEPLOY_DIR: hostera24-influencers
+  REPO_URL: https://github.com/jorjegxg/hostera24-influencers.git
 
 jobs:
   deploy:
@@ -31,16 +32,39 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 25m
+          envs: GITHUB_TOKEN
           script: |
             set -euo pipefail
-            cd "${{ env.DEPLOY_PATH }}"
+            DEPLOY_PATH="$HOME/${{ env.DEPLOY_DIR }}"
+            REPO_URL="${{ env.REPO_URL }}"
+
+            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+              echo "First deploy: preparing $DEPLOY_PATH"
+              mkdir -p "$DEPLOY_PATH"
+              if [ -n "${GITHUB_TOKEN:-}" ]; then
+                git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/jorjegxg/hostera24-influencers.git" "$DEPLOY_PATH"
+              else
+                git clone "$REPO_URL" "$DEPLOY_PATH"
+              fi
+            fi
+
+            cd "$DEPLOY_PATH"
             git fetch origin main
             git reset --hard origin/main
+
+            if [ ! -f .env ]; then
+              echo "ERROR: .env lipseste pe server. Conecteaza-te la VPS si ruleaza:"
+              echo "  cd $DEPLOY_PATH && cp .env.example .env && nano .env"
+              exit 1
+            fi
+
             docker compose build
             docker compose up -d
             docker image prune -f
