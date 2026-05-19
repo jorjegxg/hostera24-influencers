@@ -91,7 +91,7 @@ class ApiClient {
     final response = await _http.post(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr/scan'),
       headers: _authHeaders(),
-      body: jsonEncode({'payload': payload}),
+      body: jsonEncode({'payload': payload.trim()}),
     );
 
     final data = _decodeMap(response);

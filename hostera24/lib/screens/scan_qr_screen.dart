@@ -19,7 +19,6 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
 
   ScanResult? _lastResult;
   bool _isProcessing = false;
-  String? _lastScannedRaw;
   bool _isScanning = false;
 
   @override
@@ -31,14 +30,12 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
   Future<void> _startScanning() async {
     setState(() {
       _lastResult = null;
-      _lastScannedRaw = null;
       _isScanning = true;
       _scannerController = MobileScannerController(
         detectionSpeed: DetectionSpeed.noDuplicates,
         facing: CameraFacing.back,
       );
     });
-    await _scannerController!.start();
   }
 
   Future<void> _stopScanning() async {
@@ -51,12 +48,9 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
   }
 
   Future<void> _onBarcode(String raw) async {
-    if (_isProcessing || raw == _lastScannedRaw) return;
+    if (_isProcessing) return;
 
-    setState(() {
-      _isProcessing = true;
-      _lastScannedRaw = raw;
-    });
+    setState(() => _isProcessing = true);
 
     try {
       final result = await AuthService.instance.api.scanCodQr(raw);
@@ -71,7 +65,12 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     } on ApiException catch (e) {
       if (mounted) showErrorSnackBar(context, e.message);
     } catch (e) {
-      if (mounted) showErrorSnackBar(context, 'Eroare la scanare: $e');
+      if (mounted) {
+        showErrorSnackBar(
+          context,
+          'Eroare la scanare. Verifică rețeaua și că backend-ul rulează. ($e)',
+        );
+      }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -83,10 +82,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
 
   Future<void> _backToHome() async {
     await _stopScanning();
-    setState(() {
-      _lastResult = null;
-      _lastScannedRaw = null;
-    });
+    setState(() => _lastResult = null);
   }
 
   @override

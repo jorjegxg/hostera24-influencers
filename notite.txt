@@ -9,7 +9,7 @@ flutter (terminal): cd hostera24 && flutter run
 
 next.js : cd frontend-hostera24 && npm run dev
   → citește NEXT_PUBLIC_* din ../.env
-  → pagină QR: http://localhost:3001/coduri/CAFE-INSTA-2026
+  → pagină QR: http://localhost:3023/coduri/CAFE-INSTA-2026
 
   → click în terminalul unde rulează flutter, apoi: r = hot reload, R = hot restart, q = quit
 

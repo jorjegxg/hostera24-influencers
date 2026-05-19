@@ -8,8 +8,8 @@
       "program": "lib/main.dart",
       "cwd": "${workspaceFolder}/hostera24",
       "toolArgs": [
-        "--dart-define=API_BASE_URL=http://192.168.1.12:3000",
-        "--dart-define=WEB_BASE_URL=http://192.168.1.12:3001"
+        "--dart-define=API_BASE_URL=http://192.168.1.12:3022",
+        "--dart-define=WEB_BASE_URL=http://192.168.1.12:3023"
       ]
     },
     {
@@ -20,8 +20,8 @@
       "cwd": "${workspaceFolder}/hostera24",
       "deviceId": "windows",
       "toolArgs": [
-        "--dart-define=API_BASE_URL=http://192.168.1.12:3000",
-        "--dart-define=WEB_BASE_URL=http://192.168.1.12:3001"
+        "--dart-define=API_BASE_URL=http://192.168.1.12:3022",
+        "--dart-define=WEB_BASE_URL=http://192.168.1.12:3023"
       ]
     }
   ]

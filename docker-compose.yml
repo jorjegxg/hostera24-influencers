@@ -4,13 +4,13 @@ services:
     container_name: hostera24-mysql
     restart: unless-stopped
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "127.0.0.1:${MYSQL_PORT}:3306"
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-hostera24}
-      MYSQL_USER: ${MYSQL_USER:-hostera24}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-hostera24}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend-hostera24/docker/mysql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
@@ -24,12 +24,51 @@ services:
           "localhost",
           "-u",
           "root",
-          "-p${MYSQL_ROOT_PASSWORD:-root}",
+          "-p${MYSQL_ROOT_PASSWORD}",
         ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - hostera24
+
+  api:
+    build:
+      context: ./backend-hostera24
+      dockerfile: Dockerfile
+    container_name: hostera24-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_HOST: mysql
+      DATABASE_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${PORT}:${PORT}"
+    networks:
+      - hostera24
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend-hostera24/Dockerfile
+    container_name: hostera24-web
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: ${FRONTEND_PORT}
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT}:${FRONTEND_PORT}"
+    networks:
+      - hostera24
+
+networks:
+  hostera24:
 
 volumes:
   mysql_data:

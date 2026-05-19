@@ -115,9 +115,7 @@ export class CoduriQrService {
       return { status: 'not_found' as const };
     }
 
-    const entry = await this.coduriRepo.findOne({
-      where: { cod: codValue, sters: false },
-    });
+    const entry = await this.findActiveByCod(codValue);
 
     if (!entry) {
       return { status: 'not_found' as const };
@@ -181,10 +179,7 @@ export class CoduriQrService {
 
   async findPublicByCod(codValue: string) {
     const cod = codValue.trim();
-    const entry = await this.coduriRepo.findOne({
-      where: { cod, sters: false },
-      relations: { firma: true },
-    });
+    const entry = await this.findActiveByCod(cod, { firma: true });
 
     if (!entry) {
       throw new NotFoundException('Codul QR nu există');
@@ -203,9 +198,7 @@ export class CoduriQrService {
 
   async recordPublicScan(codValue: string) {
     const cod = codValue.trim();
-    const entry = await this.coduriRepo.findOne({
-      where: { cod, sters: false },
-    });
+    const entry = await this.findActiveByCod(cod);
 
     if (!entry) {
       throw new NotFoundException('Codul QR nu există');
@@ -218,8 +211,29 @@ export class CoduriQrService {
     return { ok: true };
   }
 
+  private async findActiveByCod(
+    codValue: string,
+    relations?: { firma?: boolean },
+  ): Promise<CodQr | null> {
+    const cod = codValue.trim();
+    if (!cod) return null;
+
+    const qb = this.coduriRepo
+      .createQueryBuilder('cod')
+      .where('cod.sters = :sters', { sters: false })
+      .andWhere('LOWER(cod.cod) = LOWER(:cod)', { cod });
+
+    if (relations?.firma) {
+      qb.leftJoinAndSelect('cod.firma', 'firma');
+    }
+
+    return qb.getOne();
+  }
+
   private extractCod(raw: string): string | null {
-    const trimmed = raw.trim();
+    const trimmed = raw
+      .trim()
+      .replace(/[\u200B-\u200D\uFEFF]/g, '');
     if (!trimmed) return null;
 
     const fromUrl = this.extractCodFromUrl(trimmed);

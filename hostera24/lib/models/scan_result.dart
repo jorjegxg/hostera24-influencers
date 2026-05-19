@@ -29,9 +29,17 @@ class ScanResult {
       numePostareClienti: json['numePostareClienti'] as String?,
       numePostareFirme: json['numePostareFirme'] as String?,
       pretRedus: json['pretRedus'] as String?,
-      numarScanari: json['numarScanari'] as int?,
+      numarScanari: _parseInt(json['numarScanari']),
     );
   }
 }
 
 enum ScanStatus { own, other, notFound }
+
+int? _parseInt(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
