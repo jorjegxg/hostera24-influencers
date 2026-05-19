@@ -18,6 +18,9 @@ export class Firma {
   @Column({ name: 'parola_hash' })
   parolaHash: string;
 
+  @Column({ name: 'logo_url', type: 'varchar', length: 512, nullable: true })
+  logoUrl: string | null;
+
   @CreateDateColumn({ name: 'creat_la' })
   creatLa: Date;
 

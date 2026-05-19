@@ -2,7 +2,14 @@ backend : cd backend-hostera24 && npm run start:dev
 
 
 
-flutter (terminal): cd hostera24 && flutter run --dart-define=API_BASE_URL=http://192.168.1.12:3000
+env : cp .env.example .env   (toate variabilele la rădăcina proiectului)
+
+flutter (terminal): cd hostera24 && flutter run
+  → citește API_BASE_URL și WEB_BASE_URL din ../.env
+
+next.js : cd frontend-hostera24 && npm run dev
+  → citește NEXT_PUBLIC_* din ../.env
+  → pagină QR: http://localhost:3001/coduri/CAFE-INSTA-2026
 
   → click în terminalul unde rulează flutter, apoi: r = hot reload, R = hot restart, q = quit
 

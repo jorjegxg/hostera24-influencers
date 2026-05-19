@@ -179,9 +179,51 @@ export class CoduriQrService {
     return cod;
   }
 
+  async findPublicByCod(codValue: string) {
+    const cod = codValue.trim();
+    const entry = await this.coduriRepo.findOne({
+      where: { cod, sters: false },
+      relations: { firma: true },
+    });
+
+    if (!entry) {
+      throw new NotFoundException('Codul QR nu există');
+    }
+
+    return {
+      cod: entry.cod,
+      numePostareClienti: entry.numePostareClienti,
+      pretRedus: entry.pretRedus,
+      firma: {
+        email: entry.firma.email,
+        logoUrl: entry.firma.logoUrl,
+      },
+    };
+  }
+
+  async recordPublicScan(codValue: string) {
+    const cod = codValue.trim();
+    const entry = await this.coduriRepo.findOne({
+      where: { cod, sters: false },
+    });
+
+    if (!entry) {
+      throw new NotFoundException('Codul QR nu există');
+    }
+
+    await this.scanariRepo.save(
+      this.scanariRepo.create({ codQrId: entry.id }),
+    );
+
+    return { ok: true };
+  }
+
   private extractCod(raw: string): string | null {
     const trimmed = raw.trim();
     if (!trimmed) return null;
+
+    const fromUrl = this.extractCodFromUrl(trimmed);
+    if (fromUrl) return fromUrl;
 
     if (trimmed.startsWith('{')) {
       try {
@@ -196,6 +238,33 @@ export class CoduriQrService {
 
     if (/^H24-[A-F0-9]+$/i.test(trimmed)) {
       return trimmed.toUpperCase();
+    }
+
+    if (/^[A-Z0-9][A-Z0-9-]+$/i.test(trimmed)) {
+      return trimmed.toUpperCase();
+    }
+
+    return null;
+  }
+
+  private extractCodFromUrl(raw: string): string | null {
+    const coduriMatch = raw.match(/\/coduri\/([^/?#]+)/i);
+    if (coduriMatch?.[1]) {
+      return decodeURIComponent(coduriMatch[1]).trim();
+    }
+
+    try {
+      const normalized = raw.includes('://') ? raw : `https://${raw}`;
+      const url = new URL(normalized);
+      const segments = url.pathname.split('/').filter(Boolean);
+      const coduriIndex = segments.findIndex(
+        (s) => s.toLowerCase() === 'coduri',
+      );
+      if (coduriIndex >= 0 && segments[coduriIndex + 1]) {
+        return decodeURIComponent(segments[coduriIndex + 1]).trim();
+      }
+    } catch {
+      return null;
     }
 
     return null;

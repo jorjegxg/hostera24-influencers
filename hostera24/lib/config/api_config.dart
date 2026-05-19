@@ -1,14 +1,12 @@
 import 'dart:io';
 
-abstract final class ApiConfig {
-  static const _fromEnv = String.fromEnvironment('API_BASE_URL');
+import 'package:hostera24/config/root_env.dart';
 
-  /// URL backend NestJS.
-  /// - Emulator Android: `10.0.2.2` = localhost pe PC
-  /// - Simulator iOS / desktop: `localhost`
-  /// - Telefon fizic: `flutter run --dart-define=API_BASE_URL=http://IP_PC:3000`
+abstract final class ApiConfig {
+  /// URL backend NestJS (din `.env` rădăcină sau --dart-define).
   static String get baseUrl {
-    if (_fromEnv.isNotEmpty) return _fromEnv;
+    final fromFile = RootEnv.get('API_BASE_URL');
+    if (fromFile.isNotEmpty) return fromFile;
     if (Platform.isAndroid) return 'http://10.0.2.2:3000';
     return 'http://localhost:3000';
   }

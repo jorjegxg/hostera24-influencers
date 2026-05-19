@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'package:hostera24/config/web_config.dart';
 import 'package:hostera24/utils/datetime_format.dart';
 
 class QrEntry {
@@ -33,16 +32,8 @@ class QrEntry {
     );
   }
 
-  String get payload {
-    final map = <String, dynamic>{
-      'cod': cod,
-      'createdAt': createdAt.toIso8601String(),
-    };
-    if (firmaDescription != null) map['firma'] = firmaDescription;
-    if (clientDescription != null) map['client'] = clientDescription;
-    if (pretRedus != null) map['pretRedus'] = pretRedus;
-    return jsonEncode(map);
-  }
+  /// URL encodat în codul QR (pagina publică Next.js).
+  String get payload => WebConfig.codQrPath(cod);
 
   QrEntry copyWith({
     int? id,

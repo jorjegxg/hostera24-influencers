@@ -2,9 +2,9 @@
 
 SET NAMES utf8mb4;
 
-INSERT INTO firme (id, email, parola_hash) VALUES
-(1, 'cafe@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-(2, 'hotel@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+INSERT INTO firme (id, email, parola_hash, logo_url) VALUES
+(1, 'cafe@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://ui-avatars.com/api/?name=Cafe+Demo&background=10A37F&color=fff&size=256'),
+(2, 'hotel@demo.ro', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://ui-avatars.com/api/?name=Hotel+Demo&background=10A37F&color=fff&size=256');
 
 INSERT INTO coduri_qr (id, firma_id, cod, nume_postare_clienti, nume_postare_firme, pret_redus) VALUES
 (1, 1, 'CAFE-INSTA-2026', 'Urmărește-ne pe Instagram', 'Campanie Instagram martie', 'Cafea la 15,99 lei'),
