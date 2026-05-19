@@ -23,6 +23,10 @@ class QrEntryCard extends StatelessWidget {
         '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} '
         '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
+    final firma = entry.firmaDescription?.trim();
+    final client = entry.clientDescription?.trim();
+    final pret = entry.pretRedus?.trim();
+
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -55,26 +59,54 @@ class QrEntryCard extends StatelessWidget {
                         letterSpacing: 0.3,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      entry.firmaDescription,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        height: 1.3,
+                    if (pret != null && pret.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        pret,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.accent,
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      entry.clientDescription,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
+                    ],
+                    if (firma != null && firma.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        firma,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          height: 1.3,
+                        ),
                       ),
-                    ),
+                    ],
+                    if (client != null && client.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        client,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                    if ((firma == null || firma.isEmpty) &&
+                        (client == null || client.isEmpty) &&
+                        (pret == null || pret.isEmpty)) ...[
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Fără descrieri',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 6),
                     Text(
                       time,

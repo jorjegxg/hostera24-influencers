@@ -25,11 +25,14 @@ export class CodQr {
   @Column({ unique: true })
   cod: string;
 
-  @Column({ name: 'nume_postare_clienti' })
-  numePostareClienti: string;
+  @Column({ name: 'nume_postare_clienti', type: 'varchar', length: 255, nullable: true })
+  numePostareClienti: string | null;
 
-  @Column({ name: 'nume_postare_firme' })
-  numePostareFirme: string;
+  @Column({ name: 'nume_postare_firme', type: 'varchar', length: 255, nullable: true })
+  numePostareFirme: string | null;
+
+  @Column({ name: 'pret_redus', type: 'varchar', length: 255, nullable: true })
+  pretRedus: string | null;
 
   @Column({ default: false })
   sters: boolean;

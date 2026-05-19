@@ -15,8 +15,9 @@ CREATE TABLE coduri_qr (
     id INT PRIMARY KEY AUTO_INCREMENT,
     firma_id INT NOT NULL,
     cod VARCHAR(255) UNIQUE NOT NULL,
-    nume_postare_clienti VARCHAR(255) NOT NULL,
-    nume_postare_firme VARCHAR(255) NOT NULL,
+    nume_postare_clienti VARCHAR(255) NULL,
+    nume_postare_firme VARCHAR(255) NULL,
+    pret_redus VARCHAR(255) NULL,
     sters TINYINT(1) NOT NULL DEFAULT 0,
     creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (firma_id) REFERENCES firme(id) ON DELETE CASCADE

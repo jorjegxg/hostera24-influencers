@@ -13,6 +13,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CoduriQrService } from './coduri-qr.service';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
+import { ScanCodQrDto } from './dto/scan-cod-qr.dto';
 import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
 
 type AuthRequest = { user: { firmaId: number; email: string } };
@@ -30,6 +31,11 @@ export class CoduriQrController {
   @Post()
   create(@Req() req: AuthRequest, @Body() dto: CreateCodQrDto) {
     return this.coduriQrService.create(req.user.firmaId, dto);
+  }
+
+  @Post('scan')
+  scan(@Req() req: AuthRequest, @Body() dto: ScanCodQrDto) {
+    return this.coduriQrService.scan(req.user.firmaId, dto.payload);
   }
 
   @Patch(':id')

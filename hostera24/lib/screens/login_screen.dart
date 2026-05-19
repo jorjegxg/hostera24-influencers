@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/config/api_config.dart';
-import 'package:hostera24/screens/qr_creator_screen.dart';
+import 'package:hostera24/screens/home_shell.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => QrCreatorScreen(email: session.email),
+        builder: (_) => HomeShell(email: session.email),
       ),
     );
   }

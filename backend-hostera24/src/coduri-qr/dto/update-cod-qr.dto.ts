@@ -1,11 +1,3 @@
-import { IsString, MinLength } from 'class-validator';
+import { CreateCodQrDto } from './create-cod-qr.dto';
 
-export class UpdateCodQrDto {
-  @IsString()
-  @MinLength(1, { message: 'Descrierea pentru client este obligatorie' })
-  numePostareClienti: string;
-
-  @IsString()
-  @MinLength(1, { message: 'Descrierea pentru firmă este obligatorie' })
-  numePostareFirme: string;
-}
+export class UpdateCodQrDto extends CreateCodQrDto {}

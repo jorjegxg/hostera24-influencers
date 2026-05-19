@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
+import { Scanare } from '../scanari/scanare.entity';
 import { CodQr } from './cod-qr.entity';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
 import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
@@ -15,6 +16,8 @@ export class CoduriQrService {
   constructor(
     @InjectRepository(CodQr)
     private readonly coduriRepo: Repository<CodQr>,
+    @InjectRepository(Scanare)
+    private readonly scanariRepo: Repository<Scanare>,
   ) {}
 
   findAllForFirma(firmaId: number) {
@@ -30,8 +33,9 @@ export class CoduriQrService {
     const entry = this.coduriRepo.create({
       firmaId,
       cod,
-      numePostareClienti: dto.numePostareClienti.trim(),
-      numePostareFirme: dto.numePostareFirme.trim(),
+      numePostareClienti: this.normalizeOptionalText(dto.numePostareClienti),
+      numePostareFirme: this.normalizeOptionalText(dto.numePostareFirme),
+      pretRedus: this.normalizeOptionalText(dto.pretRedus),
       sters: false,
     });
 
@@ -41,10 +45,49 @@ export class CoduriQrService {
   async update(firmaId: number, id: number, dto: UpdateCodQrDto) {
     const cod = await this.findActiveOrThrow(firmaId, id);
 
-    cod.numePostareClienti = dto.numePostareClienti.trim();
-    cod.numePostareFirme = dto.numePostareFirme.trim();
+    if (dto.numePostareClienti !== undefined) {
+      cod.numePostareClienti = this.normalizeOptionalText(dto.numePostareClienti);
+    }
+    if (dto.numePostareFirme !== undefined) {
+      cod.numePostareFirme = this.normalizeOptionalText(dto.numePostareFirme);
+    }
+    if (dto.pretRedus !== undefined) {
+      cod.pretRedus = this.normalizeOptionalText(dto.pretRedus);
+    }
 
     return this.coduriRepo.save(cod);
+  }
+
+  async scan(firmaId: number, rawPayload: string) {
+    const codValue = this.extractCod(rawPayload);
+    if (!codValue) {
+      return { status: 'not_found' as const };
+    }
+
+    const entry = await this.coduriRepo.findOne({
+      where: { cod: codValue, sters: false },
+    });
+
+    if (!entry) {
+      return { status: 'not_found' as const };
+    }
+
+    await this.scanariRepo.save(
+      this.scanariRepo.create({ codQrId: entry.id }),
+    );
+
+    const base = this.toPublicEntry(entry);
+
+    if (entry.firmaId === firmaId) {
+      return { status: 'own' as const, ...base };
+    }
+
+    return {
+      status: 'other' as const,
+      cod: base.cod,
+      numePostareClienti: base.numePostareClienti,
+      pretRedus: base.pretRedus,
+    };
   }
 
   async softDelete(firmaId: number, id: number) {
@@ -52,6 +95,22 @@ export class CoduriQrService {
     cod.sters = true;
     await this.coduriRepo.save(cod);
     return { ok: true };
+  }
+
+  private toPublicEntry(entry: CodQr) {
+    return {
+      cod: entry.cod,
+      numePostareClienti: entry.numePostareClienti,
+      numePostareFirme: entry.numePostareFirme,
+      pretRedus: entry.pretRedus,
+      creatLa: entry.creatLa,
+    };
+  }
+
+  private normalizeOptionalText(value?: string): string | null {
+    if (value == null) return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
   }
 
   private async findActiveOrThrow(firmaId: number, id: number) {
@@ -63,6 +122,28 @@ export class CoduriQrService {
       throw new ForbiddenException('Nu poți modifica acest cod QR');
     }
     return cod;
+  }
+
+  private extractCod(raw: string): string | null {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+
+    if (trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed) as { cod?: string };
+        if (parsed.cod && parsed.cod.trim().length > 0) {
+          return parsed.cod.trim();
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    if (/^H24-[A-F0-9]+$/i.test(trimmed)) {
+      return trimmed.toUpperCase();
+    }
+
+    return null;
   }
 
   private async generateUniqueCod(): Promise<string> {

@@ -1,0 +1,14 @@
+{
+  "dart.flutterHotReloadOnSave": "always",
+  "dart.flutterHotRestartOnSave": false,
+  "dart.openDevTools": "flutter",
+  "editor.formatOnSave": true,
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  }
+}

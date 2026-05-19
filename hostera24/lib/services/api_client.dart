@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_exception.dart';
 
 class ApiClient {
@@ -50,17 +51,33 @@ class ApiClient {
     );
   }
 
+  Future<ScanResult> scanCodQr(String payload) async {
+    final response = await _http.post(
+      Uri.parse('${ApiConfig.baseUrl}/coduri-qr/scan'),
+      headers: _authHeaders(),
+      body: jsonEncode({'payload': payload}),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return ScanResult.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
   Future<QrEntry> createCodQr({
-    required String numePostareClienti,
-    required String numePostareFirme,
+    String? numePostareClienti,
+    String? numePostareFirme,
+    String? pretRedus,
   }) async {
     final response = await _http.post(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr'),
       headers: _authHeaders(),
-      body: jsonEncode({
-        'numePostareClienti': numePostareClienti,
-        'numePostareFirme': numePostareFirme,
-      }),
+      body: jsonEncode(_codQrBody(
+        numePostareClienti: numePostareClienti,
+        numePostareFirme: numePostareFirme,
+        pretRedus: pretRedus,
+      )),
     );
 
     final data = _decodeMap(response);
@@ -72,16 +89,18 @@ class ApiClient {
 
   Future<QrEntry> updateCodQr({
     required int id,
-    required String numePostareClienti,
-    required String numePostareFirme,
+    String? numePostareClienti,
+    String? numePostareFirme,
+    String? pretRedus,
   }) async {
     final response = await _http.patch(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr/$id'),
       headers: _authHeaders(),
-      body: jsonEncode({
-        'numePostareClienti': numePostareClienti,
-        'numePostareFirme': numePostareFirme,
-      }),
+      body: jsonEncode(_codQrBody(
+        numePostareClienti: numePostareClienti,
+        numePostareFirme: numePostareFirme,
+        pretRedus: pretRedus,
+      )),
     );
 
     final data = _decodeMap(response);
@@ -104,6 +123,18 @@ class ApiClient {
       _messageFromBody(data),
       statusCode: response.statusCode,
     );
+  }
+
+  Map<String, dynamic> _codQrBody({
+    String? numePostareClienti,
+    String? numePostareFirme,
+    String? pretRedus,
+  }) {
+    return {
+      'numePostareClienti': numePostareClienti?.trim(),
+      'numePostareFirme': numePostareFirme?.trim(),
+      'pretRedus': pretRedus?.trim(),
+    };
   }
 
   Map<String, String> _jsonHeaders() => {

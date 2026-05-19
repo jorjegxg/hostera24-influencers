@@ -1,5 +1,22 @@
-backend : npm run start:dev
-
-flutter : flutter run --dart-define=API_BASE_URL=http://192.168.1.12:3000
-
-db reset : npm run db:reset
+backend : cd backend-hostera24 && npm run start:dev
+
+
+
+flutter (terminal): cd hostera24 && flutter run --dart-define=API_BASE_URL=http://192.168.1.12:3000
+
+  → click în terminalul unde rulează flutter, apoi: r = hot reload, R = hot restart, q = quit
+
+
+
+flutter (Cursor – recomandat):
+
+  → Run and Debug (Ctrl+Shift+D) → „Flutter (telefon / emulator)” → F5
+
+  → la salvare (.dart) = hot reload automat
+
+  → bara de debug: butoane ⚡ reload / 🔄 restart
+
+
+
+db reset : npm run db:reset
+

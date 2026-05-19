@@ -19,6 +19,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _firmaController;
   late final TextEditingController _clientController;
+  late final TextEditingController _pretController;
   bool _isSubmitting = false;
 
   bool get _isEditing => widget.entry != null;
@@ -32,12 +33,16 @@ class _AddQrScreenState extends State<AddQrScreen> {
     _clientController = TextEditingController(
       text: widget.entry?.clientDescription ?? '',
     );
+    _pretController = TextEditingController(
+      text: widget.entry?.pretRedus ?? '',
+    );
   }
 
   @override
   void dispose() {
     _firmaController.dispose();
     _clientController.dispose();
+    _pretController.dispose();
     super.dispose();
   }
 
@@ -46,18 +51,22 @@ class _AddQrScreenState extends State<AddQrScreen> {
 
     setState(() => _isSubmitting = true);
 
+    final pretRedus = _pretController.text.trim();
+
     try {
       final QrEntry entry;
       if (_isEditing) {
         entry = await AuthService.instance.api.updateCodQr(
           id: widget.entry!.id,
-          numePostareClienti: _clientController.text.trim(),
-          numePostareFirme: _firmaController.text.trim(),
+          numePostareClienti: _clientController.text,
+          numePostareFirme: _firmaController.text,
+          pretRedus: pretRedus.isEmpty ? null : pretRedus,
         );
       } else {
         entry = await AuthService.instance.api.createCodQr(
-          numePostareClienti: _clientController.text.trim(),
-          numePostareFirme: _firmaController.text.trim(),
+          numePostareClienti: _clientController.text,
+          numePostareFirme: _firmaController.text,
+          pretRedus: pretRedus.isEmpty ? null : pretRedus,
         );
       }
 
@@ -109,8 +118,8 @@ class _AddQrScreenState extends State<AddQrScreen> {
                     const SizedBox(height: 6),
                     Text(
                       _isEditing
-                          ? 'Modifică textele postării. Codul QR rămâne același.'
-                          : 'Nume intern (firmă) și textul afișat clientului. Codul unic se generează automat pe server.',
+                          ? 'Modifică detaliile postării. Codul QR rămâne același.'
+                          : 'Completează ce ai nevoie: texte opționale și preț redus. Codul unic se generează automat.',
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.35,
@@ -124,7 +133,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       autofocus: !_isEditing,
                       enabled: !_isSubmitting,
                       decoration: const InputDecoration(
-                        labelText: 'Nume postare (firmă)',
+                        labelText: 'Nume postare (firmă) — opțional',
                         hintText: 'Ex: Campanie Instagram martie',
                         alignLabelWithHint: true,
                         prefixIcon: Padding(
@@ -132,20 +141,15 @@ class _AddQrScreenState extends State<AddQrScreen> {
                           child: Icon(Icons.business_outlined),
                         ),
                       ),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? 'Completează numele pentru firmă'
-                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _clientController,
                       maxLines: 3,
                       textCapitalization: TextCapitalization.sentences,
-                      textInputAction: TextInputAction.done,
                       enabled: !_isSubmitting,
-                      onFieldSubmitted: (_) => _submit(),
                       decoration: const InputDecoration(
-                        labelText: 'Nume postare (client)',
+                        labelText: 'Nume postare (client) — opțional',
                         hintText: 'Ex: Urmărește-ne pe Instagram',
                         alignLabelWithHint: true,
                         prefixIcon: Padding(
@@ -153,9 +157,24 @@ class _AddQrScreenState extends State<AddQrScreen> {
                           child: Icon(Icons.person_outline),
                         ),
                       ),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? 'Completează textul pentru client'
-                          : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _pretController,
+                      maxLines: 2,
+                      textCapitalization: TextCapitalization.sentences,
+                      textInputAction: TextInputAction.done,
+                      enabled: !_isSubmitting,
+                      onFieldSubmitted: (_) => _submit(),
+                      decoration: const InputDecoration(
+                        labelText: 'Mesaj preț redus — opțional',
+                        hintText: 'Ex: Cafea la 15,99 lei',
+                        alignLabelWithHint: true,
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(bottom: 24),
+                          child: Icon(Icons.sell_outlined),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     FilledButton.icon(

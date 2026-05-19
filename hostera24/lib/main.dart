@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/screens/login_screen.dart';
-import 'package:hostera24/screens/qr_creator_screen.dart';
+import 'package:hostera24/screens/home_shell.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_theme.dart';
 
@@ -30,7 +30,7 @@ class _Hostera24AppState extends State<Hostera24App> {
     setState(() {
       final session = AuthService.instance.session;
       _home = session != null
-          ? QrCreatorScreen(email: session.email)
+          ? HomeShell(email: session.email)
           : const LoginScreen();
     });
   }

@@ -1,11 +1,15 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateCodQrDto {
+  @IsOptional()
   @IsString()
-  @MinLength(1, { message: 'Descrierea pentru client este obligatorie' })
-  numePostareClienti: string;
+  numePostareClienti?: string;
 
+  @IsOptional()
   @IsString()
-  @MinLength(1, { message: 'Descrierea pentru firmă este obligatorie' })
-  numePostareFirme: string;
+  numePostareFirme?: string;
+
+  @IsOptional()
+  @IsString()
+  pretRedus?: string;
 }

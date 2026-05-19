@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
-import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
@@ -11,9 +10,7 @@ import 'package:hostera24/widgets/qr_entry_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrCreatorScreen extends StatefulWidget {
-  const QrCreatorScreen({super.key, required this.email});
-
-  final String email;
+  const QrCreatorScreen({super.key});
 
   @override
   State<QrCreatorScreen> createState() => _QrCreatorScreenState();
@@ -21,7 +18,6 @@ class QrCreatorScreen extends StatefulWidget {
 
 class _QrCreatorScreenState extends State<QrCreatorScreen> {
   final List<QrEntry> _entries = [];
-  QrEntry? _previewEntry;
   bool _isLoading = true;
 
   @override
@@ -39,7 +35,6 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
         _entries
           ..clear()
           ..addAll(entries);
-        _previewEntry = entries.isNotEmpty ? entries.first : null;
       });
     } on ApiException catch (e) {
       if (mounted) showErrorSnackBar(context, e.message);
@@ -59,10 +54,7 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
 
     if (!mounted || entry == null) return;
 
-    setState(() {
-      _entries.insert(0, entry);
-      _previewEntry = entry;
-    });
+    setState(() => _entries.insert(0, entry));
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Cod QR generat cu succes')),
@@ -81,7 +73,6 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
     setState(() {
       final index = _entries.indexWhere((e) => e.id == updated.id);
       if (index >= 0) _entries[index] = updated;
-      if (_previewEntry?.id == updated.id) _previewEntry = updated;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -120,12 +111,7 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
     try {
       await AuthService.instance.api.deleteCodQr(entry.id);
       if (!mounted) return;
-      setState(() {
-        _entries.removeWhere((e) => e.id == entry.id);
-        if (_previewEntry?.id == entry.id) {
-          _previewEntry = _entries.isNotEmpty ? _entries.first : null;
-        }
-      });
+      setState(() => _entries.removeWhere((e) => e.id == entry.id));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cod QR șters')),
       );
@@ -136,17 +122,7 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
     }
   }
 
-  Future<void> _logout() async {
-    await AuthService.instance.logout();
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
-      (_) => false,
-    );
-  }
-
   void _showQrPreview(QrEntry entry) {
-    setState(() => _previewEntry = entry);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -166,48 +142,16 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Creator QR'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Center(
-              child: Text(
-                widget.email,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Deconectare',
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isLoading ? null : _openAddScreen,
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Cod QR nou'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadEntries,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
-                children: [
-                  if (_previewEntry != null) ...[
-                    _InlinePreview(entry: _previewEntry!),
-                    const SizedBox(height: 24),
-                  ],
+    return Stack(
+      children: [
+        _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: _loadEntries,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 88),
+                  children: [
                   if (_entries.isEmpty)
                     const _EmptyState()
                   else ...[
@@ -253,9 +197,21 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
                       ),
                     ),
                   ],
-                ],
+                  ],
+                ),
               ),
-            ),
+        Positioned(
+          right: 20,
+          bottom: 16,
+          child: FloatingActionButton.extended(
+            onPressed: _isLoading ? null : _openAddScreen,
+            backgroundColor: AppColors.accent,
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.add),
+            label: const Text('Cod QR nou'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -301,55 +257,6 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _InlinePreview extends StatelessWidget {
-  const _InlinePreview({required this.entry});
-
-  final QrEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const Text(
-              'Previzualizare ultim cod',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              entry.cod,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.accent,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _QrImage(data: entry.payload),
-            const SizedBox(height: 16),
-            _DescriptionRow(
-              icon: Icons.business_outlined,
-              label: 'Firmă',
-              text: entry.firmaDescription,
-            ),
-            const SizedBox(height: 8),
-            _DescriptionRow(
-              icon: Icons.person_outline,
-              label: 'Client',
-              text: entry.clientDescription,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _QrPreviewSheet extends StatelessWidget {
   const _QrPreviewSheet({required this.entry, required this.onEdit});
 
@@ -387,6 +294,14 @@ class _QrPreviewSheet extends StatelessWidget {
           const SizedBox(height: 20),
           _QrImage(data: entry.payload),
           const SizedBox(height: 20),
+          if (entry.pretRedus != null && entry.pretRedus!.trim().isNotEmpty) ...[
+            _DescriptionRow(
+              icon: Icons.sell_outlined,
+              label: 'Preț redus',
+              text: entry.pretRedus,
+            ),
+            const SizedBox(height: 12),
+          ],
           _DescriptionRow(
             icon: Icons.business_outlined,
             label: 'Nume postare (firmă)',
@@ -470,10 +385,15 @@ class _DescriptionRow extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final String text;
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
+    final value = text?.trim();
+    if (value == null || value.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -492,7 +412,7 @@ class _DescriptionRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(text, style: const TextStyle(height: 1.35)),
+              Text(value, style: const TextStyle(height: 1.35)),
             ],
           ),
         ),
