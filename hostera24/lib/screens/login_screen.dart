@@ -102,13 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: AppColors.textSecondary, height: 1.4),
                     ),
                     const SizedBox(height: 28),
-                    GoogleSignInButton(
-                      isLoading: _isLoading,
-                      onPressed: _onGoogleSignIn,
-                    ),
-                    const SizedBox(height: 20),
-                    const AuthDivider(),
-                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -168,6 +161,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             )
                           : const Text('Intră în cont'),
+                    ),
+                    const SizedBox(height: 20),
+                    const AuthDivider(),
+                    const SizedBox(height: 20),
+                    GoogleSignInButton(
+                      isLoading: _isLoading,
+                      onPressed: _onGoogleSignIn,
                     ),
                     const SizedBox(height: 16),
                     TextButton(

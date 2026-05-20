@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hostera24/firebase/firebase_bootstrap.dart';
 import 'package:hostera24/theme/app_colors.dart';
 
@@ -11,6 +12,8 @@ class GoogleSignInButton extends StatelessWidget {
 
   final VoidCallback? onPressed;
   final bool isLoading;
+
+  static const _googleIconAsset = 'assets/icons8-google.svg';
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +29,10 @@ class GoogleSignInButton extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text(
-              'G',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4285F4),
-              ),
+          : SvgPicture.asset(
+              _googleIconAsset,
+              width: 22,
+              height: 22,
             ),
       label: const Text('Continuă cu Google'),
       style: OutlinedButton.styleFrom(

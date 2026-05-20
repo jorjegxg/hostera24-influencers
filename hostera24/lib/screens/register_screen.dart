@@ -105,13 +105,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: TextStyle(color: AppColors.textSecondary, height: 1.4),
                     ),
                     const SizedBox(height: 28),
-                    GoogleSignInButton(
-                      isLoading: _isLoading,
-                      onPressed: _onGoogleSignIn,
-                    ),
-                    const SizedBox(height: 20),
-                    const AuthDivider(),
-                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -205,6 +198,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             )
                           : const Text('Creează cont'),
+                    ),
+                    const SizedBox(height: 20),
+                    const AuthDivider(),
+                    const SizedBox(height: 20),
+                    GoogleSignInButton(
+                      isLoading: _isLoading,
+                      onPressed: _onGoogleSignIn,
                     ),
                     const SizedBox(height: 16),
                     TextButton(
