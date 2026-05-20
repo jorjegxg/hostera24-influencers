@@ -3,7 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { normalizePublicUploadsUrl } from '../common/uploads.util';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import { Scanare } from '../scanari/scanare.entity';
@@ -18,6 +20,7 @@ export class CoduriQrService {
     private readonly coduriRepo: Repository<CodQr>,
     @InjectRepository(Scanare)
     private readonly scanariRepo: Repository<Scanare>,
+    private readonly config: ConfigService,
   ) {}
 
   findAllForFirma(firmaId: number) {
@@ -195,7 +198,10 @@ export class CoduriQrService {
         telefon: entry.firma.telefon,
         descriere: entry.firma.descriere,
         website: entry.firma.website,
-        logoUrl: entry.firma.logoUrl,
+        logoUrl: normalizePublicUploadsUrl(
+          entry.firma.logoUrl,
+          this.config,
+        ),
       },
     };
   }

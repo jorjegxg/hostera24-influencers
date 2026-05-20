@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { normalizePublicUploadsUrl } from '../common/uploads.util';
 import { UpdateFirmaProfilDto } from './dto/update-firma-profil.dto';
 import { Firma } from './firma.entity';
 import { FirmeUploadsService } from './firme-uploads.service';
@@ -22,6 +24,7 @@ export class FirmeService {
     @InjectRepository(Firma)
     private readonly firmeRepo: Repository<Firma>,
     private readonly uploads: FirmeUploadsService,
+    private readonly config: ConfigService,
   ) {}
 
   async getProfil(firmaId: number): Promise<FirmaProfilResponse> {
@@ -83,7 +86,7 @@ export class FirmeService {
       telefon: firma.telefon,
       descriere: firma.descriere,
       website: firma.website,
-      logoUrl: firma.logoUrl,
+      logoUrl: normalizePublicUploadsUrl(firma.logoUrl, this.config),
       creatLa: firma.creatLa,
     };
   }

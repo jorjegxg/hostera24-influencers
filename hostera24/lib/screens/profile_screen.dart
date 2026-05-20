@@ -6,6 +6,7 @@ import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/services/network_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/utils/media_url.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -285,7 +286,8 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasLogo = logoUrl != null && logoUrl!.trim().isNotEmpty;
+    final resolvedLogo = resolveUploadsMediaUrl(logoUrl);
+    final hasLogo = resolvedLogo != null && resolvedLogo.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -303,10 +305,11 @@ class _ProfileHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: hasLogo
                     ? Image.network(
-                        logoUrl!,
+                        resolvedLogo,
                         width: 64,
                         height: 64,
                         fit: BoxFit.cover,
+                        gaplessPlayback: true,
                         errorBuilder: (context, error, stackTrace) =>
                             _placeholderAvatar(),
                       )

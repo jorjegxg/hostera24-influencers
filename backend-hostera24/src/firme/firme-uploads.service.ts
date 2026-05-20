@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { mkdir, readdir, unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
 import {
-  getPublicUploadsBaseUrl,
+  buildFirmaLogoUrl,
   getUploadsRoot,
 } from '../common/uploads.util';
 
@@ -35,7 +35,7 @@ export class FirmeUploadsService {
       throw new BadRequestException('Logo prea mare (max 5 MB)');
     }
 
-    const ext = EXT_BY_MIME[file.mimetype];
+    const ext = this.resolveImageExt(file);
     if (!ext) {
       throw new BadRequestException(
         'Format invalid. Folosește JPEG, PNG, WebP sau GIF.',
@@ -60,8 +60,19 @@ export class FirmeUploadsService {
       throw new InternalServerErrorException('Nu am putut salva logo-ul');
     }
 
-    const base = getPublicUploadsBaseUrl(this.config);
-    const version = Date.now();
-    return `${base}/firme/${firmaId}/${filename}?v=${version}`;
+    return buildFirmaLogoUrl(this.config, firmaId, ext);
+  }
+
+  private resolveImageExt(file: Express.Multer.File): string | null {
+    const fromMime = EXT_BY_MIME[file.mimetype];
+    if (fromMime) return fromMime;
+
+    const name = (file.originalname ?? '').toLowerCase();
+    if (name.endsWith('.jpg') || name.endsWith('.jpeg')) return 'jpg';
+    if (name.endsWith('.png')) return 'png';
+    if (name.endsWith('.webp')) return 'webp';
+    if (name.endsWith('.gif')) return 'gif';
+
+    return null;
   }
 }

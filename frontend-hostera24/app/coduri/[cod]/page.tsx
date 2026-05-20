@@ -6,6 +6,7 @@ import {
   resolvePublicCodUrl,
   type PublicCodQr,
 } from "@/lib/api";
+import { resolveUploadsMediaUrl } from "@/lib/media-url";
 import { CodQrDisplay } from "./CodQrDisplay";
 import { RecordScan } from "./RecordScan";
 
@@ -49,7 +50,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   const mesajClient = data.numePostareClienti?.trim();
   const pretRedus = data.pretRedus?.trim();
   const { firma } = data;
-  const logoUrl = firma.logoUrl?.trim() || null;
+  const logoUrl = resolveUploadsMediaUrl(firma.logoUrl);
   const numeFirma = resolveFirmaName(firma);
   const descriere = firma.descriere?.trim();
   const website = firma.website?.trim();

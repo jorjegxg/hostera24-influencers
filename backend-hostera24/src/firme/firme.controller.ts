@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
   Get,
   MaxFileSizeValidator,
   ParseFilePipe,
@@ -42,10 +41,8 @@ export class FirmeController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({
-            fileType: /^image\/(jpeg|png|webp|gif)$/,
-          }),
         ],
+        fileIsRequired: true,
       }),
     )
     file: Express.Multer.File,
