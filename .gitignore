@@ -12,3 +12,7 @@ Thumbs.db
 firebase-service-account.json
 hostera24/android/app/google-services.json
 hostera24/ios/Runner/GoogleService-Info.plist
+
+# Logo-uri firmă (pe disk VPS / local)
+uploads/*
+!uploads/.gitkeep

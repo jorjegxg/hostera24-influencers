@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateFirmaProfilDto } from './dto/update-firma-profil.dto';
 import { Firma } from './firma.entity';
+import { FirmeUploadsService } from './firme-uploads.service';
 
 export type FirmaProfilResponse = {
   id: number;
@@ -20,6 +21,7 @@ export class FirmeService {
   constructor(
     @InjectRepository(Firma)
     private readonly firmeRepo: Repository<Firma>,
+    private readonly uploads: FirmeUploadsService,
   ) {}
 
   async getProfil(firmaId: number): Promise<FirmaProfilResponse> {
@@ -55,6 +57,20 @@ export class FirmeService {
       firma.logoUrl = this.normalizeUrl(dto.logoUrl);
     }
 
+    await this.firmeRepo.save(firma);
+    return this.toProfil(firma);
+  }
+
+  async uploadLogo(
+    firmaId: number,
+    file: Express.Multer.File,
+  ): Promise<FirmaProfilResponse> {
+    const firma = await this.firmeRepo.findOne({ where: { id: firmaId } });
+    if (!firma) {
+      throw new NotFoundException('Firma nu a fost găsită');
+    }
+
+    firma.logoUrl = await this.uploads.saveFirmaLogo(firmaId, file);
     await this.firmeRepo.save(firma);
     return this.toProfil(firma);
   }

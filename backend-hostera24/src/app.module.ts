@@ -1,7 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { getUploadsRoot } from './common/uploads.util';
 import { AuthModule } from './auth/auth.module';
 import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { CodQr } from './coduri-qr/cod-qr.entity';
@@ -15,6 +17,17 @@ import { Scanare } from './scanari/scanare.entity';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: join(__dirname, '..', '..', '.env'),
+    }),
+    ServeStaticModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          rootPath: getUploadsRoot(config),
+          serveRoot: '/uploads',
+          serveStaticOptions: { index: false, fallthrough: true },
+        },
+      ],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

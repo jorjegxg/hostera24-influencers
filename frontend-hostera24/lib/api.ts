@@ -4,6 +4,10 @@ export type PublicCodQr = {
   pretRedus: string | null;
   firma: {
     email: string;
+    nume: string | null;
+    telefon: string | null;
+    descriere: string | null;
+    website: string | null;
     logoUrl: string | null;
   };
 };

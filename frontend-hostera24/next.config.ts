@@ -19,6 +19,16 @@ const nextConfig: NextConfig = {
         hostname: "ui-avatars.com",
         pathname: "/api/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.hostera24.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+        pathname: "/uploads/**",
+      },
     ],
   },
 };

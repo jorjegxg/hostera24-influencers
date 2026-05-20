@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/models/firma_profile.dart';
 import 'package:hostera24/models/qr_entry.dart';
@@ -208,6 +210,46 @@ class ApiClient {
       }),
     );
 
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return FirmaProfile.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
+  Future<FirmaProfile> uploadFirmaLogo(String filePath) async {
+    final file = File(filePath);
+    if (!await file.exists()) {
+      throw ApiException('Fișierul logo nu există');
+    }
+
+    final ext = filePath.split('.').last.toLowerCase();
+    final mime = switch (ext) {
+      'jpg' || 'jpeg' => 'jpeg',
+      'png' => 'png',
+      'webp' => 'webp',
+      'gif' => 'gif',
+      _ => throw ApiException('Format imagine neacceptat (JPEG, PNG, WebP, GIF)'),
+    };
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${ApiConfig.baseUrl}/firma/profil/logo'),
+    );
+    final token = _token;
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'logo',
+        filePath,
+        contentType: MediaType('image', mime),
+      ),
+    );
+
+    final streamed = await request.send();
+    final response = await http.Response.fromStream(streamed);
     final data = _decodeMap(response);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return FirmaProfile.fromJson(data);

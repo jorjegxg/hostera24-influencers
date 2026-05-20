@@ -191,6 +191,10 @@ export class CoduriQrService {
       pretRedus: entry.pretRedus,
       firma: {
         email: entry.firma.email,
+        nume: entry.firma.nume,
+        telefon: entry.firma.telefon,
+        descriere: entry.firma.descriere,
+        website: entry.firma.website,
         logoUrl: entry.firma.logoUrl,
       },
     };

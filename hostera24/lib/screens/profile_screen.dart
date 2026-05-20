@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:hostera24/models/firma_profile.dart';
 import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
@@ -21,11 +22,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _telefonController;
   late final TextEditingController _descriereController;
   late final TextEditingController _websiteController;
-  late final TextEditingController _logoController;
 
   FirmaProfile? _profile;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _isUploadingLogo = false;
 
   @override
   void initState() {
@@ -34,7 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _telefonController = TextEditingController();
     _descriereController = TextEditingController();
     _websiteController = TextEditingController();
-    _logoController = TextEditingController();
     _loadProfile();
   }
 
@@ -44,7 +44,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _telefonController.dispose();
     _descriereController.dispose();
     _websiteController.dispose();
-    _logoController.dispose();
     super.dispose();
   }
 
@@ -53,7 +52,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _telefonController.text = profile.telefon ?? '';
     _descriereController.text = profile.descriere ?? '';
     _websiteController.text = profile.website ?? '';
-    _logoController.text = profile.logoUrl ?? '';
   }
 
   Future<void> _loadProfile() async {
@@ -87,7 +85,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         telefon: _telefonController.text,
         descriere: _descriereController.text,
         website: _websiteController.text,
-        logoUrl: _logoController.text,
       );
       if (!mounted) return;
       setState(() {
@@ -103,6 +100,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) showErrorSnackBar(context, 'Eroare la salvare: $e');
     } finally {
       if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _pickAndUploadLogo() async {
+    if (_isUploadingLogo) return;
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _isUploadingLogo = true);
+    try {
+      final profile =
+          await AuthService.instance.api.uploadFirmaLogo(picked.path);
+      if (!mounted) return;
+      setState(() {
+        _profile = profile;
+        _fillForm(profile);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Logo actualizat')),
+      );
+    } on ApiException catch (e) {
+      if (mounted) showErrorSnackBar(context, e.message);
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Eroare la upload logo: $e');
+    } finally {
+      if (mounted) setState(() => _isUploadingLogo = false);
     }
   }
 
@@ -135,6 +165,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 email: _profile?.email ?? widget.email,
                 displayName: _profile?.displayName ?? widget.email,
                 logoUrl: _profile?.logoUrl,
+                isUploadingLogo: _isUploadingLogo,
+                onChangeLogo: _pickAndUploadLogo,
               ),
               const SizedBox(height: 28),
               Text(
@@ -190,17 +222,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   prefixIcon: Icon(Icons.language_outlined),
                 ),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _logoController,
-                keyboardType: TextInputType.url,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  labelText: 'URL logo',
-                  hintText: 'https://...',
-                  prefixIcon: Icon(Icons.image_outlined),
-                ),
-              ),
               const SizedBox(height: 28),
               FilledButton(
                 onPressed: _isSaving ? null : _save,
@@ -239,11 +260,15 @@ class _ProfileHeader extends StatelessWidget {
     required this.email,
     required this.displayName,
     this.logoUrl,
+    required this.onChangeLogo,
+    this.isUploadingLogo = false,
   });
 
   final String email;
   final String displayName;
   final String? logoUrl;
+  final VoidCallback onChangeLogo;
+  final bool isUploadingLogo;
 
   @override
   Widget build(BuildContext context) {
@@ -256,42 +281,59 @@ class _ProfileHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: hasLogo
-                ? Image.network(
-                    logoUrl!,
-                    width: 64,
-                    height: 64,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        _placeholderAvatar(),
-                  )
-                : _placeholderAvatar(),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  displayName,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: hasLogo
+                    ? Image.network(
+                        logoUrl!,
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _placeholderAvatar(),
+                      )
+                    : _placeholderAvatar(),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
                       ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: isUploadingLogo ? null : onChangeLogo,
+            icon: isUploadingLogo
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.photo_outlined),
+            label: Text(hasLogo ? 'Schimbă logo' : 'Încarcă logo'),
           ),
         ],
       ),
