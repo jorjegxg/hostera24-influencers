@@ -57,10 +57,10 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   const qrUrl = await resolvePublicCodUrl(data.cod);
 
   return (
-    <main className="flex min-h-full flex-col items-center justify-center px-5 py-12">
+    <main className="flex min-h-full flex-col items-center justify-center px-5 py-5 md:py-12">
       <RecordScan cod={data.cod} />
 
-      <article className="w-full max-w-md rounded-2xl border border-[var(--color-placeholder-border)] bg-[var(--color-surface)] p-8 shadow-sm">
+      <article className="w-full max-w-md rounded-2xl border border-[var(--color-placeholder-border)] bg-[var(--color-surface)] p-5 md:p-8 shadow-sm">
         <header className="flex flex-col items-center text-center">
           {logoUrl ? (
             <Image
@@ -127,7 +127,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
         </p>
       </article>
 
-      <p className="mt-8 text-center text-xs text-[var(--color-text-secondary)]">
+      <p className="mt-4 text-center text-xs text-[var(--color-text-secondary)] md:mt-8">
         powered by{" "}
         <Link
           href="/"
