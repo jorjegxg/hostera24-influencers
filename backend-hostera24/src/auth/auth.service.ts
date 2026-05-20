@@ -1,12 +1,14 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Firma } from '../firme/firma.entity';
 import { FirebaseLoginDto } from './dto/firebase-login.dto';
 import { FirebaseAdminService } from './firebase-admin.service';
@@ -15,6 +17,8 @@ import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(Firma)
     private readonly firmeRepo: Repository<Firma>,
@@ -61,30 +65,40 @@ export class AuthService {
   }
 
   async loginWithGoogle(dto: FirebaseLoginDto) {
-    const decoded = await this.firebaseAdmin.verifyIdToken(dto.idToken);
-    const email = decoded.email?.trim().toLowerCase();
-    const uid = decoded.uid;
+    try {
+      const decoded = await this.firebaseAdmin.verifyIdToken(dto.idToken);
+      const email = decoded.email?.trim().toLowerCase();
+      const uid = decoded.uid;
 
-    if (!email) {
-      throw new UnauthorizedException('Contul Google nu are email asociat');
-    }
-
-    let firma =
-      (await this.firmeRepo.findOne({ where: { firebaseUid: uid } })) ??
-      (await this.firmeRepo.findOne({ where: { email } }));
-
-    if (firma) {
-      if (!firma.firebaseUid) {
-        firma.firebaseUid = uid;
-        await this.firmeRepo.save(firma);
+      if (!email) {
+        throw new UnauthorizedException('Contul Google nu are email asociat');
       }
-    } else {
-      firma = await this.firmeRepo.save(
-        this.firmeRepo.create({ email, firebaseUid: uid, parolaHash: null }),
-      );
-    }
 
-    return this.issueToken(firma);
+      let firma =
+        (await this.firmeRepo.findOne({ where: { firebaseUid: uid } })) ??
+        (await this.firmeRepo.findOne({ where: { email } }));
+
+      if (firma) {
+        if (!firma.firebaseUid) {
+          firma.firebaseUid = uid;
+          await this.firmeRepo.save(firma);
+        }
+      } else {
+        firma = await this.firmeRepo.save(
+          this.firmeRepo.create({ email, firebaseUid: uid, parolaHash: null }),
+        );
+      }
+
+      return this.issueToken(firma);
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        this.logger.error(`loginWithGoogle DB: ${error.message}`);
+        throw new InternalServerErrorException(
+          'Baza de date nu e actualizată pe server (lipsește migrarea Google). Rulează scripts/vps-migrate.sh pe VPS.',
+        );
+      }
+      throw error;
+    }
   }
 
   private async issueToken(firma: Firma) {

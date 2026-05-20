@@ -2,6 +2,7 @@
   "name": "hostera24-influencers",
   "private": true,
   "scripts": {
-    "db:reset": "bash scripts/db-reset.sh"
+    "db:reset": "bash scripts/db-reset.sh",
+    "db:migrate": "bash scripts/vps-migrate.sh"
   }
 }

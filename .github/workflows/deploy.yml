@@ -67,5 +67,8 @@ jobs:
 
             docker compose build
             docker compose up -d
+
+            bash scripts/vps-migrate.sh
+
             docker image prune -f
             docker compose ps

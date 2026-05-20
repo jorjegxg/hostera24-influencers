@@ -10,6 +10,7 @@ flutter cu backend de production :
 
 
 db reset : npm run db:reset
+db migrari VPS : cd ~/hostera24-influencers && npm run db:migrate
 
 
 firebase:

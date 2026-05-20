@@ -39,19 +39,19 @@ PUBLIC_UPLOADS_BASE_URL=https://api.hostera24.com/uploads
 
 `docker-compose` montează automat JSON-ul în container la `/app/firebase-service-account.json`.
 
-## 4. Migrări MySQL (dacă nu le-ai rulat)
+## 4. Migrări MySQL (obligatoriu — fără ele: **500 Internal Server Error** la Google)
 
 ```bash
 cd ~/hostera24-influencers
-
-docker compose exec -T mysql mysql -u hostera24 -p"$MYSQL_PASSWORD" hostera24 \
-  < backend-hostera24/docker/mysql/migrate-firebase-auth.sql
-
-docker compose exec -T mysql mysql -u hostera24 -p"$MYSQL_PASSWORD" hostera24 \
-  < backend-hostera24/docker/mysql/migrate-firma-profil.sql
+bash scripts/vps-migrate.sh
 ```
 
-(Înlocuiește parola sau folosește `-p` interactiv.)
+Sau manual:
+
+```bash
+docker compose exec -T mysql mysql -u hostera24 -p hostera24 \
+  < backend-hostera24/docker/mysql/migrate-vps-safe.sql
+```
 
 ## 5. Deploy / restart
 
