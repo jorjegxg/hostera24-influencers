@@ -30,10 +30,13 @@ if ! docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
 fi
 
 echo "→ Migrări MySQL ($MYSQL_DATABASE @ $CONTAINER)..."
-docker exec -i "$CONTAINER" mysql \
+if ! docker exec -i "$CONTAINER" mysql \
   --default-character-set=utf8mb4 \
   -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" \
-  "$MYSQL_DATABASE" < "$SQL_FILE"
+  "$MYSQL_DATABASE" < "$SQL_FILE"; then
+  echo "✗ Migrarea a eșuat. Verifică logs și rulează manual: bash scripts/vps-migrate.sh"
+  exit 1
+fi
 
 echo "✓ Migrări aplicate. Verificare coloane profil:"
 docker exec -i "$CONTAINER" mysql \

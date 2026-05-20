@@ -68,7 +68,9 @@ jobs:
             docker compose build
             docker compose up -d
 
+            echo "→ Migrări MySQL..."
             bash scripts/vps-migrate.sh
 
+            docker compose up -d api web
             docker image prune -f
             docker compose ps
