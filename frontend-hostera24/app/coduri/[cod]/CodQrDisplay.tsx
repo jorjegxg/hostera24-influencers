@@ -21,7 +21,7 @@ export function CodQrDisplay({ url, label }: Props) {
         />
       </div>
       {label ? (
-        <p className="mt-3 max-w-[220px] text-center text-xs text-[var(--color-text-secondary)]">
+        <p className="mt-3 max-w-sm text-center text-sm leading-relaxed text-[var(--color-text-secondary)]">
           {label}
         </p>
       ) : null}

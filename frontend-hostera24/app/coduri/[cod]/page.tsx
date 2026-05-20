@@ -118,7 +118,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
         <div className="mt-8 flex justify-center">
           <CodQrDisplay
             url={qrUrl}
-            label="Scanează pentru a accesa oferta"
+            label="Dacă folosești codul acesta când cumperi serviciul, ți se aplică reducerea"
           />
         </div>
 
