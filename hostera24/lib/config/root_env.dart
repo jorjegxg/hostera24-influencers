@@ -38,6 +38,20 @@ abstract final class RootEnv {
     final fromDefine = switch (key) {
       'API_BASE_URL' => const String.fromEnvironment('API_BASE_URL'),
       'WEB_BASE_URL' => const String.fromEnvironment('WEB_BASE_URL'),
+      'FIREBASE_API_KEY' => const String.fromEnvironment('FIREBASE_API_KEY'),
+      'FIREBASE_APP_ID' => const String.fromEnvironment('FIREBASE_APP_ID'),
+      'FIREBASE_MESSAGING_SENDER_ID' =>
+        const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+      'FIREBASE_PROJECT_ID' => const String.fromEnvironment('FIREBASE_PROJECT_ID'),
+      'FIREBASE_STORAGE_BUCKET' =>
+        const String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+      'FIREBASE_WEB_CLIENT_ID' =>
+        const String.fromEnvironment('FIREBASE_WEB_CLIENT_ID'),
+      'FIREBASE_ANDROID_CLIENT_ID' =>
+        const String.fromEnvironment('FIREBASE_ANDROID_CLIENT_ID'),
+      'FIREBASE_IOS_CLIENT_ID' => const String.fromEnvironment('FIREBASE_IOS_CLIENT_ID'),
+      'FIREBASE_IOS_BUNDLE_ID' =>
+        const String.fromEnvironment('FIREBASE_IOS_BUNDLE_ID'),
       _ => '',
     };
     if (fromDefine.isNotEmpty) return fromDefine;

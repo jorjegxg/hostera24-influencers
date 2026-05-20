@@ -15,8 +15,11 @@ export class Firma {
   @Column({ unique: true })
   email: string;
 
-  @Column({ name: 'parola_hash' })
-  parolaHash: string;
+  @Column({ name: 'firebase_uid', type: 'varchar', length: 128, nullable: true, unique: true })
+  firebaseUid: string | null;
+
+  @Column({ name: 'parola_hash', type: 'varchar', length: 255, nullable: true })
+  parolaHash: string | null;
 
   @Column({ name: 'logo_url', type: 'varchar', length: 512, nullable: true })
   logoUrl: string | null;

@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Firma } from '../firme/firma.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { FirebaseAdminService } from './firebase-admin.service';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
@@ -22,7 +23,7 @@ import { JwtStrategy } from './jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, FirebaseAdminService, JwtStrategy],
   exports: [JwtModule, PassportModule],
 })
 export class AuthModule {}

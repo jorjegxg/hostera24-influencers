@@ -36,9 +36,18 @@ class ApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> loginWithGoogle({
+    required String idToken,
+  }) async {
+    return _authRequest(
+      path: '/auth/google',
+      body: {'idToken': idToken},
+    );
+  }
+
   Future<Map<String, dynamic>> _authRequest({
     required String path,
-    required Map<String, String> body,
+    required Map<String, dynamic> body,
   }) async {
     final response = await _http.post(
       Uri.parse('${ApiConfig.baseUrl}$path'),

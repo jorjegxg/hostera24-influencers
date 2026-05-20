@@ -6,6 +6,7 @@ import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
+import 'package:hostera24/widgets/google_sign_in_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +36,21 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (_) => HomeShell(email: session.email),
       ),
     );
+  }
+
+  Future<void> _onGoogleSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    try {
+      final session = await AuthService.instance.signInWithGoogle();
+      await _goToHome(session);
+    } on ApiException catch (e) {
+      if (mounted) showErrorSnackBar(context, e.message);
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, 'Eroare neașteptată: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _onLogin() async {
@@ -86,6 +102,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: AppColors.textSecondary, height: 1.4),
                     ),
                     const SizedBox(height: 28),
+                    GoogleSignInButton(
+                      isLoading: _isLoading,
+                      onPressed: _onGoogleSignIn,
+                    ),
+                    const SizedBox(height: 20),
+                    const AuthDivider(),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,

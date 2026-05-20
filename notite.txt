@@ -1,47 +1,3 @@
-backend : cd backend-hostera24 && npm run start:dev
-
-
-
-env : cp .env.example .env   (toate variabilele la rădăcina proiectului)
-
-flutter (terminal): cd hostera24 && flutter run
-  → citește API_BASE_URL și WEB_BASE_URL din ../.env
-
-flutter (backend pe server — hostera24.com):
-  → Cursor: Run and Debug → „Flutter (server VPS — hostera24.com)” → F5
-  → terminal:
-    cd hostera24 && flutter run \
-      --dart-define=API_BASE_URL=https://api.hostera24.com \
-      --dart-define=WEB_BASE_URL=https://hostera24.com
-  → sau în ../.env (fără dart-define):
-    API_BASE_URL=https://api.hostera24.com
-    WEB_BASE_URL=https://hostera24.com
-  → telefonul trebuie să aibă internet; API trebuie să fie sus pe VPS (docker compose)
-
-flutter (rețea locală — Docker pe PC):
-  → Run and Debug → „Flutter (rețea locală)”
-  → IP-ul din .env / launch.json = IP-ul PC-ului (nu localhost pe telefon fizic)
-
-next.js : cd frontend-hostera24 && npm run dev
-  → citește NEXT_PUBLIC_* din ../.env
-  → pagină QR: http://localhost:3023/coduri/CAFE-INSTA-2026
-
-  → click în terminalul unde rulează flutter, apoi: r = hot reload, R = hot restart, q = quit
-
-
-
-flutter (Cursor – recomandat):
-
-  → Run and Debug (Ctrl+Shift+D) → alege configurația → F5
-
-  → la salvare (.dart) = hot reload automat
-
-  → bara de debug: butoane ⚡ reload / 🔄 restart
-
-
-
-db reset : npm run db:reset
-
 .....
 
 flutter cu backend de production : 
@@ -49,6 +5,28 @@ flutter cu backend de production :
    --dart-define=API_BASE_URL=https://api.hostera24.com \
    --dart-define=WEB_BASE_URL=https://hostera24.com
 
-flutter run \
+
+
+
+
+db reset : npm run db:reset
+
+
+firebase:
+  ✓ flutterfire configure + google-services.json
+  ✓ .env FIREBASE_PROJECT_ID=hostera24-f8585
+  ✓ migrare DB firebase_uid
+  ✓ backend POST /auth/google (fără service account local)
+  → TU în Console: docs/FIREBASE_CONSOLE_MANUAL.md (Google ON + SHA-1: 23:F5:87:41:...)
+  → restart backend dacă rulează deja (npm run start:dev) ca să încarce .env nou
+
+DEVELOPMENT:
+
+cd hostera24 && flutter run \
    --dart-define=API_BASE_URL=http://192.168.1.12:3022 \
    --dart-define=WEB_BASE_URL=http://192.168.1.12:3023
+
+
+cd frontend-hostera24 && npm run dev
+
+cd backend-hostera24 && npm run start:dev

@@ -6,7 +6,8 @@ SET NAMES utf8mb4;
 CREATE TABLE firme (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
-    parola_hash VARCHAR(255) NOT NULL,
+    firebase_uid VARCHAR(128) NULL UNIQUE,
+    parola_hash VARCHAR(255) NULL,
     logo_url VARCHAR(512) NULL,
     creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

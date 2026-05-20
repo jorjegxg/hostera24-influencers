@@ -1,5 +1,6 @@
 import 'package:hostera24/services/api_client.dart';
 import 'package:hostera24/services/api_exception.dart';
+import 'package:hostera24/services/google_auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthSession {
@@ -58,6 +59,17 @@ class AuthService {
     );
   }
 
+  Future<AuthSession> signInWithGoogle() async {
+    try {
+      final idToken = await GoogleAuthService.instance.signInAndGetIdToken();
+      return _authenticate(() => api.loginWithGoogle(idToken: idToken));
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Autentificare Google eșuată: $e');
+    }
+  }
+
   Future<AuthSession> _authenticate(
     Future<Map<String, dynamic>> Function() request,
   ) async {
@@ -94,6 +106,7 @@ class AuthService {
   }
 
   Future<void> logout() async {
+    await GoogleAuthService.instance.signOut();
     _session = null;
     api.setToken(null);
     final prefs = await SharedPreferences.getInstance();

@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { Firma } from '../firme/firma.entity';
+import { FirebaseLoginDto } from './dto/firebase-login.dto';
+import { FirebaseAdminService } from './firebase-admin.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -17,6 +19,7 @@ export class AuthService {
     @InjectRepository(Firma)
     private readonly firmeRepo: Repository<Firma>,
     private readonly jwtService: JwtService,
+    private readonly firebaseAdmin: FirebaseAdminService,
   ) {}
 
   async login(dto: LoginDto) {
@@ -25,6 +28,12 @@ export class AuthService {
 
     if (!firma) {
       throw new UnauthorizedException('Email sau parolă incorectă');
+    }
+
+    if (!firma.parolaHash) {
+      throw new UnauthorizedException(
+        'Acest cont folosește autentificare Google',
+      );
     }
 
     const valid = await bcrypt.compare(dto.parola, firma.parolaHash);
@@ -47,6 +56,33 @@ export class AuthService {
     const firma = await this.firmeRepo.save(
       this.firmeRepo.create({ email, parolaHash }),
     );
+
+    return this.issueToken(firma);
+  }
+
+  async loginWithGoogle(dto: FirebaseLoginDto) {
+    const decoded = await this.firebaseAdmin.verifyIdToken(dto.idToken);
+    const email = decoded.email?.trim().toLowerCase();
+    const uid = decoded.uid;
+
+    if (!email) {
+      throw new UnauthorizedException('Contul Google nu are email asociat');
+    }
+
+    let firma =
+      (await this.firmeRepo.findOne({ where: { firebaseUid: uid } })) ??
+      (await this.firmeRepo.findOne({ where: { email } }));
+
+    if (firma) {
+      if (!firma.firebaseUid) {
+        firma.firebaseUid = uid;
+        await this.firmeRepo.save(firma);
+      }
+    } else {
+      firma = await this.firmeRepo.save(
+        this.firmeRepo.create({ email, firebaseUid: uid, parolaHash: null }),
+      );
+    }
 
     return this.issueToken(firma);
   }

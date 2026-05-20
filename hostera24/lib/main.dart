@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/config/root_env.dart';
+import 'package:hostera24/firebase/firebase_bootstrap.dart';
 import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/screens/home_shell.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/theme/app_theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   RootEnv.load();
+  await FirebaseBootstrap.initialize();
   runApp(const Hostera24App());
 }
 
