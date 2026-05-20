@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/screens/home_shell.dart';
 import 'package:hostera24/screens/register_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
@@ -32,9 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _goToHome(AuthSession session) async {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => HomeShell(email: session.email),
-      ),
+      MaterialPageRoute<void>(builder: (_) => HomeShell(email: session.email)),
     );
   }
 
@@ -91,7 +88,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 40),
                     Text(
                       'Autentificare',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
@@ -99,7 +97,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 8),
                     const Text(
                       'Introdu emailul și parola contului firmei.',
-                      style: TextStyle(color: AppColors.textSecondary, height: 1.4),
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
                     ),
                     const SizedBox(height: 28),
                     TextFormField(
@@ -137,7 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : Icons.visibility_off_outlined,
                           ),
                           onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
                           },
                         ),
                       ),
@@ -182,29 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                       child: const Text('Nu ai cont? Înregistrează-te'),
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.accent.withValues(alpha: 0.25),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Server: ${ApiConfig.baseUrl}',
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withValues(alpha: 0.75),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -236,9 +216,9 @@ class _BrandHeader extends StatelessWidget {
         Text(
           'Hostera24',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
         const SizedBox(height: 4),
         const Text(

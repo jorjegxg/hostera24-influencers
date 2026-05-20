@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hostera24/screens/profile_screen.dart';
 import 'package:hostera24/screens/qr_creator_screen.dart';
 import 'package:hostera24/screens/scan_qr_screen.dart';
+import 'package:hostera24/widgets/offline_banner.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key, required this.email});
@@ -23,12 +24,22 @@ class _HomeShellState extends State<HomeShell> {
       appBar: AppBar(
         title: Text(_titles[_index]),
       ),
-      body: IndexedStack(
-        index: _index,
+      body: Column(
         children: [
-          ScanQrScreen(key: const ValueKey('scan')),
-          const QrCreatorScreen(key: ValueKey('creator')),
-          ProfileScreen(key: const ValueKey('profile'), email: widget.email),
+          const OfflineBanner(),
+          Expanded(
+            child: IndexedStack(
+              index: _index,
+              children: [
+                ScanQrScreen(key: const ValueKey('scan')),
+                const QrCreatorScreen(key: ValueKey('creator')),
+                ProfileScreen(
+                  key: const ValueKey('profile'),
+                  email: widget.email,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

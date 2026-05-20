@@ -4,6 +4,7 @@ import 'package:hostera24/models/firma_profile.dart';
 import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
+import 'package:hostera24/services/network_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 
@@ -57,6 +58,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     setState(() => _isLoading = true);
     try {
+      NetworkService.instance.requireOnline(
+        'Profilul necesită internet.',
+      );
       final profile = await AuthService.instance.api.fetchFirmaProfil();
       if (!mounted) return;
       setState(() {
@@ -80,6 +84,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() => _isSaving = true);
     try {
+      NetworkService.instance.requireOnline(
+        'Salvarea profilului necesită internet.',
+      );
       final profile = await AuthService.instance.api.updateFirmaProfil(
         nume: _numeController.text,
         telefon: _telefonController.text,
@@ -91,9 +98,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _profile = profile;
         _fillForm(profile);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil salvat')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profil salvat')));
     } on ApiException catch (e) {
       if (mounted) showErrorSnackBar(context, e.message);
     } catch (e) {
@@ -117,16 +124,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() => _isUploadingLogo = true);
     try {
-      final profile =
-          await AuthService.instance.api.uploadFirmaLogo(picked.path);
+      NetworkService.instance.requireOnline(
+        'Încărcarea logo-ului necesită internet.',
+      );
+      final profile = await AuthService.instance.api.uploadFirmaLogo(
+        picked.path,
+      );
       if (!mounted) return;
       setState(() {
         _profile = profile;
         _fillForm(profile);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logo actualizat')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Logo actualizat')));
     } on ApiException catch (e) {
       if (mounted) showErrorSnackBar(context, e.message);
     } catch (e) {
@@ -172,9 +183,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 'Detalii firmă',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 6),
               const Text(
@@ -203,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriereController,
-                maxLines: 4,
+                maxLines: 2,
                 textInputAction: TextInputAction.newline,
                 decoration: const InputDecoration(
                   labelText: 'Descriere',
@@ -243,7 +254,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 label: const Text('Deconectare'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.error,
-                  side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
+                  side: BorderSide(
+                    color: AppColors.error.withValues(alpha: 0.5),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
@@ -307,8 +320,8 @@ class _ProfileHeader extends StatelessWidget {
                     Text(
                       displayName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(

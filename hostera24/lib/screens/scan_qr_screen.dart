@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_exception.dart';
-import 'package:hostera24/services/auth_service.dart';
+import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -53,7 +53,7 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      final result = await AuthService.instance.api.scanCodQr(raw);
+      final result = await QrRepository().scanCodQr(raw);
       if (!mounted) return;
       await _scannerController?.stop();
       setState(() {
@@ -305,6 +305,29 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
         children: [
+          if (result.queuedOffline) ...[
+            Card(
+              color: AppColors.accent.withValues(alpha: 0.08),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_upload_outlined, color: AppColors.accent),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        result.isQueued
+                            ? 'Scan salvat local. Se trimite la server când ai internet.'
+                            : 'Scan salvat local (codul tău). Numărul de scanări se actualizează după sincronizare.',
+                        style: const TextStyle(height: 1.35),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           if (result.isOwn) ..._ownDetailCards() else if (result.status == ScanStatus.other) ...[
           Card(
             child: Padding(
@@ -343,6 +366,26 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
                       text: result.numePostareClienti!,
                     ),
                   ],
+                ],
+              ),
+            ),
+          ),
+        ] else if (result.isQueued) ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(Icons.schedule, color: AppColors.accent),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      result.cod != null
+                          ? 'Cod ${result.cod} — scan salvat, așteaptă sincronizare.'
+                          : 'Scan salvat local. Conectează-te la internet pentru validare.',
+                      style: const TextStyle(height: 1.35),
+                    ),
+                  ),
                 ],
               ),
             ),

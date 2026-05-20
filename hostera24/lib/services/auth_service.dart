@@ -1,6 +1,9 @@
+import 'package:hostera24/data/local_store.dart';
 import 'package:hostera24/services/api_client.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/google_auth_service.dart';
+import 'package:hostera24/services/network_service.dart';
+import 'package:hostera24/services/sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthSession {
@@ -101,6 +104,14 @@ class AuthService {
     await prefs.setString(_tokenKey, token);
     await prefs.setInt(_firmaIdKey, session.firmaId);
     await prefs.setString(_emailKey, session.email);
+
+    if (NetworkService.instance.isOnline) {
+      await SyncService.instance.syncPendingScans();
+      try {
+        final entries = await api.fetchCoduriQr();
+        await LocalStore.instance.saveQrList(session.firmaId, entries);
+      } catch (_) {}
+    }
 
     return session;
   }

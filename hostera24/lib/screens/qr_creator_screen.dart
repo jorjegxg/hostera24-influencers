@@ -7,8 +7,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
+import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/services/api_exception.dart';
-import 'package:hostera24/services/auth_service.dart';
+import 'package:hostera24/services/network_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:hostera24/widgets/qr_entry_card.dart';
@@ -23,8 +24,10 @@ class QrCreatorScreen extends StatefulWidget {
 }
 
 class _QrCreatorScreenState extends State<QrCreatorScreen> {
+  final _repo = QrRepository();
   final List<QrEntry> _entries = [];
   bool _isLoading = true;
+  bool _fromCache = false;
 
   @override
   void initState() {
@@ -35,12 +38,13 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
   Future<void> _loadEntries() async {
     setState(() => _isLoading = true);
     try {
-      final entries = await AuthService.instance.api.fetchCoduriQr();
+      final entries = await _repo.fetchCoduriQr();
       if (!mounted) return;
       setState(() {
         _entries
           ..clear()
           ..addAll(entries);
+        _fromCache = !NetworkService.instance.isOnline;
       });
     } on ApiException catch (e) {
       if (mounted) showErrorSnackBar(context, e.message);
@@ -52,6 +56,15 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
   }
 
   Future<void> _openAddScreen() async {
+    try {
+      NetworkService.instance.requireOnline(
+        'Crearea unui cod QR necesită internet.',
+      );
+    } on ApiException catch (e) {
+      if (mounted) showErrorSnackBar(context, e.message);
+      return;
+    }
+
     final entry = await Navigator.of(context).push<QrEntry>(
       MaterialPageRoute<QrEntry>(
         builder: (_) => const AddQrScreen(),
@@ -68,6 +81,15 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
   }
 
   Future<void> _openEditScreen(QrEntry entry) async {
+    try {
+      NetworkService.instance.requireOnline(
+        'Editarea codului QR necesită internet.',
+      );
+    } on ApiException catch (e) {
+      if (mounted) showErrorSnackBar(context, e.message);
+      return;
+    }
+
     final updated = await Navigator.of(context).push<QrEntry>(
       MaterialPageRoute<QrEntry>(
         builder: (_) => AddQrScreen(entry: entry),
@@ -115,7 +137,7 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
     if (!confirmed || !mounted) return;
 
     try {
-      await AuthService.instance.api.deleteCodQr(entry.id);
+      await _repo.deleteCodQr(entry.id);
       if (!mounted) return;
       setState(() => _entries.removeWhere((e) => e.id == entry.id));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -158,6 +180,11 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 88),
                   children: [
+                  if (_fromCache)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: _CacheHint(),
+                    ),
                   if (_entries.isEmpty)
                     const _EmptyState()
                   else ...[
@@ -210,7 +237,9 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
           right: 20,
           bottom: 16,
           child: FloatingActionButton.extended(
-            onPressed: _isLoading ? null : _openAddScreen,
+            onPressed: _isLoading || !NetworkService.instance.isOnline
+                ? null
+                : _openAddScreen,
             backgroundColor: AppColors.accent,
             foregroundColor: Colors.white,
             icon: const Icon(Icons.add),
@@ -218,6 +247,36 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CacheHint extends StatelessWidget {
+  const _CacheHint();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.textSecondary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.offline_bolt_outlined, size: 18),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Listă din cache (offline). Trage în jos când ai internet.',
+              style: TextStyle(fontSize: 13, height: 1.3),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -294,7 +353,7 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
 
   Future<void> _loadInitial() async {
     try {
-      final page = await AuthService.instance.api.fetchCodQrScanari(
+      final page = await QrRepository().fetchCodQrScanari(
         entry.id,
         page: 1,
         limit: _pageSize,
@@ -401,7 +460,7 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
     setState(() => _isLoadingMore = true);
 
     try {
-      final page = await AuthService.instance.api.fetchCodQrScanari(
+      final page = await QrRepository().fetchCodQrScanari(
         entry.id,
         page: _nextPage,
         limit: _pageSize,

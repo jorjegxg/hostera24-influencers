@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/services/api_exception.dart';
-import 'package:hostera24/services/auth_service.dart';
+import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 
@@ -56,14 +56,14 @@ class _AddQrScreenState extends State<AddQrScreen> {
     try {
       final QrEntry entry;
       if (_isEditing) {
-        entry = await AuthService.instance.api.updateCodQr(
+        entry = await QrRepository().updateCodQr(
           id: widget.entry!.id,
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
         );
       } else {
-        entry = await AuthService.instance.api.createCodQr(
+        entry = await QrRepository().createCodQr(
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,

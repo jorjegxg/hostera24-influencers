@@ -4,12 +4,16 @@ import 'package:hostera24/firebase/firebase_bootstrap.dart';
 import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/screens/home_shell.dart';
 import 'package:hostera24/services/auth_service.dart';
+import 'package:hostera24/services/network_service.dart';
+import 'package:hostera24/services/sync_service.dart';
 import 'package:hostera24/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   RootEnv.load();
   await FirebaseBootstrap.initialize();
+  await NetworkService.instance.initialize();
+  SyncService.instance.initialize();
   runApp(const Hostera24App());
 }
 
@@ -31,6 +35,9 @@ class _Hostera24AppState extends State<Hostera24App> {
 
   Future<void> _bootstrap() async {
     await AuthService.instance.restoreSession();
+    if (AuthService.instance.isLoggedIn) {
+      await SyncService.instance.syncPendingScans();
+    }
     if (!mounted) return;
     setState(() {
       final session = AuthService.instance.session;
