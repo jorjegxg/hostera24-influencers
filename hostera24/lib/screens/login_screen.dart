@@ -196,15 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Demo: cafe@demo.ro / password',
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withValues(alpha: 0.95),
-                              fontSize: 13,
-                              height: 1.35,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
                             'Server: ${ApiConfig.baseUrl}',
                             style: TextStyle(
                               color: AppColors.textSecondary.withValues(alpha: 0.75),
