@@ -7,6 +7,7 @@ import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { CodQr } from './coduri-qr/cod-qr.entity';
 import { CoduriQrModule } from './coduri-qr/coduri-qr.module';
 import { Firma } from './firme/firma.entity';
+import { FirmeModule } from './firme/firme.module';
 import { Scanare } from './scanari/scanare.entity';
 
 @Module({
@@ -32,6 +33,7 @@ import { Scanare } from './scanari/scanare.entity';
     }),
     AuthModule,
     CoduriQrModule,
+    FirmeModule,
   ],
 })
 export class AppModule implements NestModule {

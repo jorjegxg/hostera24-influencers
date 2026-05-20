@@ -15,6 +15,18 @@ export class Firma {
   @Column({ unique: true })
   email: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  nume: string | null;
+
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  telefon: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  descriere: string | null;
+
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  website: string | null;
+
   @Column({ name: 'firebase_uid', type: 'varchar', length: 128, nullable: true, unique: true })
   firebaseUid: string | null;
 

@@ -11,6 +11,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE firme (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
+    nume VARCHAR(255) NULL,
+    telefon VARCHAR(32) NULL,
+    descriere TEXT NULL,
+    website VARCHAR(512) NULL,
     firebase_uid VARCHAR(128) NULL UNIQUE,
     parola_hash VARCHAR(255) NULL,
     logo_url VARCHAR(512) NULL,

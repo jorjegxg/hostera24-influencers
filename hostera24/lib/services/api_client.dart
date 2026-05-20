@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:hostera24/config/api_config.dart';
+import 'package:hostera24/models/firma_profile.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_entry_detail.dart';
 import 'package:hostera24/models/qr_scan_page.dart';
@@ -171,6 +172,45 @@ class ApiClient {
     final data = _decodeMap(response);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return QrEntry.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
+  Future<FirmaProfile> fetchFirmaProfil() async {
+    final response = await _http.get(
+      Uri.parse('${ApiConfig.baseUrl}/firma/profil'),
+      headers: _authHeaders(),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return FirmaProfile.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
+  Future<FirmaProfile> updateFirmaProfil({
+    String? nume,
+    String? telefon,
+    String? descriere,
+    String? website,
+    String? logoUrl,
+  }) async {
+    final response = await _http.patch(
+      Uri.parse('${ApiConfig.baseUrl}/firma/profil'),
+      headers: _authHeaders(),
+      body: jsonEncode({
+        if (nume != null) 'nume': nume.trim(),
+        if (telefon != null) 'telefon': telefon.trim(),
+        if (descriere != null) 'descriere': descriere.trim(),
+        if (website != null) 'website': website.trim(),
+        if (logoUrl != null) 'logoUrl': logoUrl.trim(),
+      }),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return FirmaProfile.fromJson(data);
     }
     throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
   }
