@@ -23,6 +23,13 @@ html {
   scroll-behavior: smooth;
 }
 
+#motto,
+#beneficii,
+#statistici,
+#contact {
+  scroll-margin-top: 4.5rem;
+}
+
 body {
   background: var(--color-page-bg);
   color: var(--color-text-primary);

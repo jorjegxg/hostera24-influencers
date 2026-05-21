@@ -1,0 +1,156 @@
+import { BenefitCard } from "./BenefitCard";
+import type { BenefitIconName } from "./BenefitIcon";
+import { FadeInSection } from "./FadeInSection";
+import type { ReactNode } from "react";
+
+const BENEFIT_ITEMS: {
+  id: string;
+  icon: BenefitIconName;
+  title: string;
+  body: ReactNode;
+}[] = [
+  {
+    id: "cupoane",
+    icon: "cupoane",
+    title: "Cupoane promoționale",
+    body: (
+      <>
+        <p>
+          Configurați coduri QR cu validitate flexibilă — de exemplu luni–vineri
+          sau doar anumite zile (joi, marți etc.). La scanare în magazin, clientul
+          beneficiază de preț redus.{" "}
+          <strong className="text-[var(--color-text-primary)]">
+            Stimulați traficul în zilele cu vânzări mai slabe.
+          </strong>
+        </p>
+        <p className="mt-3 rounded-xl border border-amber-200/80 bg-amber-50/60 px-4 py-3 text-sm">
+          <span className="font-semibold text-[var(--color-text-primary)]">
+            Recomandare:
+          </span>{" "}
+          ofertele concrete (ex. „−10 lei la scanarea codului în magazin”) au rată
+          de conversie mai bună decât mesajele generice de tip „reduceri de 10%”.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "postari",
+    icon: "postari",
+    title: "Performanța fiecărei postări",
+    body: (
+      <p>
+        Atașați la fiecare postare un cod QR cu reducere fixă (ex. 10 lei), pe o
+        perioadă definită. La casă, scanarea confirmă reducerea pe loc — fără
+        coduri manuale sau explicații suplimentare. În aplicație vedeți statistici:{" "}
+        <strong className="text-[var(--color-text-primary)]">
+          ce tip de conținut aduce cel mai mult trafic în magazin.
+        </strong>
+      </p>
+    ),
+  },
+  {
+    id: "affiliat",
+    icon: "affiliat",
+    title: "Marketing afiliat",
+    body: (
+      <p>
+        Colaborați cu agenții sau creatori de conținut pe bază de rezultate.
+        Generați un cod de reducere dedicat (ex. 10%) pentru fiecare partener; ei
+        îl promovează, iar remunerația se raportează la{" "}
+        <strong className="text-[var(--color-text-primary)]">
+          numărul real de clienți aduși în magazin
+        </strong>
+        , măsurați prin scanări.
+      </p>
+    ),
+  },
+  {
+    id: "produs-gratis",
+    icon: "produs-gratis",
+    title: "Campanie cu bilete gratuite sau reduceri",
+    body: (
+      <p>
+        Exemplu într-un videoclip: cine vă urmărește pe Instagram primește
+        intrare gratuită sau reducere — la scanarea codului QR din aplicație.
+      </p>
+    ),
+  },
+  {
+    id: "primele-x",
+    icon: "primele-x",
+    title: "Oferte limitate — primele X clienți",
+    body: (
+      <p>
+        Configurați reduceri pentru primele X persoane care prezintă codul în
+        magazin (ex. 50% reducere). Ideal pentru campanii de urgență și pentru a
+        consolida comunitatea pe rețelele sociale — urmăritorii află primii de
+        ofertele viitoare.
+      </p>
+    ),
+  },
+];
+
+const COMBINED_STEPS = [
+  "Colaborați cu o agenție de marketing — remunerare pe performanță.",
+  "Generați un cod dedicat: primele X scanări beneficiază de 50% reducere.",
+  "La casă, validați codul fiecărui client care vine din campanie.",
+  "Reducerea se aplică automat pentru primele X persoane eligibile.",
+] as const;
+
+export function BeneficiiSection() {
+  return (
+    <FadeInSection
+      id="beneficii"
+      className="mt-20 border-t border-neutral-200 pt-16"
+      aria-labelledby="heading-beneficii"
+    >
+      <h2
+        id="heading-beneficii"
+        className="text-2xl font-bold text-[var(--color-text-primary)] sm:text-3xl"
+      >
+        Cum îmi ajută Hostera24 afacerea
+      </h2>
+      <p className="mt-3 max-w-3xl text-lg text-[var(--color-text-secondary)]">
+        Te poate ajuta în mai multe feluri:
+      </p>
+
+      <div className="mt-10 space-y-3">
+        {BENEFIT_ITEMS.map((item) => (
+          <BenefitCard
+            key={item.id}
+            id={item.id}
+            icon={item.icon}
+            title={item.title}
+            body={item.body}
+          />
+        ))}
+      </div>
+
+      <div className="mt-10 overflow-hidden rounded-2xl border-2 border-[var(--color-accent)]/30 bg-gradient-to-br from-emerald-50/50 to-[var(--color-surface)] p-6 sm:p-8">
+        <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
+          Campanie combinată — exemplu practic
+        </h3>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+          Marketing afiliat și ofertă limitată pentru primele X clienți, în același
+          flux.
+        </p>
+        <ol className="mt-4 list-none space-y-2">
+          {COMBINED_STEPS.map((step, i) => (
+            <li
+              key={step}
+              className="flex gap-3 text-[var(--color-text-secondary)]"
+            >
+              <span
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)]/15 text-xs font-bold text-[var(--color-accent)]"
+                aria-hidden
+              >
+                {i + 1}
+              </span>
+              <span className="pt-0.5">{step}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </FadeInSection>
+  );
+}
