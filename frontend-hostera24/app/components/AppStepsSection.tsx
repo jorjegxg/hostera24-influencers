@@ -7,7 +7,7 @@ const STEPS = [
     title: "Creați codul QR pentru campanie",
     description:
       "Configurați reducerea, perioada de valabilitate și condițiile direct în aplicația Hostera24.",
-    imageSrc: "/cod_campanie.jpeg",
+    imageSrc: "/validati.jpeg",
     imageAlt: "Ecran Hostera24 — creare cod QR pentru campanie",
   },
   {
@@ -23,7 +23,7 @@ const STEPS = [
     title: "Validați la casă și urmăriți rezultatele",
     description:
       "Persoana de la casă scanează codul din aplicația Hostera24 — reducerea se aplică pe loc, iar scanările și statisticile apar în contul dumneavoastră.",
-    imageSrc: "/validati.jpeg",
+    imageSrc: "/cod_campanie.jpeg",
     imageAlt: "Ecran Hostera24 — scanare la casă și statistici campanie",
   },
 ] as const;
