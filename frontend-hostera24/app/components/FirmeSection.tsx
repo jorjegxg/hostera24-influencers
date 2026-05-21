@@ -1,4 +1,5 @@
 import { BenefitIcon, type BenefitIconName } from "./BenefitIcon";
+import { AppStepsSection } from "./AppStepsSection";
 import { BeneficiiSection } from "./BeneficiiSection";
 import { FadeInSection } from "./FadeInSection";
 import { LeadForm } from "./LeadForm";
@@ -51,6 +52,8 @@ export function FirmeSection() {
       </FadeInSection>
 
       <BeneficiiSection />
+
+      <AppStepsSection />
 
       {/* Statistici */}
       <FadeInSection
