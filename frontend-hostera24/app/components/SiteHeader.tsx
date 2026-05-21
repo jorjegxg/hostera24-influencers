@@ -6,10 +6,10 @@ export function SiteHeader() {
           HOSTERA24
         </span>
         <a
-          href="#cta-firme"
+          href="#contact"
           className="inline-flex items-center justify-center rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--color-accent-hover)] sm:px-6 sm:py-3 sm:text-base"
         >
-          Vreau clienți noi
+          Contact
         </a>
       </div>
     </header>

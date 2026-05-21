@@ -107,3 +107,35 @@ export async function recordPublicScan(cod: string): Promise<void> {
     { method: "POST" },
   );
 }
+
+export type ContactMessagePayload = {
+  tip: "contact";
+  nume: string;
+  email: string;
+  telefon: string;
+  mesaj: string;
+};
+
+export async function submitContactMessage(
+  payload: ContactMessagePayload,
+): Promise<{ ok: true; id: number }> {
+  const res = await fetch(`${apiBaseUrl()}/contact`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    let detail = `Eroare ${res.status}`;
+    try {
+      const body = (await res.json()) as { message?: string | string[] };
+      if (Array.isArray(body.message)) detail = body.message.join(", ");
+      else if (body.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+
+  return res.json() as Promise<{ ok: true; id: number }>;
+}

@@ -1,63 +1,81 @@
 "use client";
 
-type LeadFormProps = {
-  variant: "firme" | "agentii";
-};
+import { useState } from "react";
+import { submitContactMessage } from "@/lib/api";
 
-const MAIL = "georgelutaoff@gmail.com";
+export function LeadForm() {
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+    "idle",
+  );
+  const [errorText, setErrorText] = useState<string | null>(null);
 
-export function LeadForm({ variant }: LeadFormProps) {
-  const formId = variant === "firme" ? "cta-firme" : "cta-agentii";
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
     const nume = String(fd.get("nume") ?? "").trim();
     const email = String(fd.get("email") ?? "").trim();
     const telefon = String(fd.get("telefon") ?? "").trim();
-    const agentie =
-      variant === "agentii" ? String(fd.get("agentie") ?? "").trim() : "";
+    const mesaj = String(fd.get("mesaj") ?? "").trim();
 
     if (!nume || !email || !telefon) {
-      alert("Completează numele, emailul și telefonul.");
+      setErrorText("Completează numele, emailul și telefonul.");
+      setStatus("error");
       return;
     }
-    if (variant === "agentii" && !agentie) {
-      alert("Completează numele agenției.");
+    if (!mesaj) {
+      setErrorText("Scrie un mesaj.");
+      setStatus("error");
       return;
     }
 
-    const lines =
-      variant === "firme"
-        ? [
-            "Înscriere — Pentru Firme",
-            "",
-            `Nume: ${nume}`,
-            `Email: ${email}`,
-            `Telefon: ${telefon}`,
-          ]
-        : [
-            "Înscriere — Pentru Agenții",
-            "",
-            `Nume: ${nume}`,
-            `Agenție: ${agentie}`,
-            `Email: ${email}`,
-            `Telefon: ${telefon}`,
-          ];
+    setStatus("loading");
+    setErrorText(null);
 
-    const subject =
-      variant === "firme"
-        ? "HOSTERA24 — Vreau clienți noi (Firme)"
-        : "HOSTERA24 — Partener agenție";
-    const mailto = `mailto:${MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
-    window.location.href = mailto;
+    try {
+      await submitContactMessage({
+        tip: "contact",
+        nume,
+        email,
+        telefon,
+        mesaj,
+      });
+      setStatus("success");
+      form.reset();
+    } catch (err) {
+      setStatus("error");
+      setErrorText(
+        err instanceof Error
+          ? err.message
+          : "Nu am putut trimite mesajul. Încearcă din nou.",
+      );
+    }
+  }
+
+  if (status === "success") {
+    return (
+      <div className="mx-auto mt-6 w-full max-w-lg rounded-xl border border-emerald-200 bg-emerald-50/80 p-6 text-center">
+        <p className="text-lg font-semibold text-[var(--color-text-primary)]">
+          Mesaj trimis!
+        </p>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+          Te contactăm în curând la datele lăsate.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="mt-4 text-sm font-medium text-[var(--color-accent)] underline"
+        >
+          Trimite alt mesaj
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto mt-6 w-full md:w-[min(100%,50vw)]">
       <form
-        id={formId}
+        id="contact"
         onSubmit={handleSubmit}
         className="flex w-full flex-col gap-3 rounded-xl border border-neutral-200 bg-[var(--color-surface)] p-5 shadow-sm"
       >
@@ -70,23 +88,10 @@ export function LeadForm({ variant }: LeadFormProps) {
             type="text"
             autoComplete="name"
             required
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2"
+            disabled={status === "loading"}
+            className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2 disabled:opacity-60"
           />
         </label>
-        {variant === "agentii" ? (
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium text-[var(--color-text-primary)]">
-              Agenție
-            </span>
-            <input
-              name="agentie"
-              type="text"
-              autoComplete="organization"
-              required
-              className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2"
-            />
-          </label>
-        ) : null}
         <label className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-[var(--color-text-primary)]">
             Email
@@ -96,7 +101,8 @@ export function LeadForm({ variant }: LeadFormProps) {
             type="email"
             autoComplete="email"
             required
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2"
+            disabled={status === "loading"}
+            className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2 disabled:opacity-60"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
@@ -108,24 +114,35 @@ export function LeadForm({ variant }: LeadFormProps) {
             type="tel"
             autoComplete="tel"
             required
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2"
+            disabled={status === "loading"}
+            className="rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2 disabled:opacity-60"
           />
         </label>
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium text-[var(--color-text-primary)]">
+            Mesaj
+          </span>
+          <textarea
+            name="mesaj"
+            rows={4}
+            required
+            disabled={status === "loading"}
+            className="resize-y rounded-lg border border-neutral-300 px-3 py-2 text-[var(--color-text-primary)] outline-none ring-[var(--color-accent)] focus:ring-2 disabled:opacity-60"
+          />
+        </label>
+        {errorText ? (
+          <p className="text-sm text-red-600" role="alert">
+            {errorText}
+          </p>
+        ) : null}
         <button
           type="submit"
-          className="mt-1 rounded-lg bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)]"
+          disabled={status === "loading"}
+          className="mt-1 rounded-lg bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Trimite
+          {status === "loading" ? "Se trimite…" : "Trimite mesajul"}
         </button>
       </form>
-      <p className="mt-3 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-        Se deschide aplicația ta de email cu mesajul complet. Dacă nu ai client
-        de mail configurat, poți scrie direct la{" "}
-        <a className="underline" href={`mailto:${MAIL}`}>
-          {MAIL}
-        </a>
-        .
-      </p>
     </div>
   );
 }

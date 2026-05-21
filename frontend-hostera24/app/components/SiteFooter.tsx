@@ -1,32 +1,28 @@
+const CONTACT_EMAIL = "georgelutaoff@gmail.com";
+const FIRMA = "Luta D.L. Gheorghe PFA";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-neutral-200 bg-[var(--color-surface)] py-8 text-center text-sm text-[var(--color-text-secondary)]">
       <div className="mx-auto max-w-5xl px-4">
         <p>
-          Contact:{" "}
+          Email:{" "}
           <a
             className="text-[var(--color-text-primary)] underline decoration-neutral-400 underline-offset-2 hover:decoration-[var(--color-accent)]"
-            href="mailto:georgelutaoff@gmail.com"
+            href={`mailto:${CONTACT_EMAIL}`}
           >
-            georgelutaoff@gmail.com
-          </a>{" "}
-          | Telefon:{" "}
-          <a
-            className="text-[var(--color-text-primary)] underline decoration-neutral-400 underline-offset-2 hover:decoration-[var(--color-accent)]"
-            href="tel:+40753570440"
-          >
-            0753570440
+            {CONTACT_EMAIL}
           </a>
         </p>
-        <p className="mt-3">
-          <a
-            className="text-[var(--color-text-primary)] underline decoration-neutral-400 underline-offset-2 hover:decoration-[var(--color-accent)]"
-            href="/agentii"
-          >
-            Ești agenție de marketing sau creator?
-          </a>
+        <p className="mt-2">
+          Firmă:{" "}
+          <span className="font-medium text-[var(--color-text-primary)]">
+            {FIRMA}
+          </span>
         </p>
-        <p className="mt-2 text-neutral-500">© 2025 HOSTERA24</p>
+        <p className="mt-4 text-neutral-500">
+          © {new Date().getFullYear()} {FIRMA}
+        </p>
       </div>
     </footer>
   );

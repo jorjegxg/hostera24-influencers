@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { CodQr } from './coduri-qr/cod-qr.entity';
 import { CoduriQrModule } from './coduri-qr/coduri-qr.module';
+import { ContactModule } from './contact/contact.module';
+import { MesajContact } from './contact/mesaj-contact.entity';
 import { Firma } from './firme/firma.entity';
 import { FirmeModule } from './firme/firme.module';
 import { Scanare } from './scanari/scanare.entity';
@@ -40,12 +42,13 @@ import { Scanare } from './scanari/scanare.entity';
         password: config.get<string>('DATABASE_PASSWORD', 'hostera24'),
         database: config.get<string>('DATABASE_NAME', 'hostera24'),
         charset: 'utf8mb4',
-        entities: [Firma, CodQr, Scanare],
+        entities: [Firma, CodQr, Scanare, MesajContact],
         synchronize: false,
       }),
     }),
     AuthModule,
     CoduriQrModule,
+    ContactModule,
     FirmeModule,
   ],
 })

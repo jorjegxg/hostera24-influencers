@@ -1,3 +1,7 @@
+import Image from "next/image";
+
+const HERO_SCREENSHOT = "/screenshot-exemplu.jpeg";
+
 type PlaceholderScreenshotProps = {
   variant?: "default" | "compact";
 };
@@ -5,18 +9,27 @@ type PlaceholderScreenshotProps = {
 export function PlaceholderScreenshot({
   variant = "default",
 }: PlaceholderScreenshotProps) {
-  const variantClass =
-    variant === "compact"
-      ? "max-w-[112px] px-2 text-[10px] leading-tight sm:max-w-[128px] sm:text-xs"
-      : "max-w-[280px] px-4 text-sm sm:max-w-[320px]";
+  if (variant === "default") {
+    return (
+      <Image
+        src={HERO_SCREENSHOT}
+        alt="Exemplu cod QR Hostera24 — reducere în magazin"
+        width={921}
+        height={1677}
+        priority
+        className="w-full max-w-[280px] rounded-2xl border border-neutral-200 bg-white shadow-lg sm:max-w-[320px]"
+        sizes="(max-width: 640px) 280px, 320px"
+      />
+    );
+  }
 
   return (
     <div
-      className={`flex aspect-[9/16] w-full shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-[var(--color-placeholder-border)] bg-neutral-200 text-center leading-snug text-[var(--color-text-secondary)] ${variantClass}`}
+      className="flex aspect-[9/16] w-full max-w-[112px] shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-[var(--color-placeholder-border)] bg-neutral-200 px-2 text-center text-[10px] leading-tight text-[var(--color-text-secondary)] sm:max-w-[128px] sm:text-xs"
       role="img"
-      aria-label="Placeholder screenshot aplicație HOSTERA24"
+      aria-label="Placeholder screenshot statistici aplicație"
     >
-      Screenshot aplicație HOSTERA24
+      Screenshot statistici
     </div>
   );
 }

@@ -8,9 +8,9 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "HOSTERA24 — Clienți în zilele moarte, măsurați la casă",
+  title: "HOSTERA24 — Descarcă aplicația și adu-ți clienți noi",
   description:
-    "Creezi coduri în aplicație, postezi pe social, scanezi la casă. Vezi câți clienți aduce fiecare postare și la ce oră vin.",
+    "Coduri QR pentru cupoane, postări, marketing affiliat și statistici de scanări. Formular de contact direct pe site.",
 };
 
 export default function RootLayout({
