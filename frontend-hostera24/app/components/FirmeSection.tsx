@@ -24,7 +24,7 @@ export function FirmeSection() {
       >
         <div className="max-w-xl">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
-            Descarcă aplicația Hostera24 și adu-ți clienți noi
+            Cu aplicația Hostera24, aduceți clienți noi din fiecare postare
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
             Creezi coduri în aplicație, le pui în postări sau le dai
