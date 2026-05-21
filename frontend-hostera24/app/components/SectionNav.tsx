@@ -9,7 +9,7 @@ export function SectionNav() {
   return (
     <nav
       aria-label="Secțiuni pagină"
-      className="flex min-w-0 flex-1 items-center gap-4 overflow-x-auto sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-4 overflow-x-auto sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {SECTION_LINKS.map(({ id, label }) => (
         <a

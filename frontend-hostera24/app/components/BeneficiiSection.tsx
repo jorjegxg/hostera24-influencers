@@ -34,21 +34,6 @@ const BENEFIT_ITEMS: {
     ),
   },
   {
-    id: "postari",
-    icon: "postari",
-    title: "Performanța fiecărei postări",
-    body: (
-      <p>
-        Atașați la fiecare postare un cod QR cu reducere fixă (ex. 10 lei), pe o
-        perioadă definită. La casă, scanarea confirmă reducerea pe loc — fără
-        coduri manuale sau explicații suplimentare. În aplicație vedeți statistici:{" "}
-        <strong className="text-[var(--color-text-primary)]">
-          ce tip de conținut aduce cel mai mult trafic în magazin.
-        </strong>
-      </p>
-    ),
-  },
-  {
     id: "affiliat",
     icon: "affiliat",
     title: "Marketing afiliat",
@@ -61,6 +46,21 @@ const BENEFIT_ITEMS: {
           numărul real de clienți aduși în magazin
         </strong>
         , măsurați prin scanări.
+      </p>
+    ),
+  },
+  {
+    id: "postari",
+    icon: "postari",
+    title: "Performanța fiecărei postări",
+    body: (
+      <p>
+        Atașați la fiecare postare un cod QR cu reducere fixă (ex. 10 lei), pe o
+        perioadă definită. La casă, scanarea confirmă reducerea pe loc — fără
+        coduri manuale sau explicații suplimentare. În aplicație vedeți statistici:{" "}
+        <strong className="text-[var(--color-text-primary)]">
+          ce tip de conținut aduce cel mai mult trafic în magazin.
+        </strong>
       </p>
     ),
   },
@@ -78,7 +78,7 @@ const BENEFIT_ITEMS: {
   {
     id: "primele-x",
     icon: "primele-x",
-    title: "Oferte limitate — primele X clienți",
+    title: "Oferte limitate — primii X clienți",
     body: (
       <p>
         Configurați reduceri pentru primele X persoane care prezintă codul în

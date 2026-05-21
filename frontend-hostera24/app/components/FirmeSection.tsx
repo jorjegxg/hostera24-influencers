@@ -7,7 +7,10 @@ import { PlaceholderScreenshot } from "./PlaceholderScreenshot";
 const STAT_ITEMS: { icon: BenefitIconName; text: string }[] = [
   { icon: "statistici-scan", text: "Grafice de scanări per cod QR" },
   { icon: "statistici-ore", text: "Distribuție pe zile și ore" },
-  { icon: "statistici-compar", text: "Compari postări, cupoane și campanii affiliat" },
+  {
+    icon: "statistici-compar",
+    text: "Compari postări, cupoane și campanii affiliat",
+  },
 ];
 
 export function FirmeSection() {
@@ -23,8 +26,9 @@ export function FirmeSection() {
             Descarcă aplicația Hostera24 și adu-ți clienți noi
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
-            Creezi coduri în aplicație, le pui în postări sau le dai partenerilor,
-            scanezi la casă — și vezi exact câți clienți aduce fiecare campanie.
+            Creezi coduri în aplicație, le pui în postări sau le dai
+            partenerilor, scanezi la casă — și vezi exact câți clienți aduce
+            fiecare campanie.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
