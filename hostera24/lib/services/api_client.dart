@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:hostera24/config/api_config.dart';
 import 'package:hostera24/models/firma_profile.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/models/qr_entry_detail.dart';
 import 'package:hostera24/models/qr_scan_page.dart';
 import 'package:hostera24/models/scan_result.dart';
@@ -137,6 +138,7 @@ class ApiClient {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    QrSchedule? schedule,
   }) async {
     final response = await _http.post(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr'),
@@ -145,6 +147,7 @@ class ApiClient {
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
         pretRedus: pretRedus,
+        schedule: schedule,
       )),
     );
 
@@ -160,6 +163,7 @@ class ApiClient {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    QrSchedule? schedule,
   }) async {
     final response = await _http.patch(
       Uri.parse('${ApiConfig.baseUrl}/coduri-qr/$id'),
@@ -168,6 +172,7 @@ class ApiClient {
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
         pretRedus: pretRedus,
+        schedule: schedule,
       )),
     );
 
@@ -276,11 +281,13 @@ class ApiClient {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    QrSchedule? schedule,
   }) {
     return {
       'numePostareClienti': numePostareClienti?.trim(),
       'numePostareFirme': numePostareFirme?.trim(),
       'pretRedus': pretRedus?.trim(),
+      if (schedule != null) ...schedule.toApiBody(),
     };
   }
 

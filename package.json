@@ -4,6 +4,7 @@
   "scripts": {
     "db:reset": "bash scripts/db-reset.sh --yes",
     "db:reset:demo": "bash scripts/db-reset.sh --yes --demo",
-    "db:migrate": "bash scripts/vps-migrate.sh"
+    "db:migrate": "bash scripts/vps-migrate.sh",
+    "dev:all": "bash scripts/dev-all.sh"
   }
 }

@@ -6,6 +6,7 @@ class ScanResult {
     this.numePostareFirme,
     this.pretRedus,
     this.numarScanari,
+    this.mesajProgramare,
     this.queuedOffline = false,
   });
 
@@ -15,11 +16,13 @@ class ScanResult {
   final String? numePostareFirme;
   final String? pretRedus;
   final int? numarScanari;
+  final String? mesajProgramare;
   final bool queuedOffline;
 
   bool get isOwn => status == ScanStatus.own;
   bool get isNotFound => status == ScanStatus.notFound;
   bool get isQueued => status == ScanStatus.queued;
+  bool get isUnavailable => status == ScanStatus.unavailable;
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
     final statusRaw = json['status'] as String;
@@ -33,11 +36,12 @@ class ScanResult {
       numePostareFirme: json['numePostareFirme'] as String?,
       pretRedus: json['pretRedus'] as String?,
       numarScanari: _parseInt(json['numarScanari']),
+      mesajProgramare: json['mesajProgramare'] as String?,
     );
   }
 }
 
-enum ScanStatus { own, other, notFound, queued }
+enum ScanStatus { own, other, notFound, queued, unavailable }
 
 int? _parseInt(Object? value) {
   if (value == null) return null;

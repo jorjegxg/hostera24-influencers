@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
 import 'package:hostera24/repositories/qr_repository.dart';
@@ -538,6 +539,16 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
               label: 'Nume postare (client)',
               text: entry.clientDescription,
             ),
+            if (entry.schedule.mode != QrScheduleMode.none) ...[
+              const SizedBox(height: 12),
+              _DescriptionRow(
+                icon: entry.isScannableNow
+                    ? Icons.event_available_outlined
+                    : Icons.event_busy_outlined,
+                label: 'Program scanare',
+                text: entry.schedule.summaryLabel,
+              ),
+            ],
             const SizedBox(height: 20),
             Row(
               children: [

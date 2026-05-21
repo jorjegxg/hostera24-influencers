@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +13,12 @@ import { Scanare } from '../scanari/scanare.entity';
 import { CodQr } from './cod-qr.entity';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
 import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
+import {
+  isCodQrScannableNow,
+  normalizeProgramareDto,
+  programareBlockMessage,
+  toProgramareResponse,
+} from './qr-schedule.util';
 
 @Injectable()
 export class CoduriQrService {
@@ -23,14 +30,18 @@ export class CoduriQrService {
     private readonly config: ConfigService,
   ) {}
 
-  findAllForFirma(firmaId: number) {
-    return this.coduriRepo
+  async findAllForFirma(firmaId: number) {
+    const rows = await this.coduriRepo
       .createQueryBuilder('cod')
       .loadRelationCountAndMap('cod.numarScanari', 'cod.scanari')
       .where('cod.firmaId = :firmaId', { firmaId })
       .andWhere('cod.sters = :sters', { sters: false })
       .orderBy('cod.creatLa', 'DESC')
       .getMany();
+
+    return rows.map((cod) =>
+      this.toQrListItem(cod, (cod as CodQr & { numarScanari: number }).numarScanari ?? 0),
+    );
   }
 
   async findOneForFirma(firmaId: number, id: number) {
@@ -48,6 +59,7 @@ export class CoduriQrService {
       pretRedus: cod.pretRedus,
       creatLa: cod.creatLa,
       numarScanari,
+      ...toProgramareResponse(cod),
     };
   }
 
@@ -83,6 +95,7 @@ export class CoduriQrService {
 
   async create(firmaId: number, dto: CreateCodQrDto) {
     const cod = await this.generateUniqueCod();
+    const programare = normalizeProgramareDto(dto);
 
     const entry = this.coduriRepo.create({
       firmaId,
@@ -90,10 +103,15 @@ export class CoduriQrService {
       numePostareClienti: this.normalizeOptionalText(dto.numePostareClienti),
       numePostareFirme: this.normalizeOptionalText(dto.numePostareFirme),
       pretRedus: this.normalizeOptionalText(dto.pretRedus),
+      programareTip: programare.programareTip,
+      programareDeLa: programare.programareDeLa,
+      programarePanaLa: programare.programarePanaLa,
+      programareZile: programare.programareZile,
       sters: false,
     });
 
-    return this.coduriRepo.save(entry);
+    const saved = await this.coduriRepo.save(entry);
+    return this.toQrListItem(saved, 0);
   }
 
   async update(firmaId: number, id: number, dto: UpdateCodQrDto) {
@@ -109,7 +127,29 @@ export class CoduriQrService {
       cod.pretRedus = this.normalizeOptionalText(dto.pretRedus);
     }
 
-    return this.coduriRepo.save(cod);
+    if (
+      dto.programareTip !== undefined ||
+      dto.programareDeLa !== undefined ||
+      dto.programarePanaLa !== undefined ||
+      dto.programareZile !== undefined
+    ) {
+      const programare = normalizeProgramareDto({
+        programareTip: dto.programareTip ?? null,
+        programareDeLa: dto.programareDeLa,
+        programarePanaLa: dto.programarePanaLa,
+        programareZile: dto.programareZile,
+      });
+      cod.programareTip = programare.programareTip;
+      cod.programareDeLa = programare.programareDeLa;
+      cod.programarePanaLa = programare.programarePanaLa;
+      cod.programareZile = programare.programareZile;
+    }
+
+    const saved = await this.coduriRepo.save(cod);
+    const numarScanari = await this.scanariRepo.count({
+      where: { codQrId: saved.id },
+    });
+    return this.toQrListItem(saved, numarScanari);
   }
 
   async scan(firmaId: number, rawPayload: string) {
@@ -122,6 +162,15 @@ export class CoduriQrService {
 
     if (!entry) {
       return { status: 'not_found' as const };
+    }
+
+    if (!isCodQrScannableNow(entry)) {
+      return {
+        status: 'unavailable' as const,
+        cod: entry.cod,
+        mesajProgramare: programareBlockMessage(entry),
+        ...toProgramareResponse(entry),
+      };
     }
 
     await this.scanariRepo.save(
@@ -214,11 +263,28 @@ export class CoduriQrService {
       throw new NotFoundException('Codul QR nu există');
     }
 
+    if (!isCodQrScannableNow(entry)) {
+      throw new UnprocessableEntityException(programareBlockMessage(entry));
+    }
+
     await this.scanariRepo.save(
       this.scanariRepo.create({ codQrId: entry.id }),
     );
 
     return { ok: true };
+  }
+
+  private toQrListItem(cod: CodQr, numarScanari: number) {
+    return {
+      id: cod.id,
+      cod: cod.cod,
+      numePostareClienti: cod.numePostareClienti,
+      numePostareFirme: cod.numePostareFirme,
+      pretRedus: cod.pretRedus,
+      creatLa: cod.creatLa,
+      numarScanari,
+      ...toProgramareResponse(cod),
+    };
   }
 
   private async findActiveByCod(

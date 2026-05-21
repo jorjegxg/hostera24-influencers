@@ -370,6 +370,41 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
               ),
             ),
           ),
+        ] else if (result.isUnavailable) ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.event_busy_outlined, color: AppColors.error),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          result.cod != null
+                              ? 'Cod ${result.cod} — inactiv acum'
+                              : 'Cod inactiv acum',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          result.mesajProgramare ??
+                              'Acest cod nu poate fi scanat în acest moment.',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ] else if (result.isQueued) ...[
           Card(
             child: Padding(

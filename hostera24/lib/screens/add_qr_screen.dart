@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
+import 'package:hostera24/widgets/qr_schedule_section.dart';
 
 class AddQrScreen extends StatefulWidget {
   const AddQrScreen({super.key, this.entry});
@@ -20,6 +22,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
   late final TextEditingController _firmaController;
   late final TextEditingController _clientController;
   late final TextEditingController _pretController;
+  late QrSchedule _schedule;
   bool _isSubmitting = false;
 
   bool get _isEditing => widget.entry != null;
@@ -36,6 +39,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
     _pretController = TextEditingController(
       text: widget.entry?.pretRedus ?? '',
     );
+    _schedule = widget.entry?.schedule ?? const QrSchedule();
   }
 
   @override
@@ -46,8 +50,40 @@ class _AddQrScreenState extends State<AddQrScreen> {
     super.dispose();
   }
 
+  String? _validateSchedule() {
+    if (_schedule.mode == QrScheduleMode.dateRange) {
+      if (_schedule.dateFrom == null || _schedule.dateTo == null) {
+        return 'Selectează ambele date pentru interval.';
+      }
+      final from = DateTime(
+        _schedule.dateFrom!.year,
+        _schedule.dateFrom!.month,
+        _schedule.dateFrom!.day,
+      );
+      final to = DateTime(
+        _schedule.dateTo!.year,
+        _schedule.dateTo!.month,
+        _schedule.dateTo!.day,
+      );
+      if (from.isAfter(to)) {
+        return 'Data de început trebuie să fie înainte de data de sfârșit.';
+      }
+    }
+    if (_schedule.mode == QrScheduleMode.weekdays &&
+        _schedule.weekdays.isEmpty) {
+      return 'Selectează cel puțin o zi din săptămână.';
+    }
+    return null;
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _isSubmitting) return;
+
+    final scheduleError = _validateSchedule();
+    if (scheduleError != null) {
+      showErrorSnackBar(context, scheduleError);
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
@@ -61,12 +97,14 @@ class _AddQrScreenState extends State<AddQrScreen> {
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
+          schedule: _schedule,
         );
       } else {
         entry = await QrRepository().createCodQr(
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
+          schedule: _schedule,
         );
       }
 
@@ -175,6 +213,12 @@ class _AddQrScreenState extends State<AddQrScreen> {
                           child: Icon(Icons.sell_outlined),
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 24),
+                    QrScheduleSection(
+                      schedule: _schedule,
+                      enabled: !_isSubmitting,
+                      onChanged: (value) => setState(() => _schedule = value),
                     ),
                     const SizedBox(height: 24),
                     FilledButton.icon(

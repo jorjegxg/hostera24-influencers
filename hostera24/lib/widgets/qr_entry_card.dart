@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hostera24/models/qr_entry.dart';
+import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/utils/datetime_format.dart';
@@ -128,6 +129,37 @@ class QrEntryCard extends StatelessWidget {
                           fontSize: 13,
                           fontStyle: FontStyle.italic,
                         ),
+                      ),
+                    ],
+                    if (entry.schedule.mode != QrScheduleMode.none) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            entry.isScannableNow
+                                ? Icons.event_available_outlined
+                                : Icons.event_busy_outlined,
+                            size: 14,
+                            color: entry.isScannableNow
+                                ? AppColors.accent
+                                : AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              entry.schedule.summaryLabel,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: entry.isScannableNow
+                                    ? AppColors.accent
+                                    : AppColors.textSecondary,
+                                height: 1.25,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                     const SizedBox(height: 6),

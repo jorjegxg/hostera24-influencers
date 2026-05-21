@@ -116,6 +116,7 @@ class LocalStore {
       'pretRedus': entry.pretRedus,
       'creatLa': entry.createdAt.toUtc().toIso8601String(),
       'numarScanari': entry.numarScanari,
+      ...entry.schedule.toApiBody(),
     };
   }
 }

@@ -7,6 +7,7 @@ import 'package:hostera24/services/api_client.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/services/network_service.dart';
+import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/utils/qr_payload.dart';
 
 class QrRepository {
@@ -74,12 +75,14 @@ class QrRepository {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    QrSchedule? schedule,
   }) async {
     _network.requireOnline('Crearea unui cod QR necesită internet.');
     final entry = await _api.createCodQr(
       numePostareClienti: numePostareClienti,
       numePostareFirme: numePostareFirme,
       pretRedus: pretRedus,
+      schedule: schedule,
     );
     await _refreshCacheAfterMutation();
     return entry;
@@ -90,6 +93,7 @@ class QrRepository {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    QrSchedule? schedule,
   }) async {
     _network.requireOnline('Editarea codului QR necesită internet.');
     final entry = await _api.updateCodQr(
@@ -97,6 +101,7 @@ class QrRepository {
       numePostareClienti: numePostareClienti,
       numePostareFirme: numePostareFirme,
       pretRedus: pretRedus,
+      schedule: schedule,
     );
     await _refreshCacheAfterMutation();
     return entry;
@@ -121,6 +126,15 @@ class QrRepository {
     if (cod != null && cached != null) {
       for (final entry in cached) {
         if (entry.cod.toUpperCase() == cod.toUpperCase()) {
+          if (!entry.isScannableNow) {
+            return ScanResult(
+              status: ScanStatus.unavailable,
+              cod: entry.cod,
+              mesajProgramare:
+                  blockMessageForSchedule(entry.schedule) ??
+                  'Codul nu poate fi scanat acum.',
+            );
+          }
           await _store.enqueueScan(firmaId: firmaId, payload: payload);
           return ScanResult(
             status: ScanStatus.own,

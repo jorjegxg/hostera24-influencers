@@ -34,6 +34,18 @@ export class CodQr {
   @Column({ name: 'pret_redus', type: 'varchar', length: 255, nullable: true })
   pretRedus: string | null;
 
+  @Column({ name: 'programare_tip', type: 'varchar', length: 16, nullable: true })
+  programareTip: 'interval' | 'zile' | null;
+
+  @Column({ name: 'programare_de_la', type: 'date', nullable: true })
+  programareDeLa: string | null;
+
+  @Column({ name: 'programare_pana_la', type: 'date', nullable: true })
+  programarePanaLa: string | null;
+
+  @Column({ name: 'programare_zile', type: 'varchar', length: 32, nullable: true })
+  programareZile: string | null;
+
   @Column({ default: false })
   sters: boolean;
 

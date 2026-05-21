@@ -3,12 +3,7 @@ import { PlaceholderScreenshot } from "./PlaceholderScreenshot";
 
 export function AgentiiSection() {
   return (
-    <div
-      id="panel-agentii"
-      role="tabpanel"
-      aria-labelledby="tab-agentii"
-      className="w-full pb-16 pt-10"
-    >
+    <div id="panel-agentii" className="w-full pb-16 pt-10">
       <section className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
         <div className="max-w-xl">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">

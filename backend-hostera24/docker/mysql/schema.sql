@@ -24,6 +24,10 @@ CREATE TABLE coduri_qr (
     nume_postare_clienti VARCHAR(255) NULL,
     nume_postare_firme VARCHAR(255) NULL,
     pret_redus VARCHAR(255) NULL,
+    programare_tip VARCHAR(16) NULL,
+    programare_de_la DATE NULL,
+    programare_pana_la DATE NULL,
+    programare_zile VARCHAR(32) NULL,
     sters TINYINT(1) NOT NULL DEFAULT 0,
     creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (firma_id) REFERENCES firme(id) ON DELETE CASCADE

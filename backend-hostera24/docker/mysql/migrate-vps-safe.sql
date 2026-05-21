@@ -106,3 +106,56 @@ SET @sql := IF(
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- programare scan (coduri_qr)
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'programare_tip'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE coduri_qr ADD COLUMN programare_tip VARCHAR(16) NULL AFTER pret_redus',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'programare_de_la'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE coduri_qr ADD COLUMN programare_de_la DATE NULL AFTER programare_tip',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'programare_pana_la'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE coduri_qr ADD COLUMN programare_pana_la DATE NULL AFTER programare_de_la',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'programare_zile'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE coduri_qr ADD COLUMN programare_zile VARCHAR(32) NULL AFTER programare_pana_la',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

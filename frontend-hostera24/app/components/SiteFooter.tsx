@@ -18,6 +18,14 @@ export function SiteFooter() {
             0753570440
           </a>
         </p>
+        <p className="mt-3">
+          <a
+            className="text-[var(--color-text-primary)] underline decoration-neutral-400 underline-offset-2 hover:decoration-[var(--color-accent)]"
+            href="/agentii"
+          >
+            Ești agenție de marketing sau creator?
+          </a>
+        </p>
         <p className="mt-2 text-neutral-500">© 2025 HOSTERA24</p>
       </div>
     </footer>

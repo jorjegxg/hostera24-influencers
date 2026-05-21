@@ -26,11 +26,18 @@ firebase:
 
 DEVELOPMENT:
 
+# IP PC: ipconfig → IPv4 (ex. 192.168.1.10). Telefonul trebuie pe același Wi‑Fi.
 cd hostera24 && flutter run \
-   --dart-define=API_BASE_URL=http://192.168.1.12:3022 \
-   --dart-define=WEB_BASE_URL=http://192.168.1.12:3023
+   --dart-define=API_BASE_URL=http://192.168.1.10:3022 \
+   --dart-define=WEB_BASE_URL=http://192.168.1.10:3023
 
 
 cd frontend-hostera24 && npm run dev
 
 cd backend-hostera24 && npm run start:dev
+
+
+
+
+all:
+bash scripts/dev-all.sh
