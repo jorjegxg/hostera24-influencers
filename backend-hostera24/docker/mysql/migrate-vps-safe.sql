@@ -160,6 +160,20 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- limită scanări (coduri_qr)
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'limita_scanari'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE coduri_qr ADD COLUMN limita_scanari INT UNSIGNED NULL AFTER programare_zile',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- mesaje_contact (formular site)
 CREATE TABLE IF NOT EXISTS mesaje_contact (
     id INT PRIMARY KEY AUTO_INCREMENT,

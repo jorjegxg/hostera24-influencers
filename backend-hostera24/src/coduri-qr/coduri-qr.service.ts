@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -20,6 +21,11 @@ import {
   programareBlockMessage,
   toProgramareResponse,
 } from './qr-schedule.util';
+import {
+  isScanLimitReached,
+  scanLimitBlockMessage,
+  toLimitaScanariResponse,
+} from './qr-limit.util';
 
 @Injectable()
 export class CoduriQrService {
@@ -61,6 +67,7 @@ export class CoduriQrService {
       creatLa: cod.creatLa,
       numarScanari,
       ...toProgramareResponse(cod),
+      ...toLimitaScanariResponse(cod, numarScanari),
     };
   }
 
@@ -108,6 +115,7 @@ export class CoduriQrService {
       programareDeLa: programare.programareDeLa,
       programarePanaLa: programare.programarePanaLa,
       programareZile: programare.programareZile,
+      limitaScanari: this.normalizeLimitaScanari(dto.limitaScanari),
       sters: false,
     });
 
@@ -146,6 +154,19 @@ export class CoduriQrService {
       cod.programareZile = programare.programareZile;
     }
 
+    if (dto.limitaScanari !== undefined) {
+      const numarScanari = await this.scanariRepo.count({
+        where: { codQrId: id },
+      });
+      const nextLimit = this.normalizeLimitaScanari(dto.limitaScanari);
+      if (nextLimit != null && nextLimit < numarScanari) {
+        throw new BadRequestException(
+          `Limita (${nextLimit}) nu poate fi mai mică decât scanările deja înregistrate (${numarScanari}).`,
+        );
+      }
+      cod.limitaScanari = nextLimit;
+    }
+
     const saved = await this.coduriRepo.save(cod);
     const numarScanari = await this.scanariRepo.count({
       where: { codQrId: saved.id },
@@ -174,18 +195,27 @@ export class CoduriQrService {
       };
     }
 
-    await this.scanariRepo.save(
-      this.scanariRepo.create({ codQrId: entry.id }),
-    );
+    const recorded = await this.recordScanAtomic(entry.id);
+    if ('exhausted' in recorded) {
+      return {
+        status: 'exhausted' as const,
+        cod: entry.cod,
+        mesajLimita: scanLimitBlockMessage(entry),
+        limitaScanari: recorded.limitaScanari,
+        numarScanari: recorded.numarScanari,
+      };
+    }
 
-    const numarScanari = await this.scanariRepo.count({
-      where: { codQrId: entry.id },
-    });
-
+    const numarScanari = recorded.numarScanari;
     const base = this.toPublicEntry(entry);
 
     if (entry.firmaId === firmaId) {
-      return { status: 'own' as const, ...base, numarScanari };
+      return {
+        status: 'own' as const,
+        ...base,
+        numarScanari,
+        ...toLimitaScanariResponse(entry, numarScanari),
+      };
     }
 
     return {
@@ -268,9 +298,10 @@ export class CoduriQrService {
       throw new UnprocessableEntityException(programareBlockMessage(entry));
     }
 
-    await this.scanariRepo.save(
-      this.scanariRepo.create({ codQrId: entry.id }),
-    );
+    const recorded = await this.recordScanAtomic(entry.id);
+    if ('exhausted' in recorded) {
+      throw new UnprocessableEntityException(scanLimitBlockMessage(entry));
+    }
 
     return { ok: true };
   }
@@ -285,7 +316,42 @@ export class CoduriQrService {
       creatLa: cod.creatLa,
       numarScanari,
       ...toProgramareResponse(cod),
+      ...toLimitaScanariResponse(cod, numarScanari),
     };
+  }
+
+  private normalizeLimitaScanari(value?: number | null): number | null {
+    if (value == null) return null;
+    return value;
+  }
+
+  private async recordScanAtomic(
+    codQrId: number,
+  ): Promise<
+    | { ok: true; numarScanari: number }
+    | { exhausted: true; limitaScanari: number; numarScanari: number }
+  > {
+    return this.coduriRepo.manager.transaction(async (manager) => {
+      const cod = await manager.findOne(CodQr, {
+        where: { id: codQrId, sters: false },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!cod) {
+        throw new NotFoundException('Codul QR nu există');
+      }
+
+      const count = await manager.count(Scanare, { where: { codQrId } });
+      if (isScanLimitReached(cod, count)) {
+        return {
+          exhausted: true,
+          limitaScanari: cod.limitaScanari!,
+          numarScanari: count,
+        };
+      }
+
+      await manager.save(Scanare, manager.create(Scanare, { codQrId }));
+      return { ok: true, numarScanari: count + 1 };
+    });
   }
 
   private async findActiveByCod(

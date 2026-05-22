@@ -138,6 +138,7 @@ class ApiClient {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    int? limitaScanari,
     QrSchedule? schedule,
   }) async {
     final response = await _http.post(
@@ -147,6 +148,7 @@ class ApiClient {
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
         pretRedus: pretRedus,
+        limitaScanari: limitaScanari,
         schedule: schedule,
       )),
     );
@@ -163,6 +165,8 @@ class ApiClient {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    int? limitaScanari,
+    bool clearLimitaScanari = false,
     QrSchedule? schedule,
   }) async {
     final response = await _http.patch(
@@ -172,6 +176,8 @@ class ApiClient {
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
         pretRedus: pretRedus,
+        limitaScanari: limitaScanari,
+        clearLimitaScanari: clearLimitaScanari,
         schedule: schedule,
       )),
     );
@@ -281,14 +287,22 @@ class ApiClient {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    int? limitaScanari,
+    bool clearLimitaScanari = false,
     QrSchedule? schedule,
   }) {
-    return {
+    final body = <String, dynamic>{
       'numePostareClienti': numePostareClienti?.trim(),
       'numePostareFirme': numePostareFirme?.trim(),
       'pretRedus': pretRedus?.trim(),
       if (schedule != null) ...schedule.toApiBody(),
     };
+    if (clearLimitaScanari) {
+      body['limitaScanari'] = null;
+    } else if (limitaScanari != null) {
+      body['limitaScanari'] = limitaScanari;
+    }
+    return body;
   }
 
   Map<String, String> _jsonHeaders() => {

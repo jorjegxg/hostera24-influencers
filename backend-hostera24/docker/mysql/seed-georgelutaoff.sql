@@ -1,0 +1,7 @@
+-- Ruleaza fisierele in ordine (fiecare = UN statement):
+--   1. seed-georgelutaoff-coduri.sql
+--   2. seed-georgelutaoff-scanari.sql
+--   3. seed-georgelutaoff-verify.sql
+--
+-- DBeaver: deschide fisierul, Ctrl+A, Ctrl+Enter (Execute Statement).
+-- Nu combina SET @var cu INSERT in acelasi script.

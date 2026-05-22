@@ -28,6 +28,7 @@ CREATE TABLE coduri_qr (
     programare_de_la DATE NULL,
     programare_pana_la DATE NULL,
     programare_zile VARCHAR(32) NULL,
+    limita_scanari INT UNSIGNED NULL,
     sters TINYINT(1) NOT NULL DEFAULT 0,
     creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (firma_id) REFERENCES firme(id) ON DELETE CASCADE

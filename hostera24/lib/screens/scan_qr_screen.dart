@@ -405,6 +405,52 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
               ),
             ),
           ),
+        ] else if (result.isExhausted) ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.block_outlined, color: AppColors.error),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          result.cod != null
+                              ? 'Cod ${result.cod} — limită atinsă'
+                              : 'Limită atinsă',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          result.mesajLimita ??
+                              'Au fost deja folosite toate scanările disponibile pentru acest cod.',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            height: 1.35,
+                          ),
+                        ),
+                        if (result.limitaScanari != null &&
+                            result.numarScanari != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            '${result.numarScanari} / ${result.limitaScanari} scanări',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ] else if (result.isQueued) ...[
           Card(
             child: Padding(
@@ -492,12 +538,30 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
                     if (result.numarScanari != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        scanariCountLabel(result.numarScanari!),
+                        scanariCountLabelWithLimit(
+                          result.numarScanari!,
+                          result.limitaScanari,
+                        ),
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: AppColors.accent,
                         ),
                       ),
+                      if (result.scanariRamase != null &&
+                          result.limitaScanari != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          result.scanariRamase! > 0
+                              ? 'Mai rămân ${result.scanariRamase} scanări'
+                              : 'Ultima scanare disponibilă',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: result.scanariRamase! > 0
+                                ? AppColors.textSecondary
+                                : AppColors.error,
+                          ),
+                        ),
+                      ],
                     ],
                   ],
                 ),

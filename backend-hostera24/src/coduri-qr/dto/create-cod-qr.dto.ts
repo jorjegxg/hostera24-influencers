@@ -47,4 +47,11 @@ export class CreateCodQrDto {
   @Min(1, { each: true })
   @Max(7, { each: true })
   programareZile?: number[];
+
+  /** Număr maxim de scanări (reduceri). Lipsă = nelimitat. */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(999_999)
+  limitaScanari?: number | null;
 }

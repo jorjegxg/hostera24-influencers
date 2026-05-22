@@ -73,7 +73,10 @@ class QrEntryCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            scanariCountLabel(entry.numarScanari),
+                            scanariCountLabelWithLimit(
+                              entry.numarScanari,
+                              entry.limitaScanari,
+                            ),
                             style: const TextStyle(
                               color: AppColors.accent,
                               fontWeight: FontWeight.w600,
@@ -129,6 +132,37 @@ class QrEntryCard extends StatelessWidget {
                           fontSize: 13,
                           fontStyle: FontStyle.italic,
                         ),
+                      ),
+                    ],
+                    if (entry.hasScanLimit) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            entry.isLimitReached
+                                ? Icons.block_outlined
+                                : Icons.people_outline,
+                            size: 14,
+                            color: entry.isLimitReached
+                                ? AppColors.error
+                                : AppColors.accent,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              entry.isLimitReached
+                                  ? 'Limită atinsă (${entry.limitaScanari} scanări)'
+                                  : 'Limită: ${entry.numarScanari} / ${entry.limitaScanari} scanări',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: entry.isLimitReached
+                                    ? AppColors.error
+                                    : AppColors.textSecondary,
+                                height: 1.25,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                     if (entry.schedule.mode != QrScheduleMode.none) ...[

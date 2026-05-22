@@ -22,6 +22,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
   late final TextEditingController _firmaController;
   late final TextEditingController _clientController;
   late final TextEditingController _pretController;
+  late final TextEditingController _limitaController;
   late QrSchedule _schedule;
   bool _isSubmitting = false;
 
@@ -39,6 +40,9 @@ class _AddQrScreenState extends State<AddQrScreen> {
     _pretController = TextEditingController(
       text: widget.entry?.pretRedus ?? '',
     );
+    _limitaController = TextEditingController(
+      text: widget.entry?.limitaScanari?.toString() ?? '',
+    );
     _schedule = widget.entry?.schedule ?? const QrSchedule();
   }
 
@@ -47,7 +51,29 @@ class _AddQrScreenState extends State<AddQrScreen> {
     _firmaController.dispose();
     _clientController.dispose();
     _pretController.dispose();
+    _limitaController.dispose();
     super.dispose();
+  }
+
+  int? _parseLimitaScanari() {
+    final raw = _limitaController.text.trim();
+    if (raw.isEmpty) return null;
+    return int.tryParse(raw);
+  }
+
+  String? _validateLimitaScanari() {
+    final raw = _limitaController.text.trim();
+    if (raw.isEmpty) return null;
+    final value = int.tryParse(raw);
+    if (value == null) return 'Introdu un număr întreg (ex. 50).';
+    if (value < 1) return 'Limita trebuie să fie cel puțin 1.';
+    if (value > 999999) return 'Limita este prea mare.';
+    if (_isEditing &&
+        widget.entry != null &&
+        value < widget.entry!.numarScanari) {
+      return 'Limita nu poate fi mai mică decât scanările deja înregistrate (${widget.entry!.numarScanari}).';
+    }
+    return null;
   }
 
   String? _validateSchedule() {
@@ -85,9 +111,19 @@ class _AddQrScreenState extends State<AddQrScreen> {
       return;
     }
 
+    final limitaError = _validateLimitaScanari();
+    if (limitaError != null) {
+      showErrorSnackBar(context, limitaError);
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     final pretRedus = _pretController.text.trim();
+    final limitaScanari = _parseLimitaScanari();
+    final hadLimit = widget.entry?.hasScanLimit ?? false;
+    final clearLimitaScanari =
+        _isEditing && hadLimit && limitaScanari == null;
 
     try {
       final QrEntry entry;
@@ -97,6 +133,8 @@ class _AddQrScreenState extends State<AddQrScreen> {
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
+          limitaScanari: limitaScanari,
+          clearLimitaScanari: clearLimitaScanari,
           schedule: _schedule,
         );
       } else {
@@ -104,6 +142,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
+          limitaScanari: limitaScanari,
           schedule: _schedule,
         );
       }
@@ -201,9 +240,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       controller: _pretController,
                       maxLines: 2,
                       textCapitalization: TextCapitalization.sentences,
-                      textInputAction: TextInputAction.done,
                       enabled: !_isSubmitting,
-                      onFieldSubmitted: (_) => _submit(),
                       decoration: const InputDecoration(
                         labelText: 'Mesaj preț redus — opțional',
                         hintText: 'Ex: Cafea la 15,99 lei',
@@ -212,6 +249,22 @@ class _AddQrScreenState extends State<AddQrScreen> {
                           padding: EdgeInsets.only(bottom: 24),
                           child: Icon(Icons.sell_outlined),
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _limitaController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      enabled: !_isSubmitting,
+                      onFieldSubmitted: (_) => _submit(),
+                      decoration: InputDecoration(
+                        labelText: 'Limită scanări — opțional',
+                        hintText: 'Ex: 50 (primii 50 clienți)',
+                        prefixIcon: const Icon(Icons.people_outline),
+                        helperText: _isEditing && widget.entry!.numarScanari > 0
+                            ? 'Deja înregistrate: ${widget.entry!.numarScanari} scanări. Lasă gol pentru nelimitat.'
+                            : 'Gol = nelimitat. La casă, scanarea se oprește automat la limită.',
                       ),
                     ),
                     const SizedBox(height: 24),

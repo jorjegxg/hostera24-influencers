@@ -91,6 +91,7 @@ class QrRepository {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    int? limitaScanari,
     QrSchedule? schedule,
   }) async {
     _network.requireOnline('Crearea unui cod QR necesită internet.');
@@ -98,6 +99,7 @@ class QrRepository {
       numePostareClienti: numePostareClienti,
       numePostareFirme: numePostareFirme,
       pretRedus: pretRedus,
+      limitaScanari: limitaScanari,
       schedule: schedule,
     );
     await _refreshCacheAfterMutation();
@@ -109,6 +111,8 @@ class QrRepository {
     String? numePostareClienti,
     String? numePostareFirme,
     String? pretRedus,
+    int? limitaScanari,
+    bool clearLimitaScanari = false,
     QrSchedule? schedule,
   }) async {
     _network.requireOnline('Editarea codului QR necesită internet.');
@@ -117,6 +121,8 @@ class QrRepository {
       numePostareClienti: numePostareClienti,
       numePostareFirme: numePostareFirme,
       pretRedus: pretRedus,
+      limitaScanari: limitaScanari,
+      clearLimitaScanari: clearLimitaScanari,
       schedule: schedule,
     );
     await _refreshCacheAfterMutation();
@@ -142,6 +148,16 @@ class QrRepository {
     if (cod != null && cached != null) {
       for (final entry in cached) {
         if (entry.cod.toUpperCase() == cod.toUpperCase()) {
+          if (entry.isLimitReached) {
+            return ScanResult(
+              status: ScanStatus.exhausted,
+              cod: entry.cod,
+              mesajLimita:
+                  'Au fost deja folosite toate cele ${entry.limitaScanari} scanări disponibile.',
+              limitaScanari: entry.limitaScanari,
+              numarScanari: entry.numarScanari,
+            );
+          }
           if (!entry.isScannableNow) {
             return ScanResult(
               status: ScanStatus.unavailable,

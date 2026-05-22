@@ -619,6 +619,7 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
               isLoading: _isLoading,
               isLoadingMore: _isLoadingMore,
               numarScanari: _numarScanari,
+              limitaScanari: entry.limitaScanari,
               scanari: _scanari,
               hasMore: _hasMore,
               onLoadMore: _loadMore,
@@ -679,6 +680,7 @@ class _ScanHistorySection extends StatefulWidget {
     required this.isLoading,
     required this.isLoadingMore,
     required this.numarScanari,
+    this.limitaScanari,
     required this.scanari,
     required this.hasMore,
     required this.onLoadMore,
@@ -687,6 +689,7 @@ class _ScanHistorySection extends StatefulWidget {
   final bool isLoading;
   final bool isLoadingMore;
   final int numarScanari;
+  final int? limitaScanari;
   final List<QrScan> scanari;
   final bool hasMore;
   final VoidCallback onLoadMore;
@@ -741,7 +744,10 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                 const Icon(Icons.history, color: AppColors.accent, size: 22),
                 const SizedBox(width: 10),
                 Text(
-                  scanariCountLabel(widget.numarScanari),
+                  scanariCountLabelWithLimit(
+                    widget.numarScanari,
+                    widget.limitaScanari,
+                  ),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,

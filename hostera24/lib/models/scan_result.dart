@@ -7,6 +7,9 @@ class ScanResult {
     this.pretRedus,
     this.numarScanari,
     this.mesajProgramare,
+    this.mesajLimita,
+    this.limitaScanari,
+    this.scanariRamase,
     this.queuedOffline = false,
   });
 
@@ -17,12 +20,16 @@ class ScanResult {
   final String? pretRedus;
   final int? numarScanari;
   final String? mesajProgramare;
+  final String? mesajLimita;
+  final int? limitaScanari;
+  final int? scanariRamase;
   final bool queuedOffline;
 
   bool get isOwn => status == ScanStatus.own;
   bool get isNotFound => status == ScanStatus.notFound;
   bool get isQueued => status == ScanStatus.queued;
   bool get isUnavailable => status == ScanStatus.unavailable;
+  bool get isExhausted => status == ScanStatus.exhausted;
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
     final statusRaw = json['status'] as String;
@@ -37,11 +44,14 @@ class ScanResult {
       pretRedus: json['pretRedus'] as String?,
       numarScanari: _parseInt(json['numarScanari']),
       mesajProgramare: json['mesajProgramare'] as String?,
+      mesajLimita: json['mesajLimita'] as String?,
+      limitaScanari: _parseInt(json['limitaScanari']),
+      scanariRamase: _parseInt(json['scanariRamase']),
     );
   }
 }
 
-enum ScanStatus { own, other, notFound, queued, unavailable }
+enum ScanStatus { own, other, notFound, queued, unavailable, exhausted }
 
 int? _parseInt(Object? value) {
   if (value == null) return null;

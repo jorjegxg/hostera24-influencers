@@ -11,6 +11,8 @@ class QrEntry {
     this.pretRedus,
     required this.createdAt,
     this.numarScanari = 0,
+    this.limitaScanari,
+    this.scanariRamase,
     this.schedule = const QrSchedule(),
   });
 
@@ -21,9 +23,18 @@ class QrEntry {
   final String? pretRedus;
   final DateTime createdAt;
   final int numarScanari;
+  final int? limitaScanari;
+  final int? scanariRamase;
   final QrSchedule schedule;
 
-  bool get isScannableNow => schedule.isActive;
+  bool get hasScanLimit => limitaScanari != null && limitaScanari! > 0;
+
+  bool get isLimitReached =>
+      hasScanLimit && numarScanari >= limitaScanari!;
+
+  bool get isScannableNow => schedule.isActive && !isLimitReached;
+
+  bool get canScanNow => isScannableNow;
 
   factory QrEntry.fromJson(Map<String, dynamic> json) {
     final zileRaw = json['programareZile'];
@@ -40,6 +51,8 @@ class QrEntry {
       pretRedus: json['pretRedus'] as String?,
       createdAt: parseApiDateTime(json['creatLa'] as String),
       numarScanari: json['numarScanari'] as int? ?? 0,
+      limitaScanari: _parseOptionalInt(json['limitaScanari']),
+      scanariRamase: _parseOptionalInt(json['scanariRamase']),
       schedule: QrSchedule.fromEntryFields(
         programareTip: json['programareTip'] as String?,
         programareDeLa: json['programareDeLa'] as String?,
@@ -60,6 +73,8 @@ class QrEntry {
     String? pretRedus,
     DateTime? createdAt,
     int? numarScanari,
+    int? limitaScanari,
+    int? scanariRamase,
     QrSchedule? schedule,
   }) {
     return QrEntry(
@@ -70,7 +85,17 @@ class QrEntry {
       pretRedus: pretRedus ?? this.pretRedus,
       createdAt: createdAt ?? this.createdAt,
       numarScanari: numarScanari ?? this.numarScanari,
+      limitaScanari: limitaScanari ?? this.limitaScanari,
+      scanariRamase: scanariRamase ?? this.scanariRamase,
       schedule: schedule ?? this.schedule,
     );
   }
+}
+
+int? _parseOptionalInt(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }

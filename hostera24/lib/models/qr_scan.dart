@@ -23,3 +23,8 @@ String scanariCountLabel(int count) {
   if (count == 1) return '1 scanare';
   return '$count scanări';
 }
+
+String scanariCountLabelWithLimit(int count, int? limit) {
+  if (limit == null || limit <= 0) return scanariCountLabel(count);
+  return '$count / $limit';
+}

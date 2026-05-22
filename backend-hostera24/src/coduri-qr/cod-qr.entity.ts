@@ -46,6 +46,9 @@ export class CodQr {
   @Column({ name: 'programare_zile', type: 'varchar', length: 32, nullable: true })
   programareZile: string | null;
 
+  @Column({ name: 'limita_scanari', type: 'int', unsigned: true, nullable: true })
+  limitaScanari: number | null;
+
   @Column({ default: false })
   sters: boolean;
 
