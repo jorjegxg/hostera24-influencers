@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 
+/** Bază din .env: NEXT_PUBLIC_SITE_URL, WEB_BASE_URL (vezi next.config.ts → loadEnvConfig). */
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();
   const lastModified = new Date();

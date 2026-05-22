@@ -18,29 +18,38 @@ export function isLocalhostUrl(url: string): boolean {
   }
 }
 
-/** URL canonic al site-ului (SEO, sitemap, metadata). */
-export function siteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (raw) return normalizeBaseUrl(raw);
-  return DEFAULT_SITE_URL;
+function siteUrlCandidates(): string[] {
+  const vercel = process.env.VERCEL_URL?.trim();
+  return [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.WEB_BASE_URL,
+    vercel ? normalizeBaseUrl(vercel) : undefined,
+  ].filter((v): v is string => Boolean(v?.trim()));
 }
 
-/** URL public al site-ului Next.js (link-uri QR, preferă host non-localhost). */
-export function publicSiteUrl(): string {
-  const site = process.env.NEXT_PUBLIC_SITE_URL;
-  const web = process.env.WEB_BASE_URL;
-  const vercel = process.env.VERCEL_URL;
-
-  const candidates = [site, web, vercel, DEFAULT_SITE_URL].filter(
-    (v): v is string => Boolean(v?.trim()),
-  );
+/**
+ * URL canonic al site-ului (SEO, sitemap, robots, metadata).
+ * Citește din .env la rădăcina monorepo-ului: NEXT_PUBLIC_SITE_URL, WEB_BASE_URL, VERCEL_URL.
+ */
+export function siteUrl(): string {
+  const candidates = siteUrlCandidates();
+  if (candidates.length === 0) {
+    return DEFAULT_SITE_URL;
+  }
 
   for (const raw of candidates) {
     const url = normalizeBaseUrl(raw);
-    if (!isLocalhostUrl(url)) return url;
+    if (!isLocalhostUrl(url)) {
+      return url;
+    }
   }
 
-  return normalizeBaseUrl(candidates[0] ?? DEFAULT_SITE_URL);
+  return normalizeBaseUrl(candidates[0]);
+}
+
+/** URL public al site-ului Next.js (link-uri QR, pagini cod). */
+export function publicSiteUrl(): string {
+  return siteUrl();
 }
 
 export const DEFAULT_DESCRIPTION =
