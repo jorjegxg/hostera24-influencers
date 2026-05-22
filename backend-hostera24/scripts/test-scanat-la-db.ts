@@ -4,7 +4,15 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import mysql from 'mysql2/promise';
+import mysql, { type ResultSetHeader, type RowDataPacket } from 'mysql2/promise';
+
+interface CodQrIdRow extends RowDataPacket {
+  id: number;
+}
+
+interface ScanatLaRow extends RowDataPacket {
+  scanat_la: Date;
+}
 import {
   addHours,
   scanatLaForApi,
@@ -68,19 +76,19 @@ async function main() {
 
   let insertId = 0;
   try {
-    const [codRows] = await conn.query<{ id: number }[]>(
+    const [codRows] = await conn.query<CodQrIdRow[]>(
       'SELECT id FROM coduri_qr WHERE sters = 0 ORDER BY id LIMIT 1',
     );
     const codQrId = codRows[0]?.id ?? 1;
 
-    const [insertResult] = await conn.query<mysql.ResultSetHeader>(
+    const [insertResult] = await conn.query<ResultSetHeader>(
       'INSERT INTO scanari (cod_qr_id, scanat_la) VALUES (?, ?)',
       [codQrId, INSERT_UTC],
     );
     insertId = insertResult.insertId;
     console.log(`Inserat scanare id=${insertId}, UTC=${INSERT_UTC}`);
 
-    const [rows] = await conn.query<{ scanat_la: Date }[]>(
+    const [rows] = await conn.query<ScanatLaRow[]>(
       'SELECT scanat_la FROM scanari WHERE id = ?',
       [insertId],
     );

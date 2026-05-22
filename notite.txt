@@ -11,7 +11,7 @@ flutter cu backend de production :
 
 offline app: listă QR cache, scan → coadă, create/edit profil = internet
 
-db reset complet (gol) : bash scripts/db-reset.sh
+db reset complet (gol, schema+ migrări) : npm run db:reset
 db reset + demo : npm run db:reset:demo
 db migrari VPS : cd ~/hostera24-influencers && npm run db:migrate
 
@@ -52,3 +52,6 @@ flutter build apk --release \
   --dart-define=API_BASE_URL=https://api.hostera24.com \
   --dart-define=WEB_BASE_URL=https://hostera24.com
 //////////////////////////
+
+reset db :
+npm run db:reset

@@ -57,7 +57,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   const qrUrl = await resolvePublicCodUrl(data.cod);
 
   return (
-    <main className="flex min-h-full flex-col items-center justify-center px-5 py-5 md:py-12">
+    <main className="flex min-h-dvh flex-col items-center justify-center px-5 py-5 md:min-h-full md:py-12">
       <RecordScan cod={data.cod} />
 
       <article className="w-full max-w-md rounded-2xl border border-[var(--color-placeholder-border)] bg-[var(--color-surface)] p-5 md:p-8 shadow-sm">

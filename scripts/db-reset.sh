@@ -44,10 +44,16 @@ set +a
 
 CONTAINER="${MYSQL_CONTAINER:-hostera24-mysql}"
 RESET_SQL="$ROOT/backend-hostera24/docker/mysql/reset.sql"
+MIGRATE_SQL="$ROOT/backend-hostera24/docker/mysql/migrate-vps-safe.sql"
 SEED_SQL="$ROOT/backend-hostera24/docker/mysql/seed.sql"
 
 if [[ ! -f "$RESET_SQL" ]]; then
   echo "Lipsește $RESET_SQL"
+  exit 1
+fi
+
+if [[ ! -f "$MIGRATE_SQL" ]]; then
+  echo "Lipsește $MIGRATE_SQL"
   exit 1
 fi
 
@@ -73,11 +79,17 @@ if [[ "$SKIP_CONFIRM" != true ]]; then
   fi
 fi
 
-echo "→ Aplic reset.sql..."
+echo "→ Aplic reset.sql (schema completă de la 0)..."
 docker exec -i "$CONTAINER" mysql \
   --default-character-set=utf8mb4 \
   -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" \
   "$MYSQL_DATABASE" < "$RESET_SQL"
+
+echo "→ Aplic migrate-vps-safe.sql (migrări idempotente)..."
+docker exec -i "$CONTAINER" mysql \
+  --default-character-set=utf8mb4 \
+  -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" \
+  "$MYSQL_DATABASE" < "$MIGRATE_SQL"
 
 if [[ "$WITH_DEMO" == true ]]; then
   echo "→ Aplic seed.sql (demo)..."
