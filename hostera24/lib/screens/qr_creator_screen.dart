@@ -156,16 +156,21 @@ class _QrCreatorScreenState extends State<QrCreatorScreen> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => _QrPreviewSheet(
-        entry: entry,
-        onEdit: () {
-          Navigator.of(context).pop();
-          _openEditScreen(entry);
-        },
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.88,
+        minChildSize: 0.45,
+        maxChildSize: 0.92,
+        expand: false,
+        builder: (context, scrollController) => _QrPreviewSheet(
+          entry: entry,
+          scrollController: scrollController,
+          onEdit: () {
+            Navigator.of(context).pop();
+            _openEditScreen(entry);
+          },
+        ),
       ),
     );
   }
@@ -325,9 +330,14 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _QrPreviewSheet extends StatefulWidget {
-  const _QrPreviewSheet({required this.entry, required this.onEdit});
+  const _QrPreviewSheet({
+    required this.entry,
+    required this.scrollController,
+    required this.onEdit,
+  });
 
   final QrEntry entry;
+  final ScrollController scrollController;
   final VoidCallback onEdit;
 
   @override
@@ -507,11 +517,13 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final maxHeight = MediaQuery.sizeOf(context).height * 0.88;
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
+    return Material(
+      color: AppColors.surface,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      clipBehavior: Clip.antiAlias,
       child: SingleChildScrollView(
+        controller: widget.scrollController,
         padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + bottomInset),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -547,8 +559,8 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
               const SizedBox(height: 12),
             ],
             _DescriptionRow(
-              icon: Icons.business_outlined,
-              label: 'Nume postare (firmă)',
+              icon: Icons.description_outlined,
+              label: 'Descriere internă cod',
               text: entry.firmaDescription,
             ),
             const SizedBox(height: 12),
@@ -761,6 +773,7 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                   child: NotificationListener<ScrollNotification>(
                     onNotification: _handleScroll,
                     child: ListView.builder(
+                      primary: false,
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: _itemCount,
                       itemBuilder: (context, index) {

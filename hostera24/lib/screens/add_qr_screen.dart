@@ -171,12 +171,12 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       autofocus: !_isEditing,
                       enabled: !_isSubmitting,
                       decoration: const InputDecoration(
-                        labelText: 'Nume postare (firmă) — opțional',
-                        hintText: 'Ex: Campanie Instagram martie',
+                        labelText: 'Descriere internă cod — opțional',
+                        hintText: 'Ex: Popescu Ionut instagram 1',
                         alignLabelWithHint: true,
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(bottom: 48),
-                          child: Icon(Icons.business_outlined),
+                          child: Icon(Icons.description_outlined),
                         ),
                       ),
                     ),

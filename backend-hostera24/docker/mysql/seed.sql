@@ -11,9 +11,72 @@ INSERT INTO coduri_qr (id, firma_id, cod, nume_postare_clienti, nume_postare_fir
 (2, 1, 'CAFE-GOOGLE-2026', 'Lasă-ne un review pe Google', 'Campanie Google Reviews', 'Desert gratuit la review'),
 (3, 2, 'HOTEL-TIKTOK-2026', 'Urmărește hotelul pe TikTok', 'TikTok Q1', NULL);
 
-INSERT INTO scanari (cod_qr_id, scanat_la) VALUES
-(1, NOW() - INTERVAL 2 DAY),
-(1, NOW() - INTERVAL 1 DAY),
-(1, NOW() - INTERVAL 3 HOUR),
-(2, NOW() - INTERVAL 5 HOUR),
-(3, NOW() - INTERVAL 1 HOUR);
+-- Scanări demo pentru statistici (ultimele ~28 zile, ore variate)
+
+-- CAFE-INSTA (cod 1): 4 scanări/zi × 28 zile
+INSERT INTO scanari (cod_qr_id, scanat_la)
+WITH RECURSIVE days AS (
+  SELECT 0 AS d
+  UNION ALL
+  SELECT d + 1 FROM days WHERE d < 27
+),
+slots AS (
+  SELECT 2 AS oh
+  UNION ALL SELECT 9
+  UNION ALL SELECT 14
+  UNION ALL SELECT 19
+)
+SELECT 1, NOW() - INTERVAL (d * 24 + oh) HOUR
+FROM days
+CROSS JOIN slots;
+
+-- CAFE-INSTA: vârf la prânz (ora ~12) în ultimele 21 zile
+INSERT INTO scanari (cod_qr_id, scanat_la)
+WITH RECURSIVE days AS (
+  SELECT 0 AS d
+  UNION ALL
+  SELECT d + 1 FROM days WHERE d < 20
+)
+SELECT 1, NOW() - INTERVAL (d * 24 + 12) HOUR
+FROM days;
+
+-- CAFE-INSTA: câteva scanări în weekend-uri (zile 6, 13, 20, 27 înapoi)
+INSERT INTO scanari (cod_qr_id, scanat_la)
+SELECT 1, NOW() - INTERVAL (d * 24 + 17) HOUR
+FROM (
+  SELECT 6 AS d
+  UNION ALL SELECT 13
+  UNION ALL SELECT 20
+  UNION ALL SELECT 27
+) AS weekend_days;
+
+-- CAFE-GOOGLE (cod 2): 3 scanări/zi × 14 zile
+INSERT INTO scanari (cod_qr_id, scanat_la)
+WITH RECURSIVE days AS (
+  SELECT 0 AS d
+  UNION ALL
+  SELECT d + 1 FROM days WHERE d < 13
+),
+slots AS (
+  SELECT 6 AS oh
+  UNION ALL SELECT 11
+  UNION ALL SELECT 16
+)
+SELECT 2, NOW() - INTERVAL (d * 24 + oh) HOUR
+FROM days
+CROSS JOIN slots;
+
+-- HOTEL-TIKTOK (cod 3): 2 scanări/zi × 10 zile
+INSERT INTO scanari (cod_qr_id, scanat_la)
+WITH RECURSIVE days AS (
+  SELECT 0 AS d
+  UNION ALL
+  SELECT d + 1 FROM days WHERE d < 9
+),
+slots AS (
+  SELECT 10 AS oh
+  UNION ALL SELECT 18
+)
+SELECT 3, NOW() - INTERVAL (d * 24 + oh) HOUR
+FROM days
+CROSS JOIN slots;
