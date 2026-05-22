@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { scanatLaForApi } from '../common/datetime.util';
 import { normalizePublicUploadsUrl } from '../common/uploads.util';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
@@ -84,7 +85,7 @@ export class CoduriQrService {
     return {
       scanari: scanari.map((s) => ({
         id: s.id,
-        scanatLa: s.scanatLa,
+        scanatLa: scanatLaForApi(s.scanatLa),
       })),
       total,
       page,

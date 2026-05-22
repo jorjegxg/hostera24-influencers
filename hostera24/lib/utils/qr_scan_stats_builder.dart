@@ -1,12 +1,13 @@
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/models/qr_scan_stats.dart';
+import 'package:hostera24/utils/datetime_format.dart';
 
 QrScanStats buildQrScanStats(List<QrScan> scanari) {
   final byHour = List<int>.filled(24, 0);
   final byWeekday = List<int>.filled(7, 0);
   final byDate = <String, int>{};
 
-  final now = DateTime.now();
+  final now = nowBucharest();
   final todayKey = _dateKey(now);
   final weekAgo = now.subtract(const Duration(days: 7));
   final monthAgo = now.subtract(const Duration(days: 30));
@@ -16,7 +17,7 @@ QrScanStats buildQrScanStats(List<QrScan> scanari) {
   var last30 = 0;
 
   for (final scan in scanari) {
-    final local = scan.scanatLa.toLocal();
+    final local = toBucharest(scan.scanatLa);
     final hour = local.hour;
     final weekday = local.weekday - 1;
     final dateKey = _dateKey(local);

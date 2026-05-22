@@ -10,9 +10,11 @@ import 'package:hostera24/services/auth_service.dart';
 import 'package:hostera24/services/network_service.dart';
 import 'package:hostera24/services/sync_service.dart';
 import 'package:hostera24/theme/app_theme.dart';
+import 'package:hostera24/utils/datetime_format.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ensureTimezonesInitialized();
   RootEnv.load();
   if (kDebugMode) {
     debugPrint('[Hostera24] API: ${ApiConfig.baseUrl}');
