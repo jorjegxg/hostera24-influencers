@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { BenefitIcon, type BenefitIconName } from "./BenefitIcon";
 import { AppStepsSection } from "./AppStepsSection";
 import { BeneficiiSection } from "./BeneficiiSection";
@@ -61,25 +62,41 @@ export function FirmeSection() {
         className="mt-20 border-t border-neutral-200 pt-16"
         aria-labelledby="heading-statistici"
       >
-        <h2
-          id="heading-statistici"
-          className="text-2xl font-bold text-[var(--color-text-primary)] sm:text-3xl"
-        >
-          Statistici — pentru fiecare cod vezi grafice de scanări
-        </h2>
-        <p className="mt-3 max-w-3xl text-lg text-[var(--color-text-secondary)]">
-          Și la ce oră, în ce zi au venit clienții — ca să știi când merită să
-          repeți oferta și ce postare sau partener funcționează cel mai bine.
-        </p>
-
-        <ul className="mt-10 max-w-2xl space-y-4 text-[var(--color-text-secondary)]">
-          {STAT_ITEMS.map((item) => (
-            <li key={item.text} className="flex items-center gap-3">
-              <BenefitIcon name={item.icon} className="h-10 w-10" />
-              <span>{item.text}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-12">
+          <div className="min-w-0 flex-1">
+            <h2
+              id="heading-statistici"
+              className="text-2xl font-bold text-[var(--color-text-primary)] sm:text-3xl"
+            >
+              Statistici — pentru fiecare cod vezi grafice de scanări
+            </h2>
+            <p className="mt-3 text-lg text-[var(--color-text-secondary)]">
+              Și la ce oră, în ce zi au venit clienții — ca să știi când merită să
+              repeți oferta și ce postare sau partener funcționează cel mai bine.
+            </p>
+            <ul className="mt-10 space-y-4 text-[var(--color-text-secondary)]">
+              {STAT_ITEMS.map((item) => (
+                <li key={item.text} className="flex items-center gap-3">
+                  <BenefitIcon name={item.icon} className="h-10 w-10" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <figure className="flex shrink-0 justify-center lg:w-[170px] lg:justify-center">
+            <Image
+              src="/statistici.jpeg"
+              alt="Ecran Hostera24 — statistici scanări: total, distribuție pe oră și pe zi a săptămânii"
+              width={390}
+              height={844}
+              className="w-full max-w-[150px] rounded-2xl border border-neutral-200 bg-white shadow-lg sm:max-w-[170px]"
+              sizes="(max-width: 1024px) 150px, 170px"
+            />
+            <figcaption className="sr-only">
+              Grafice de scanări per cod QR în aplicația Hostera24
+            </figcaption>
+          </figure>
+        </div>
       </FadeInSection>
 
       {/* Secțiune 3 — Contact */}
