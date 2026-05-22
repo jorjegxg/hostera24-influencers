@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { siteUrl } from "@/lib/site";
 
-/** Bază din .env: NEXT_PUBLIC_SITE_URL, WEB_BASE_URL (vezi next.config.ts → loadEnvConfig). */
+const SITEMAP_BASE = "https://hostera24.com";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteUrl();
+  const base = SITEMAP_BASE;
   const lastModified = new Date();
 
   return [
