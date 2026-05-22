@@ -4,8 +4,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 export type JwtPayload = {
-  sub: number;
-  email: string;
+  sub: number | string;
+  email?: string;
+  role?: 'admin';
 };
 
 @Injectable()
@@ -19,6 +20,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: JwtPayload) {
-    return { firmaId: payload.sub, email: payload.email };
+    if (payload.role === 'admin') {
+      return { role: 'admin' as const };
+    }
+    return {
+      role: 'firma' as const,
+      firmaId: payload.sub as number,
+      email: payload.email ?? '',
+    };
   }
 }

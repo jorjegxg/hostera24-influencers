@@ -111,3 +111,57 @@ export async function submitContactMessage(
 
   return res.json() as Promise<{ ok: true; id: number }>;
 }
+
+export type AdminContactMessage = {
+  id: number;
+  tip: string;
+  nume: string;
+  email: string;
+  telefon: string;
+  agentie: string | null;
+  mesaj: string | null;
+  creatLa: string;
+};
+
+async function parseApiError(res: Response): Promise<string> {
+  let detail = `Eroare ${res.status}`;
+  try {
+    const body = (await res.json()) as { message?: string | string[] };
+    if (Array.isArray(body.message)) detail = body.message.join(", ");
+    else if (body.message) detail = body.message;
+  } catch {
+    /* ignore */
+  }
+  return detail;
+}
+
+export async function adminLogin(
+  parola: string,
+): Promise<{ accessToken: string }> {
+  const res = await fetch(`${apiBaseUrl()}/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ parola }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseApiError(res));
+  }
+
+  return res.json() as Promise<{ accessToken: string }>;
+}
+
+export async function fetchAdminContactMessages(
+  accessToken: string,
+): Promise<AdminContactMessage[]> {
+  const res = await fetch(`${apiBaseUrl()}/admin/mesaje-contact`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseApiError(res));
+  }
+
+  return res.json() as Promise<AdminContactMessage[]>;
+}
