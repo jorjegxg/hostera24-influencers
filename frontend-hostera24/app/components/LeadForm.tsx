@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { submitContactMessage } from "@/lib/api";
 
@@ -22,6 +23,15 @@ export function LeadForm({ embedded = false }: LeadFormProps) {
     const email = String(fd.get("email") ?? "").trim();
     const telefon = String(fd.get("telefon") ?? "").trim();
     const mesaj = String(fd.get("mesaj") ?? "").trim();
+    const consimtamant = fd.get("consimtamant") === "on";
+
+    if (!consimtamant) {
+      setErrorText(
+        "Trebuie să confirmi că ai citit politica de confidențialitate.",
+      );
+      setStatus("error");
+      return;
+    }
 
     if (!nume || !email || !telefon) {
       setErrorText("Completează numele, emailul și telefonul.");
@@ -146,6 +156,28 @@ export function LeadForm({ embedded = false }: LeadFormProps) {
             disabled={status === "loading"}
             className={`${inputClass} min-h-[120px] resize-y`}
           />
+        </label>
+        <label className="flex items-start gap-2.5 text-sm sm:col-span-2">
+          <input
+            name="consimtamant"
+            type="checkbox"
+            required
+            disabled={status === "loading"}
+            className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-[var(--color-accent)] focus:ring-[var(--color-accent)]/25"
+          />
+          <span className="text-[var(--color-text-secondary)]">
+            Am citit{" "}
+            <Link
+              href="/politica-de-confidentialitate"
+              className="font-medium text-[var(--color-accent)] underline-offset-2 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              politica de confidențialitate
+            </Link>{" "}
+            și sunt de acord cu prelucrarea datelor pentru răspunsul la solicitarea
+            mea.
+          </span>
         </label>
       </div>
       {errorText ? (

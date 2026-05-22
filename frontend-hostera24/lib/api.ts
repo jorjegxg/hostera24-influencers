@@ -1,3 +1,5 @@
+import { isLocalhostUrl, publicSiteUrl } from "@/lib/site";
+
 export type PublicCodQr = {
   cod: string;
   numePostareClienti: string | null;
@@ -22,37 +24,7 @@ function apiBaseUrl(): string {
   return url.replace(/\/+$/, "");
 }
 
-function normalizeBaseUrl(url: string): string {
-  const withProtocol = url.startsWith("http") ? url : `https://${url}`;
-  return withProtocol.replace(/\/+$/, "");
-}
-
-function isLocalhostUrl(url: string): boolean {
-  try {
-    const host = new URL(url).hostname;
-    return host === "localhost" || host === "127.0.0.1";
-  } catch {
-    return false;
-  }
-}
-
-/** URL public al site-ului Next.js (pentru link-uri QR). */
-export function publicSiteUrl(): string {
-  const site = process.env.NEXT_PUBLIC_SITE_URL;
-  const web = process.env.WEB_BASE_URL;
-  const vercel = process.env.VERCEL_URL;
-
-  const candidates = [site, web, vercel, "http://localhost:3001"].filter(
-    (v): v is string => Boolean(v?.trim()),
-  );
-
-  for (const raw of candidates) {
-    const url = normalizeBaseUrl(raw);
-    if (!isLocalhostUrl(url)) return url;
-  }
-
-  return normalizeBaseUrl(candidates[0] ?? "http://localhost:3001");
-}
+export { publicSiteUrl };
 
 /** URL encodat în codul QR (același format ca în app Flutter). */
 export function publicCodUrl(cod: string): string {

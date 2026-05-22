@@ -14,7 +14,7 @@ export function SectionNav() {
       {SECTION_LINKS.map(({ id, label }) => (
         <a
           key={id}
-          href={`#${id}`}
+          href={`/#${id}`}
           className="shrink-0 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-accent)] sm:text-base"
         >
           {label}

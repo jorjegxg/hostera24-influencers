@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   fetchPublicCodQr,
@@ -37,6 +38,22 @@ function websiteHref(website: string): string {
 
 function websiteLabel(website: string): string {
   return website.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { cod } = await params;
+  const data = await fetchPublicCodQr(cod);
+  const title = data ? resolveFirmaName(data.firma) : "Cod QR";
+
+  return {
+    title,
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
 }
 
 export default async function CodQrPublicPage({ params }: PageProps) {
