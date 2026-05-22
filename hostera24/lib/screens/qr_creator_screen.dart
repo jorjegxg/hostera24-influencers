@@ -619,6 +619,7 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
               isLoading: _isLoading,
               isLoadingMore: _isLoadingMore,
               numarScanari: _numarScanari,
+              numarScanariRespinse: entry.numarScanariRespinse,
               limitaScanari: entry.limitaScanari,
               scanari: _scanari,
               hasMore: _hasMore,
@@ -680,6 +681,7 @@ class _ScanHistorySection extends StatefulWidget {
     required this.isLoading,
     required this.isLoadingMore,
     required this.numarScanari,
+    this.numarScanariRespinse = 0,
     this.limitaScanari,
     required this.scanari,
     required this.hasMore,
@@ -689,6 +691,7 @@ class _ScanHistorySection extends StatefulWidget {
   final bool isLoading;
   final bool isLoadingMore;
   final int numarScanari;
+  final int numarScanariRespinse;
   final int? limitaScanari;
   final List<QrScan> scanari;
   final bool hasMore;
@@ -743,14 +746,32 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
               children: [
                 const Icon(Icons.history, color: AppColors.accent, size: 22),
                 const SizedBox(width: 10),
-                Text(
-                  scanariCountLabelWithLimit(
-                    widget.numarScanari,
-                    widget.limitaScanari,
-                  ),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        scanariCountLabelWithLimit(
+                          widget.numarScanari,
+                          widget.limitaScanari,
+                        ),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      if (widget.numarScanariRespinse > 0)
+                        Text(
+                          widget.numarScanariRespinse == 1
+                              ? '1 respinsă (după limită)'
+                              : '${widget.numarScanariRespinse} respinse (după limită)',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.error,
+                            height: 1.3,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 if (widget.isLoading) ...[
@@ -799,22 +820,50 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                         }
 
                         final scan = widget.scanari[index];
+                        final rejected = !scan.reusit;
                         return Column(
                           children: [
                             if (index > 0) const Divider(height: 12),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(
-                                  Icons.qr_code_scanner,
+                                  rejected
+                                      ? Icons.block_outlined
+                                      : Icons.qr_code_scanner,
                                   size: 18,
-                                  color: AppColors.textSecondary.withValues(
-                                    alpha: 0.8,
-                                  ),
+                                  color: rejected
+                                      ? AppColors.error
+                                      : AppColors.textSecondary.withValues(
+                                          alpha: 0.8,
+                                        ),
                                 ),
                                 const SizedBox(width: 10),
-                                Text(
-                                  scan.formattedAt,
-                                  style: const TextStyle(fontSize: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        scan.formattedAt,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: rejected
+                                              ? AppColors.error
+                                              : null,
+                                        ),
+                                      ),
+                                      if (rejected)
+                                        const Text(
+                                          'Respină — limită atinsă',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.error,
+                                            height: 1.3,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

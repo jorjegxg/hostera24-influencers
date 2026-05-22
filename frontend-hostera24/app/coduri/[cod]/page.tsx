@@ -40,6 +40,36 @@ function websiteLabel(website: string): string {
   return website.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
 }
 
+function limitaReducereMesaj(limita: number, ramase: number | null): {
+  titlu: string;
+  detaliu?: string;
+  epuizat: boolean;
+} {
+  const titlu =
+    limita === 1
+      ? "Doar prima persoană care vine cu acest cod beneficiază de reducere."
+      : `Doar primele ${limita} persoane care vin cu acest cod beneficiază de reducere.`;
+
+  if (ramase === 0) {
+    return {
+      titlu,
+      detaliu:
+        "Toate locurile disponibile au fost ocupate. Este posibil ca reducerea să nu mai fie valabilă la casă.",
+      epuizat: true,
+    };
+  }
+
+  if (ramase != null && ramase > 0 && ramase <= limita) {
+    const locuri =
+      ramase === 1
+        ? "Mai este disponibil 1 loc."
+        : `Mai sunt disponibile ${ramase} locuri.`;
+    return { titlu, detaliu: locuri, epuizat: false };
+  }
+
+  return { titlu, epuizat: false };
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -66,6 +96,11 @@ export default async function CodQrPublicPage({ params }: PageProps) {
 
   const mesajClient = data.numePostareClienti?.trim();
   const pretRedus = data.pretRedus?.trim();
+  const limitaScanari = data.limitaScanari;
+  const atentionareLimita =
+    limitaScanari != null && limitaScanari > 0
+      ? limitaReducereMesaj(limitaScanari, data.scanariRamase)
+      : null;
   const { firma } = data;
   const logoUrl = resolveUploadsMediaUrl(firma.logoUrl);
   const numeFirma = resolveFirmaName(firma);
@@ -130,6 +165,35 @@ export default async function CodQrPublicPage({ params }: PageProps) {
           <p className="mt-4 text-center text-base font-semibold text-[var(--color-accent)]">
             {pretRedus}
           </p>
+        ) : null}
+
+        {atentionareLimita ? (
+          <div
+            className={`mt-6 rounded-xl border px-4 py-3 text-sm leading-relaxed ${
+              atentionareLimita.epuizat
+                ? "border-amber-300 bg-amber-50 text-amber-950"
+                : "border-[var(--color-accent)]/35 bg-[var(--color-accent)]/8 text-[var(--color-text-primary)]"
+            }`}
+            role="note"
+          >
+            <p className="flex gap-2 font-semibold">
+              <span className="shrink-0" aria-hidden>
+                ⚠
+              </span>
+              <span>{atentionareLimita.titlu}</span>
+            </p>
+            {atentionareLimita.detaliu ? (
+              <p
+                className={`mt-2 pl-7 ${
+                  atentionareLimita.epuizat
+                    ? "text-amber-900/90"
+                    : "text-[var(--color-text-secondary)]"
+                }`}
+              >
+                {atentionareLimita.detaliu}
+              </p>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="mt-8 flex justify-center">

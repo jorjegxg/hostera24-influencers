@@ -4,6 +4,8 @@ export type PublicCodQr = {
   cod: string;
   numePostareClienti: string | null;
   pretRedus: string | null;
+  limitaScanari: number | null;
+  scanariRamase: number | null;
   firma: {
     email: string;
     nume: string | null;

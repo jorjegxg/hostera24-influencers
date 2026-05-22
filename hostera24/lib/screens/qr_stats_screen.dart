@@ -35,9 +35,10 @@ class _QrStatsScreenState extends State<QrStatsScreen> {
     });
     try {
       final scanari = await _repo.fetchAllCodQrScanari(widget.entry.id);
+      final reusite = scanari.where((s) => s.reusit).toList();
       if (!mounted) return;
       setState(() {
-        _stats = buildQrScanStats(scanari);
+        _stats = buildQrScanStats(reusite);
         _loading = false;
       });
     } on ApiException catch (e) {

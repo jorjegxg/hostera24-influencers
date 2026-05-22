@@ -40,23 +40,41 @@ export class CoduriQrService {
   async findAllForFirma(firmaId: number) {
     const rows = await this.coduriRepo
       .createQueryBuilder('cod')
-      .loadRelationCountAndMap('cod.numarScanari', 'cod.scanari')
+      .loadRelationCountAndMap(
+        'cod.numarScanari',
+        'cod.scanari',
+        'scanari_reusite',
+        (qb) => qb.andWhere('scanari_reusite.reusit = :reusit', { reusit: true }),
+      )
+      .loadRelationCountAndMap(
+        'cod.numarScanariRespinse',
+        'cod.scanari',
+        'scanari_respinse',
+        (qb) => qb.andWhere('scanari_respinse.reusit = :reusit', { reusit: false }),
+      )
       .where('cod.firmaId = :firmaId', { firmaId })
       .andWhere('cod.sters = :sters', { sters: false })
       .orderBy('cod.creatLa', 'DESC')
       .getMany();
 
-    return rows.map((cod) =>
-      this.toQrListItem(cod, (cod as CodQr & { numarScanari: number }).numarScanari ?? 0),
-    );
+    return rows.map((cod) => {
+      const extended = cod as CodQr & {
+        numarScanari: number;
+        numarScanariRespinse: number;
+      };
+      return this.toQrListItem(
+        cod,
+        extended.numarScanari ?? 0,
+        extended.numarScanariRespinse ?? 0,
+      );
+    });
   }
 
   async findOneForFirma(firmaId: number, id: number) {
     const cod = await this.findActiveOrThrow(firmaId, id);
 
-    const numarScanari = await this.scanariRepo.count({
-      where: { codQrId: id },
-    });
+    const numarScanari = await this.countScanariReusite(id);
+    const numarScanariRespinse = await this.countScanariRespinse(id);
 
     return {
       id: cod.id,
@@ -66,6 +84,7 @@ export class CoduriQrService {
       pretRedus: cod.pretRedus,
       creatLa: cod.creatLa,
       numarScanari,
+      numarScanariRespinse,
       ...toProgramareResponse(cod),
       ...toLimitaScanariResponse(cod, numarScanari),
     };
@@ -93,6 +112,7 @@ export class CoduriQrService {
       scanari: scanari.map((s) => ({
         id: s.id,
         scanatLa: scanatLaForApi(s.scanatLa),
+        reusit: s.reusit,
       })),
       total,
       page,
@@ -155,9 +175,7 @@ export class CoduriQrService {
     }
 
     if (dto.limitaScanari !== undefined) {
-      const numarScanari = await this.scanariRepo.count({
-        where: { codQrId: id },
-      });
+      const numarScanari = await this.countScanariReusite(id);
       const nextLimit = this.normalizeLimitaScanari(dto.limitaScanari);
       if (nextLimit != null && nextLimit < numarScanari) {
         throw new BadRequestException(
@@ -168,10 +186,9 @@ export class CoduriQrService {
     }
 
     const saved = await this.coduriRepo.save(cod);
-    const numarScanari = await this.scanariRepo.count({
-      where: { codQrId: saved.id },
-    });
-    return this.toQrListItem(saved, numarScanari);
+    const numarScanari = await this.countScanariReusite(saved.id);
+    const numarScanariRespinse = await this.countScanariRespinse(saved.id);
+    return this.toQrListItem(saved, numarScanari, numarScanariRespinse);
   }
 
   async scan(firmaId: number, rawPayload: string) {
@@ -203,6 +220,8 @@ export class CoduriQrService {
         mesajLimita: scanLimitBlockMessage(entry),
         limitaScanari: recorded.limitaScanari,
         numarScanari: recorded.numarScanari,
+        numarScanariRespinse: recorded.numarScanariRespinse,
+        inregistrat: recorded.inregistrat,
       };
     }
 
@@ -214,6 +233,7 @@ export class CoduriQrService {
         status: 'own' as const,
         ...base,
         numarScanari,
+        numarScanariRespinse: recorded.numarScanariRespinse,
         ...toLimitaScanariResponse(entry, numarScanari),
       };
     }
@@ -268,10 +288,13 @@ export class CoduriQrService {
       throw new NotFoundException('Codul QR nu există');
     }
 
+    const numarScanari = await this.countScanariReusite(entry.id);
+
     return {
       cod: entry.cod,
       numePostareClienti: entry.numePostareClienti,
       pretRedus: entry.pretRedus,
+      ...toLimitaScanariResponse(entry, numarScanari),
       firma: {
         email: entry.firma.email,
         nume: entry.firma.nume,
@@ -306,7 +329,11 @@ export class CoduriQrService {
     return { ok: true };
   }
 
-  private toQrListItem(cod: CodQr, numarScanari: number) {
+  private toQrListItem(
+    cod: CodQr,
+    numarScanari: number,
+    numarScanariRespinse = 0,
+  ) {
     return {
       id: cod.id,
       cod: cod.cod,
@@ -315,9 +342,22 @@ export class CoduriQrService {
       pretRedus: cod.pretRedus,
       creatLa: cod.creatLa,
       numarScanari,
+      numarScanariRespinse,
       ...toProgramareResponse(cod),
       ...toLimitaScanariResponse(cod, numarScanari),
     };
+  }
+
+  private countScanariReusite(codQrId: number) {
+    return this.scanariRepo.count({
+      where: { codQrId, reusit: true },
+    });
+  }
+
+  private countScanariRespinse(codQrId: number) {
+    return this.scanariRepo.count({
+      where: { codQrId, reusit: false },
+    });
   }
 
   private normalizeLimitaScanari(value?: number | null): number | null {
@@ -328,8 +368,14 @@ export class CoduriQrService {
   private async recordScanAtomic(
     codQrId: number,
   ): Promise<
-    | { ok: true; numarScanari: number }
-    | { exhausted: true; limitaScanari: number; numarScanari: number }
+    | { ok: true; numarScanari: number; numarScanariRespinse: number }
+    | {
+        exhausted: true;
+        limitaScanari: number;
+        numarScanari: number;
+        numarScanariRespinse: number;
+        inregistrat: boolean;
+      }
   > {
     return this.coduriRepo.manager.transaction(async (manager) => {
       const cod = await manager.findOne(CodQr, {
@@ -340,17 +386,36 @@ export class CoduriQrService {
         throw new NotFoundException('Codul QR nu există');
       }
 
-      const count = await manager.count(Scanare, { where: { codQrId } });
-      if (isScanLimitReached(cod, count)) {
+      const countReusite = await manager.count(Scanare, {
+        where: { codQrId, reusit: true },
+      });
+      const countRespinse = await manager.count(Scanare, {
+        where: { codQrId, reusit: false },
+      });
+
+      if (isScanLimitReached(cod, countReusite)) {
+        await manager.save(
+          Scanare,
+          manager.create(Scanare, { codQrId, reusit: false }),
+        );
         return {
           exhausted: true,
           limitaScanari: cod.limitaScanari!,
-          numarScanari: count,
+          numarScanari: countReusite,
+          numarScanariRespinse: countRespinse + 1,
+          inregistrat: true,
         };
       }
 
-      await manager.save(Scanare, manager.create(Scanare, { codQrId }));
-      return { ok: true, numarScanari: count + 1 };
+      await manager.save(
+        Scanare,
+        manager.create(Scanare, { codQrId, reusit: true }),
+      );
+      return {
+        ok: true,
+        numarScanari: countReusite + 1,
+        numarScanariRespinse: countRespinse,
+      };
     });
   }
 

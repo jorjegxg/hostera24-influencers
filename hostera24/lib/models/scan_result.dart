@@ -10,6 +10,8 @@ class ScanResult {
     this.mesajLimita,
     this.limitaScanari,
     this.scanariRamase,
+    this.numarScanariRespinse,
+    this.inregistrat,
     this.queuedOffline = false,
   });
 
@@ -23,6 +25,8 @@ class ScanResult {
   final String? mesajLimita;
   final int? limitaScanari;
   final int? scanariRamase;
+  final int? numarScanariRespinse;
+  final bool? inregistrat;
   final bool queuedOffline;
 
   bool get isOwn => status == ScanStatus.own;
@@ -47,6 +51,8 @@ class ScanResult {
       mesajLimita: json['mesajLimita'] as String?,
       limitaScanari: _parseInt(json['limitaScanari']),
       scanariRamase: _parseInt(json['scanariRamase']),
+      numarScanariRespinse: _parseInt(json['numarScanariRespinse']),
+      inregistrat: json['inregistrat'] as bool?,
     );
   }
 }

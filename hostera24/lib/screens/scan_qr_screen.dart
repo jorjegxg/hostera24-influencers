@@ -433,6 +433,19 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
                             height: 1.35,
                           ),
                         ),
+                        if (result.inregistrat == true) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Încercarea a fost salvată în istoric (scanare respinsă).',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.9,
+                              ),
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
                         if (result.limitaScanari != null &&
                             result.numarScanari != null) ...[
                           const SizedBox(height: 8),

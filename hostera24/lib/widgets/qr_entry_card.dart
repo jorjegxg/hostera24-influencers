@@ -134,6 +134,19 @@ class QrEntryCard extends StatelessWidget {
                         ),
                       ),
                     ],
+                    if (entry.numarScanariRespinse > 0) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        entry.numarScanariRespinse == 1
+                            ? '1 scanare respinsă (după limită)'
+                            : '${entry.numarScanariRespinse} scanări respinse (după limită)',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.error,
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
                     if (entry.hasScanLimit) ...[
                       const SizedBox(height: 6),
                       Row(

@@ -174,6 +174,20 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- scanări reușite / respinse (scanari.reusit)
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'scanari' AND COLUMN_NAME = 'reusit'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE scanari ADD COLUMN reusit TINYINT(1) NOT NULL DEFAULT 1 AFTER cod_qr_id',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- mesaje_contact (formular site)
 CREATE TABLE IF NOT EXISTS mesaje_contact (
     id INT PRIMARY KEY AUTO_INCREMENT,
