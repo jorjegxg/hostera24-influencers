@@ -9,8 +9,8 @@ abstract final class WebConfig {
     if (fromFile.isNotEmpty) {
       return fromFile.replaceAll(RegExp(r'/+$'), '');
     }
-    if (Platform.isAndroid) return 'http://10.0.2.2:3001';
-    return 'http://localhost:3001';
+    if (Platform.isAndroid) return 'http://10.0.2.2:3023';
+    return 'http://127.0.0.1:3023';
   }
 
   static String codQrPath(String cod) => '$baseUrl/coduri/$cod';

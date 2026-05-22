@@ -8,6 +8,7 @@ import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/screens/add_qr_screen.dart';
+import 'package:hostera24/screens/qr_stats_screen.dart';
 import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/network_service.dart';
@@ -455,6 +456,23 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
     );
   }
 
+  void _openStats() {
+    try {
+      NetworkService.instance.requireOnline(
+        'Statisticile necesită internet.',
+      );
+    } on ApiException catch (e) {
+      showErrorSnackBar(context, e.message);
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => QrStatsScreen(entry: entry),
+      ),
+    );
+  }
+
   Future<void> _loadMore() async {
     if (_isLoadingMore || !_hasMore) return;
 
@@ -550,6 +568,15 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
               ),
             ],
             const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _openStats,
+                icon: const Icon(Icons.bar_chart_rounded),
+                label: const Text('Statistici și grafice'),
+              ),
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(

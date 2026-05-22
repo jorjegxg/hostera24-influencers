@@ -27,9 +27,14 @@ firebase:
 DEVELOPMENT:
 
 # IP PC: ipconfig → IPv4 (ex. 192.168.1.10). Telefonul trebuie pe același Wi‑Fi.
+# Emulator Android: API = http://10.0.2.2:3022 (fără IP PC)
+# La pornire în debug vezi în consolă: [Hostera24] API: ...
 cd hostera24 && flutter run \
    --dart-define=API_BASE_URL=http://192.168.1.10:3022 \
    --dart-define=WEB_BASE_URL=http://192.168.1.10:3023
+
+# Dacă nu se conectează: restart backend, full restart app (nu doar hot reload),
+# verifică launch.json (IP = ipconfig), firewall port 3022, MySQL docker pornit.
 
 
 cd frontend-hostera24 && npm run dev
@@ -39,5 +44,11 @@ cd backend-hostera24 && npm run start:dev
 
 
 
-all:
-bash scripts/dev-all.sh
+///////////////////////////
+apk de test 
+
+cd hostera24
+flutter build apk --release \
+  --dart-define=API_BASE_URL=https://api.hostera24.com \
+  --dart-define=WEB_BASE_URL=https://hostera24.com
+//////////////////////////

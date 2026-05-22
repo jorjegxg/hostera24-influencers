@@ -1,6 +1,7 @@
 import 'package:hostera24/data/local_store.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_entry_detail.dart';
+import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/models/qr_scan_page.dart';
 import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_client.dart';
@@ -69,6 +70,21 @@ class QrRepository {
   }) async {
     _network.requireOnline('Istoricul scanărilor necesită internet.');
     return _api.fetchCodQrScanari(id, page: page, limit: limit);
+  }
+
+  /// Toate scanările (paginat pe server) — pentru grafice statistici.
+  Future<List<QrScan>> fetchAllCodQrScanari(int id) async {
+    _network.requireOnline('Statisticile necesită internet.');
+    final all = <QrScan>[];
+    var page = 1;
+    while (true) {
+      final chunk = await _api.fetchCodQrScanari(id, page: page, limit: 50);
+      all.addAll(chunk.scanari);
+      if (!chunk.hasMore) break;
+      page++;
+      if (page > 100) break;
+    }
+    return all;
   }
 
   Future<QrEntry> createCodQr({

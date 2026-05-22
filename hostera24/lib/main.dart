@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hostera24/config/api_config.dart';
+import 'package:hostera24/config/web_config.dart';
 import 'package:hostera24/config/root_env.dart';
 import 'package:hostera24/firebase/firebase_bootstrap.dart';
 import 'package:hostera24/screens/login_screen.dart';
@@ -11,6 +14,10 @@ import 'package:hostera24/theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   RootEnv.load();
+  if (kDebugMode) {
+    debugPrint('[Hostera24] API: ${ApiConfig.baseUrl}');
+    debugPrint('[Hostera24] Web: ${WebConfig.baseUrl}');
+  }
   await FirebaseBootstrap.initialize();
   await NetworkService.instance.initialize();
   SyncService.instance.initialize();
