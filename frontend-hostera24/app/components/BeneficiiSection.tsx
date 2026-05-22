@@ -93,8 +93,10 @@ const BENEFIT_ITEMS: {
 const COMBINED_STEPS = [
   "Colaborați cu o agenție de marketing — remunerare pe performanță.",
   "Generați un cod dedicat: primele X scanări beneficiază de 50% reducere.",
+  "Programați codul doar pentru zilele cu mai puțin trafic — aduceți clienți când vin mai puține persoane.",
   "La casă, validați codul fiecărui client care vine din campanie.",
   "Reducerea se aplică automat pentru primele X persoane eligibile.",
+  "Rezultat: mai mulți clienți în zilele mai liniștite — magazinul nu mai stă gol când de obicei vin mai puține persoane.",
 ] as const;
 
 export function BeneficiiSection() {
@@ -131,8 +133,8 @@ export function BeneficiiSection() {
           Campanie combinată — exemplu practic
         </h3>
         <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-          Marketing afiliat și ofertă limitată pentru primele X clienți, în același
-          flux.
+          Marketing afiliat, ofertă pentru primii X clienți și cod activ doar în
+          zilele când vin mai puțini clienți.
         </p>
         <ol className="mt-4 list-none space-y-2">
           {COMBINED_STEPS.map((step, i) => (
