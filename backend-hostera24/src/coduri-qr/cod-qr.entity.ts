@@ -6,7 +6,15 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  ValueTransformer,
 } from 'typeorm';
+
+const decimalTransformer: ValueTransformer = {
+  to: (value: number | null | undefined) =>
+    value == null || Number.isNaN(value) ? null : value,
+  from: (value: string | null) =>
+    value == null || value === '' ? null : parseFloat(value),
+};
 import { Firma } from '../firme/firma.entity';
 import { Scanare } from '../scanari/scanare.entity';
 
@@ -31,11 +39,24 @@ export class CodQr {
   @Column({ name: 'nume_postare_firme', type: 'varchar', length: 255, nullable: true })
   numePostareFirme: string | null;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  pret: string | null;
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
+  pret: number | null;
 
-  @Column({ name: 'pret_redus', type: 'varchar', length: 255, nullable: true })
-  pretRedus: string | null;
+  @Column({
+    name: 'reducere',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
+  reducere: number | null;
 
   @Column({ name: 'programare_tip', type: 'varchar', length: 16, nullable: true })
   programareTip: 'interval' | 'zile' | null;

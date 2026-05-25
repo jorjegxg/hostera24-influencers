@@ -13,6 +13,7 @@ import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/network_service.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/utils/price_format.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:hostera24/widgets/qr_entry_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -550,19 +551,19 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
             const SizedBox(height: 20),
             _QrImage(data: entry.payload),
             const SizedBox(height: 20),
-            if (entry.pret != null && entry.pret!.trim().isNotEmpty) ...[
+            if (formatPretLabel(entry.pret) != null) ...[
               _DescriptionRow(
                 icon: Icons.payments_outlined,
                 label: 'Preț serviciu / produs',
-                text: entry.pret,
+                text: formatPretLabel(entry.pret),
               ),
               const SizedBox(height: 12),
             ],
-            if (entry.pretRedus != null && entry.pretRedus!.trim().isNotEmpty) ...[
+            if (formatReducereLabel(entry.reducere) != null) ...[
               _DescriptionRow(
                 icon: Icons.sell_outlined,
-                label: 'Preț redus',
-                text: entry.pretRedus,
+                label: 'Reducere',
+                text: formatReducereLabel(entry.reducere),
               ),
               const SizedBox(height: 12),
             ],

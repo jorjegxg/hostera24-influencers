@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/utils/price_format.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:hostera24/widgets/qr_schedule_section.dart';
 
@@ -22,7 +24,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
   late final TextEditingController _firmaController;
   late final TextEditingController _clientController;
   late final TextEditingController _pretController;
-  late final TextEditingController _pretRedusController;
+  late final TextEditingController _reducereController;
   late final TextEditingController _limitaController;
   late QrSchedule _schedule;
   bool _isSubmitting = false;
@@ -39,10 +41,10 @@ class _AddQrScreenState extends State<AddQrScreen> {
       text: widget.entry?.clientDescription ?? '',
     );
     _pretController = TextEditingController(
-      text: widget.entry?.pret ?? '',
+      text: _initialAmountText(widget.entry?.pret),
     );
-    _pretRedusController = TextEditingController(
-      text: widget.entry?.pretRedus ?? '',
+    _reducereController = TextEditingController(
+      text: _initialAmountText(widget.entry?.reducere),
     );
     _limitaController = TextEditingController(
       text: widget.entry?.limitaScanari?.toString() ?? '',
@@ -50,12 +52,20 @@ class _AddQrScreenState extends State<AddQrScreen> {
     _schedule = widget.entry?.schedule ?? const QrSchedule();
   }
 
+  String _initialAmountText(double? value) {
+    if (value == null) return '';
+    if (value == value.truncateToDouble()) {
+      return value.toInt().toString();
+    }
+    return value.toStringAsFixed(2).replaceAll('.', ',');
+  }
+
   @override
   void dispose() {
     _firmaController.dispose();
     _clientController.dispose();
     _pretController.dispose();
-    _pretRedusController.dispose();
+    _reducereController.dispose();
     _limitaController.dispose();
     super.dispose();
   }
@@ -64,6 +74,18 @@ class _AddQrScreenState extends State<AddQrScreen> {
     final raw = _limitaController.text.trim();
     if (raw.isEmpty) return null;
     return int.tryParse(raw);
+  }
+
+  String? _validateAmount(String? value, {required String fieldLabel}) {
+    final raw = value?.trim() ?? '';
+    if (raw.isEmpty) return null;
+    final parsed = parseOptionalLei(raw);
+    if (parsed == null) {
+      return 'Introdu un număr valid pentru $fieldLabel (ex. 24,99).';
+    }
+    if (parsed < 0) return '$fieldLabel trebuie să fie cel puțin 0.';
+    if (parsed > 999999.99) return '$fieldLabel este prea mare.';
+    return null;
   }
 
   String? _validateLimitaScanari() {
@@ -122,10 +144,18 @@ class _AddQrScreenState extends State<AddQrScreen> {
       return;
     }
 
+    final pret = parseOptionalLei(_pretController.text);
+    final reducere = parseOptionalLei(_reducereController.text);
+    if (pret != null && reducere != null && reducere > pret) {
+      showErrorSnackBar(
+        context,
+        'Reducerea nu poate fi mai mare decât prețul serviciului.',
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
-    final pret = _pretController.text.trim();
-    final pretRedus = _pretRedusController.text.trim();
     final limitaScanari = _parseLimitaScanari();
     final hadLimit = widget.entry?.hasScanLimit ?? false;
     final clearLimitaScanari =
@@ -138,8 +168,8 @@ class _AddQrScreenState extends State<AddQrScreen> {
           id: widget.entry!.id,
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
-          pret: pret.isEmpty ? null : pret,
-          pretRedus: pretRedus.isEmpty ? null : pretRedus,
+          pret: pret,
+          reducere: reducere,
           limitaScanari: limitaScanari,
           clearLimitaScanari: clearLimitaScanari,
           schedule: _schedule,
@@ -148,8 +178,8 @@ class _AddQrScreenState extends State<AddQrScreen> {
         entry = await QrRepository().createCodQr(
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
-          pret: pret.isEmpty ? null : pret,
-          pretRedus: pretRedus.isEmpty ? null : pretRedus,
+          pret: pret,
+          reducere: reducere,
           limitaScanari: limitaScanari,
           schedule: _schedule,
         );
@@ -204,7 +234,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
                     Text(
                       _isEditing
                           ? 'Modifică detaliile postării. Codul QR rămâne același.'
-                          : 'Completează ce ai nevoie: texte opționale, preț serviciu și preț redus. Codul unic se generează automat.',
+                          : 'Completează ce ai nevoie: texte opționale, preț serviciu și reducere în lei. Codul unic se generează automat.',
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.35,
@@ -246,33 +276,49 @@ class _AddQrScreenState extends State<AddQrScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _pretController,
-                      maxLines: 2,
-                      textCapitalization: TextCapitalization.sentences,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[0-9,.]'),
+                        ),
+                      ],
+                      textInputAction: TextInputAction.next,
                       enabled: !_isSubmitting,
+                      validator: (v) => _validateAmount(
+                        v,
+                        fieldLabel: 'prețul serviciului',
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Preț serviciu / produs — opțional',
-                        hintText: 'Ex: Cafea 24,99 lei',
-                        alignLabelWithHint: true,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(bottom: 24),
-                          child: Icon(Icons.payments_outlined),
-                        ),
+                        hintText: 'Ex: 24,99',
+                        suffixText: 'lei',
+                        prefixIcon: Icon(Icons.payments_outlined),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
-                      controller: _pretRedusController,
-                      maxLines: 2,
-                      textCapitalization: TextCapitalization.sentences,
-                      enabled: !_isSubmitting,
-                      decoration: const InputDecoration(
-                        labelText: 'Preț redus — opțional',
-                        hintText: 'Ex: Cafea la 15,99 lei',
-                        alignLabelWithHint: true,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(bottom: 24),
-                          child: Icon(Icons.sell_outlined),
+                      controller: _reducereController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[0-9,.]'),
                         ),
+                      ],
+                      textInputAction: TextInputAction.next,
+                      enabled: !_isSubmitting,
+                      validator: (v) => _validateAmount(
+                        v,
+                        fieldLabel: 'reducerea',
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Reducere — opțional',
+                        hintText: 'Ex: 5',
+                        suffixText: 'lei',
+                        prefixIcon: Icon(Icons.sell_outlined),
                       ),
                     ),
                     const SizedBox(height: 16),

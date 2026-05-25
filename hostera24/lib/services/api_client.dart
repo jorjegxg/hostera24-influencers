@@ -137,8 +137,8 @@ class ApiClient {
   Future<QrEntry> createCodQr({
     String? numePostareClienti,
     String? numePostareFirme,
-    String? pret,
-    String? pretRedus,
+    double? pret,
+    double? reducere,
     int? limitaScanari,
     QrSchedule? schedule,
   }) async {
@@ -149,7 +149,7 @@ class ApiClient {
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
         pret: pret,
-        pretRedus: pretRedus,
+        reducere: reducere,
         limitaScanari: limitaScanari,
         schedule: schedule,
       )),
@@ -166,8 +166,8 @@ class ApiClient {
     required int id,
     String? numePostareClienti,
     String? numePostareFirme,
-    String? pret,
-    String? pretRedus,
+    double? pret,
+    double? reducere,
     int? limitaScanari,
     bool clearLimitaScanari = false,
     QrSchedule? schedule,
@@ -179,7 +179,7 @@ class ApiClient {
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
         pret: pret,
-        pretRedus: pretRedus,
+        reducere: reducere,
         limitaScanari: limitaScanari,
         clearLimitaScanari: clearLimitaScanari,
         schedule: schedule,
@@ -290,8 +290,8 @@ class ApiClient {
   Map<String, dynamic> _codQrBody({
     String? numePostareClienti,
     String? numePostareFirme,
-    String? pret,
-    String? pretRedus,
+    double? pret,
+    double? reducere,
     int? limitaScanari,
     bool clearLimitaScanari = false,
     QrSchedule? schedule,
@@ -299,8 +299,8 @@ class ApiClient {
     final body = <String, dynamic>{
       'numePostareClienti': numePostareClienti?.trim(),
       'numePostareFirme': numePostareFirme?.trim(),
-      'pret': pret?.trim(),
-      'pretRedus': pretRedus?.trim(),
+      'pret': pret,
+      'reducere': reducere,
       if (schedule != null) ...schedule.toApiBody(),
     };
     if (clearLimitaScanari) {

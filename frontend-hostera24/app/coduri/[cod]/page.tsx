@@ -8,6 +8,11 @@ import {
   type PublicCodQr,
 } from "@/lib/api";
 import { resolveUploadsMediaUrl } from "@/lib/media-url";
+import {
+  formatBeneficiuCuponLabel,
+  formatPretLabel,
+  formatReducereLabel,
+} from "@/lib/price-format";
 import { CodQrDisplay } from "./CodQrDisplay";
 import { RecordScan } from "./RecordScan";
 
@@ -95,8 +100,9 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   }
 
   const mesajClient = data.numePostareClienti?.trim();
-  const pret = data.pret?.trim();
-  const pretRedus = data.pretRedus?.trim();
+  const pretLabel = formatPretLabel(data.pret);
+  const reducereLabel = formatReducereLabel(data.reducere);
+  const beneficiuLabel = formatBeneficiuCuponLabel(data.pret, data.reducere);
   const limitaScanari = data.limitaScanari;
   const atentionareLimita =
     limitaScanari != null && limitaScanari > 0
@@ -162,22 +168,27 @@ export default async function CodQrPublicPage({ params }: PageProps) {
           </p>
         ) : null}
 
-        {pret || pretRedus ? (
+        {pretLabel || reducereLabel || beneficiuLabel ? (
           <div className="mt-4 space-y-2 text-center">
-            {pret ? (
+            {pretLabel ? (
               <p
                 className={`text-base ${
-                  pretRedus
+                  beneficiuLabel
                     ? "text-[var(--color-text-secondary)] line-through"
                     : "font-semibold text-[var(--color-accent)]"
                 }`}
               >
-                {pret}
+                {pretLabel}
               </p>
             ) : null}
-            {pretRedus ? (
+            {beneficiuLabel ? (
               <p className="text-base font-semibold text-[var(--color-accent)]">
-                {pretRedus}
+                {beneficiuLabel}
+              </p>
+            ) : null}
+            {reducereLabel && !beneficiuLabel ? (
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                {reducereLabel}
               </p>
             ) : null}
           </div>

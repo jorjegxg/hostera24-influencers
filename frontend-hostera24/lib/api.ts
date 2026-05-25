@@ -1,10 +1,11 @@
+import { apiBaseUrlFromEnv } from "@/lib/env";
 import { isLocalhostUrl, publicSiteUrl } from "@/lib/site";
 
 export type PublicCodQr = {
   cod: string;
   numePostareClienti: string | null;
-  pret: string | null;
-  pretRedus: string | null;
+  pret: number | null;
+  reducere: number | null;
   limitaScanari: number | null;
   scanariRamase: number | null;
   firma: {
@@ -18,13 +19,7 @@ export type PublicCodQr = {
 };
 
 function apiBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url) {
-    throw new Error(
-      "NEXT_PUBLIC_API_URL lipsește — setează în .env la rădăcina proiectului",
-    );
-  }
-  return url.replace(/\/+$/, "");
+  return apiBaseUrlFromEnv();
 }
 
 export { publicSiteUrl };

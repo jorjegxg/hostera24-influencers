@@ -82,7 +82,7 @@ export class CoduriQrService {
       numePostareClienti: cod.numePostareClienti,
       numePostareFirme: cod.numePostareFirme,
       pret: cod.pret,
-      pretRedus: cod.pretRedus,
+      reducere: cod.reducere,
       creatLa: cod.creatLa,
       numarScanari,
       numarScanariRespinse,
@@ -131,8 +131,8 @@ export class CoduriQrService {
       cod,
       numePostareClienti: this.normalizeOptionalText(dto.numePostareClienti),
       numePostareFirme: this.normalizeOptionalText(dto.numePostareFirme),
-      pret: this.normalizeOptionalText(dto.pret),
-      pretRedus: this.normalizeOptionalText(dto.pretRedus),
+      pret: this.normalizeOptionalNumber(dto.pret),
+      reducere: this.normalizeOptionalNumber(dto.reducere),
       programareTip: programare.programareTip,
       programareDeLa: programare.programareDeLa,
       programarePanaLa: programare.programarePanaLa,
@@ -155,10 +155,10 @@ export class CoduriQrService {
       cod.numePostareFirme = this.normalizeOptionalText(dto.numePostareFirme);
     }
     if (dto.pret !== undefined) {
-      cod.pret = this.normalizeOptionalText(dto.pret);
+      cod.pret = this.normalizeOptionalNumber(dto.pret);
     }
-    if (dto.pretRedus !== undefined) {
-      cod.pretRedus = this.normalizeOptionalText(dto.pretRedus);
+    if (dto.reducere !== undefined) {
+      cod.reducere = this.normalizeOptionalNumber(dto.reducere);
     }
 
     if (
@@ -248,7 +248,7 @@ export class CoduriQrService {
       cod: base.cod,
       numePostareClienti: base.numePostareClienti,
       pret: base.pret,
-      pretRedus: base.pretRedus,
+      reducere: base.reducere,
     };
   }
 
@@ -265,7 +265,7 @@ export class CoduriQrService {
       numePostareClienti: entry.numePostareClienti,
       numePostareFirme: entry.numePostareFirme,
       pret: entry.pret,
-      pretRedus: entry.pretRedus,
+      reducere: entry.reducere,
       creatLa: entry.creatLa,
     };
   }
@@ -274,6 +274,11 @@ export class CoduriQrService {
     if (value == null) return null;
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
+  }
+
+  private normalizeOptionalNumber(value?: number | null): number | null {
+    if (value == null || Number.isNaN(value)) return null;
+    return value;
   }
 
   private async findActiveOrThrow(firmaId: number, id: number) {
@@ -301,7 +306,7 @@ export class CoduriQrService {
       cod: entry.cod,
       numePostareClienti: entry.numePostareClienti,
       pret: entry.pret,
-      pretRedus: entry.pretRedus,
+      reducere: entry.reducere,
       ...toLimitaScanariResponse(entry, numarScanari),
       firma: {
         email: entry.firma.email,
@@ -348,7 +353,7 @@ export class CoduriQrService {
       numePostareClienti: cod.numePostareClienti,
       numePostareFirme: cod.numePostareFirme,
       pret: cod.pret,
-      pretRedus: cod.pretRedus,
+      reducere: cod.reducere,
       creatLa: cod.creatLa,
       numarScanari,
       numarScanariRespinse,

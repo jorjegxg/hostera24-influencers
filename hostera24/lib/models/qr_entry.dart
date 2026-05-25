@@ -9,7 +9,7 @@ class QrEntry {
     this.firmaDescription,
     this.clientDescription,
     this.pret,
-    this.pretRedus,
+    this.reducere,
     required this.createdAt,
     this.numarScanari = 0,
     this.limitaScanari,
@@ -22,8 +22,8 @@ class QrEntry {
   final String cod;
   final String? firmaDescription;
   final String? clientDescription;
-  final String? pret;
-  final String? pretRedus;
+  final double? pret;
+  final double? reducere;
   final DateTime createdAt;
   final int numarScanari;
   final int? limitaScanari;
@@ -52,8 +52,8 @@ class QrEntry {
       cod: json['cod'] as String,
       firmaDescription: json['numePostareFirme'] as String?,
       clientDescription: json['numePostareClienti'] as String?,
-      pret: json['pret'] as String?,
-      pretRedus: json['pretRedus'] as String?,
+      pret: _parseOptionalDouble(json['pret']),
+      reducere: _parseOptionalDouble(json['reducere'] ?? json['pretRedus']),
       createdAt: parseApiDateTime(json['creatLa'] as String),
       numarScanari: json['numarScanari'] as int? ?? 0,
       limitaScanari: _parseOptionalInt(json['limitaScanari']),
@@ -76,8 +76,8 @@ class QrEntry {
     String? cod,
     String? firmaDescription,
     String? clientDescription,
-    String? pret,
-    String? pretRedus,
+    double? pret,
+    double? reducere,
     DateTime? createdAt,
     int? numarScanari,
     int? limitaScanari,
@@ -91,7 +91,7 @@ class QrEntry {
       firmaDescription: firmaDescription ?? this.firmaDescription,
       clientDescription: clientDescription ?? this.clientDescription,
       pret: pret ?? this.pret,
-      pretRedus: pretRedus ?? this.pretRedus,
+      reducere: reducere ?? this.reducere,
       createdAt: createdAt ?? this.createdAt,
       numarScanari: numarScanari ?? this.numarScanari,
       limitaScanari: limitaScanari ?? this.limitaScanari,
@@ -101,6 +101,19 @@ class QrEntry {
       schedule: schedule ?? this.schedule,
     );
   }
+}
+
+double? _parseOptionalDouble(Object? value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is num) return value.toDouble();
+  if (value is String) {
+    final trimmed = value.trim().replaceAll(',', '.');
+    if (trimmed.isEmpty) return null;
+    return double.tryParse(trimmed);
+  }
+  return null;
 }
 
 int? _parseOptionalInt(Object? value) {

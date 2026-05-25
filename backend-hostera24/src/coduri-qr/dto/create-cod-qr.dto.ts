@@ -1,9 +1,11 @@
+import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsIn,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -21,13 +23,21 @@ export class CreateCodQrDto {
   @IsString()
   numePostareFirme?: string;
 
+  /** Preț serviciu / produs (lei). */
   @IsOptional()
-  @IsString()
-  pret?: string;
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @Max(999_999.99)
+  pret?: number;
 
+  /** Reducere în lei. */
   @IsOptional()
-  @IsString()
-  pretRedus?: string;
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @Max(999_999.99)
+  reducere?: number;
 
   @IsOptional()
   @IsIn(['interval', 'zile'])

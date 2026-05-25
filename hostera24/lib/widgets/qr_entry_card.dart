@@ -4,6 +4,7 @@ import 'package:hostera24/models/qr_schedule.dart';
 import 'package:hostera24/models/qr_scan.dart';
 import 'package:hostera24/theme/app_colors.dart';
 import 'package:hostera24/utils/datetime_format.dart';
+import 'package:hostera24/utils/price_format.dart';
 
 class QrEntryCard extends StatelessWidget {
   const QrEntryCard({
@@ -25,8 +26,10 @@ class QrEntryCard extends StatelessWidget {
 
     final firma = entry.firmaDescription?.trim();
     final client = entry.clientDescription?.trim();
-    final pret = entry.pret?.trim();
-    final pretRedus = entry.pretRedus?.trim();
+    final pretLabel = formatPretLabel(entry.pret);
+    final reducereLabel = formatReducereLabel(entry.reducere);
+    final pretFinalLabel = formatPretFinalLabel(entry.pret, entry.reducere);
+    final hasPretInfo = pretLabel != null || reducereLabel != null;
 
     return Card(
       child: InkWell(
@@ -87,26 +90,26 @@ class QrEntryCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (pret != null && pret.isNotEmpty) ...[
+                    if (pretLabel != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        pret,
+                        pretLabel,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
-                          color: pretRedus != null && pretRedus.isNotEmpty
+                          color: reducereLabel != null
                               ? AppColors.textSecondary
                               : AppColors.accent,
-                          decoration: pretRedus != null && pretRedus.isNotEmpty
+                          decoration: reducereLabel != null
                               ? TextDecoration.lineThrough
                               : null,
                         ),
                       ),
                     ],
-                    if (pretRedus != null && pretRedus.isNotEmpty) ...[
+                    if (pretFinalLabel != null && reducereLabel != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        pretRedus,
+                        pretFinalLabel,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.accent,
@@ -140,8 +143,7 @@ class QrEntryCard extends StatelessWidget {
                     ],
                     if ((firma == null || firma.isEmpty) &&
                         (client == null || client.isEmpty) &&
-                        (pret == null || pret.isEmpty) &&
-                        (pretRedus == null || pretRedus.isEmpty)) ...[
+                        !hasPretInfo) ...[
                       const SizedBox(height: 4),
                       const Text(
                         'Fără descrieri',

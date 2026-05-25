@@ -4,6 +4,7 @@ import 'package:hostera24/models/scan_result.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/repositories/qr_repository.dart';
 import 'package:hostera24/theme/app_colors.dart';
+import 'package:hostera24/utils/price_format.dart';
 import 'package:hostera24/widgets/error_snackbar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -347,24 +348,7 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
                       height: 1.35,
                     ),
                   ),
-                  if (result.pret != null && result.pret!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    _InfoCard(
-                      icon: Icons.payments_outlined,
-                      label: 'Preț serviciu / produs',
-                      text: result.pret!,
-                    ),
-                  ],
-                  if (result.pretRedus != null &&
-                      result.pretRedus!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    _InfoCard(
-                      icon: Icons.sell_outlined,
-                      label: 'Preț redus',
-                      text: result.pretRedus!,
-                      highlighted: true,
-                    ),
-                  ],
+                  ..._pretInfoCards(result),
                   if (result.numePostareClienti != null &&
                       result.numePostareClienti!.trim().isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -591,23 +575,7 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
           ),
         ),
       ),
-      if (result.pret != null && result.pret!.trim().isNotEmpty) ...[
-        const SizedBox(height: 12),
-        _InfoCard(
-          icon: Icons.payments_outlined,
-          label: 'Preț serviciu / produs',
-          text: result.pret!,
-        ),
-      ],
-      if (result.pretRedus != null && result.pretRedus!.trim().isNotEmpty) ...[
-        const SizedBox(height: 12),
-        _InfoCard(
-          icon: Icons.sell_outlined,
-          label: 'Preț redus',
-          text: result.pretRedus!,
-          highlighted: true,
-        ),
-      ],
+      ..._pretInfoCards(result),
       if (result.numePostareFirme != null &&
           result.numePostareFirme!.trim().isNotEmpty) ...[
         const SizedBox(height: 12),
@@ -615,12 +583,45 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
           icon: Icons.business_outlined,
           label: 'Mesaj pentru firmă (intern)',
           text: result.numePostareFirme!,
-          highlighted: (result.pret == null || result.pret!.trim().isEmpty) &&
-              (result.pretRedus == null || result.pretRedus!.trim().isEmpty),
+          highlighted: result.pret == null && result.reducere == null,
         ),
       ],
     ];
   }
+}
+
+List<Widget> _pretInfoCards(ScanResult result) {
+  final pretLabel = formatPretLabel(result.pret);
+  final reducereLabel = formatReducereLabel(result.reducere);
+  final pretFinalLabel = formatPretFinalLabel(result.pret, result.reducere);
+
+  return [
+    if (pretLabel != null) ...[
+      const SizedBox(height: 12),
+      _InfoCard(
+        icon: Icons.payments_outlined,
+        label: 'Preț serviciu / produs',
+        text: pretLabel,
+      ),
+    ],
+    if (reducereLabel != null) ...[
+      const SizedBox(height: 12),
+      _InfoCard(
+        icon: Icons.sell_outlined,
+        label: 'Reducere',
+        text: reducereLabel,
+      ),
+    ],
+    if (pretFinalLabel != null && reducereLabel != null) ...[
+      const SizedBox(height: 12),
+      _InfoCard(
+        icon: Icons.payments_outlined,
+        label: 'Preț la casă',
+        text: pretFinalLabel,
+        highlighted: true,
+      ),
+    ],
+  ];
 }
 
 class _OwnScanSuccessAnimation extends StatelessWidget {

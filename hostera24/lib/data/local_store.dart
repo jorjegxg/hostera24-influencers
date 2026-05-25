@@ -114,7 +114,7 @@ class LocalStore {
       'numePostareFirme': entry.firmaDescription,
       'numePostareClienti': entry.clientDescription,
       'pret': entry.pret,
-      'pretRedus': entry.pretRedus,
+      'reducere': entry.reducere,
       'creatLa': entry.createdAt.toUtc().toIso8601String(),
       'numarScanari': entry.numarScanari,
       ...entry.schedule.toApiBody(),

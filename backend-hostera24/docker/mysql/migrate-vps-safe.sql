@@ -114,12 +114,57 @@ SET @col_exists := (
 );
 SET @sql := IF(
   @col_exists = 0,
-  'ALTER TABLE coduri_qr ADD COLUMN pret VARCHAR(255) NULL AFTER nume_postare_firme',
+  'ALTER TABLE coduri_qr ADD COLUMN pret DECIMAL(10, 2) NULL AFTER nume_postare_firme',
   'SELECT 1'
 );
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- reducere în lei (fost pret_redus)
+SET @col_reducere := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'reducere'
+);
+SET @col_pret_redus := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'pret_redus'
+);
+SET @sql := IF(
+  @col_reducere = 0 AND @col_pret_redus > 0,
+  'ALTER TABLE coduri_qr CHANGE COLUMN pret_redus reducere DECIMAL(10, 2) NULL',
+  IF(
+    @col_reducere = 0,
+    'ALTER TABLE coduri_qr ADD COLUMN reducere DECIMAL(10, 2) NULL AFTER pret',
+    'SELECT 1'
+  )
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- conversie pret / reducere la DECIMAL (idempotent)
+UPDATE coduri_qr
+SET pret = NULL
+WHERE pret IS NOT NULL
+  AND CAST(pret AS CHAR) NOT REGEXP '^[0-9]+([.,][0-9]+)?$';
+
+UPDATE coduri_qr
+SET pret = REPLACE(CAST(pret AS CHAR), ',', '.')
+WHERE pret IS NOT NULL;
+
+UPDATE coduri_qr
+SET reducere = NULL
+WHERE reducere IS NOT NULL
+  AND CAST(reducere AS CHAR) NOT REGEXP '^[0-9]+([.,][0-9]+)?$';
+
+UPDATE coduri_qr
+SET reducere = REPLACE(CAST(reducere AS CHAR), ',', '.')
+WHERE reducere IS NOT NULL;
+
+ALTER TABLE coduri_qr
+  MODIFY COLUMN pret DECIMAL(10, 2) NULL,
+  MODIFY COLUMN reducere DECIMAL(10, 2) NULL;
 
 -- programare scan (coduri_qr)
 SET @col_exists := (
@@ -128,7 +173,7 @@ SET @col_exists := (
 );
 SET @sql := IF(
   @col_exists = 0,
-  'ALTER TABLE coduri_qr ADD COLUMN programare_tip VARCHAR(16) NULL AFTER pret_redus',
+  'ALTER TABLE coduri_qr ADD COLUMN programare_tip VARCHAR(16) NULL AFTER reducere',
   'SELECT 1'
 );
 PREPARE stmt FROM @sql;

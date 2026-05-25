@@ -90,8 +90,8 @@ class QrRepository {
   Future<QrEntry> createCodQr({
     String? numePostareClienti,
     String? numePostareFirme,
-    String? pret,
-    String? pretRedus,
+    double? pret,
+    double? reducere,
     int? limitaScanari,
     QrSchedule? schedule,
   }) async {
@@ -100,7 +100,7 @@ class QrRepository {
       numePostareClienti: numePostareClienti,
       numePostareFirme: numePostareFirme,
       pret: pret,
-      pretRedus: pretRedus,
+      reducere: reducere,
       limitaScanari: limitaScanari,
       schedule: schedule,
     );
@@ -112,8 +112,8 @@ class QrRepository {
     required int id,
     String? numePostareClienti,
     String? numePostareFirme,
-    String? pret,
-    String? pretRedus,
+    double? pret,
+    double? reducere,
     int? limitaScanari,
     bool clearLimitaScanari = false,
     QrSchedule? schedule,
@@ -124,7 +124,7 @@ class QrRepository {
       numePostareClienti: numePostareClienti,
       numePostareFirme: numePostareFirme,
       pret: pret,
-      pretRedus: pretRedus,
+      reducere: reducere,
       limitaScanari: limitaScanari,
       clearLimitaScanari: clearLimitaScanari,
       schedule: schedule,
@@ -178,7 +178,7 @@ class QrRepository {
             numePostareClienti: entry.clientDescription,
             numePostareFirme: entry.firmaDescription,
             pret: entry.pret,
-            pretRedus: entry.pretRedus,
+            reducere: entry.reducere,
             numarScanari: entry.numarScanari,
             queuedOffline: true,
           );

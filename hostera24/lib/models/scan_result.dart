@@ -5,7 +5,7 @@ class ScanResult {
     this.numePostareClienti,
     this.numePostareFirme,
     this.pret,
-    this.pretRedus,
+    this.reducere,
     this.numarScanari,
     this.mesajProgramare,
     this.mesajLimita,
@@ -20,8 +20,8 @@ class ScanResult {
   final String? cod;
   final String? numePostareClienti;
   final String? numePostareFirme;
-  final String? pret;
-  final String? pretRedus;
+  final double? pret;
+  final double? reducere;
   final int? numarScanari;
   final String? mesajProgramare;
   final String? mesajLimita;
@@ -47,8 +47,8 @@ class ScanResult {
       cod: json['cod'] as String?,
       numePostareClienti: json['numePostareClienti'] as String?,
       numePostareFirme: json['numePostareFirme'] as String?,
-      pret: json['pret'] as String?,
-      pretRedus: json['pretRedus'] as String?,
+      pret: _parseOptionalDouble(json['pret']),
+      reducere: _parseOptionalDouble(json['reducere'] ?? json['pretRedus']),
       numarScanari: _parseInt(json['numarScanari']),
       mesajProgramare: json['mesajProgramare'] as String?,
       mesajLimita: json['mesajLimita'] as String?,
@@ -61,6 +61,19 @@ class ScanResult {
 }
 
 enum ScanStatus { own, other, notFound, queued, unavailable, exhausted }
+
+double? _parseOptionalDouble(Object? value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is num) return value.toDouble();
+  if (value is String) {
+    final trimmed = value.trim().replaceAll(',', '.');
+    if (trimmed.isEmpty) return null;
+    return double.tryParse(trimmed);
+  }
+  return null;
+}
 
 int? _parseInt(Object? value) {
   if (value == null) return null;
