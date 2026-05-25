@@ -35,7 +35,18 @@ FIREBASE_PROJECT_ID=hostera24-f8585
 NEXT_PUBLIC_API_URL=https://api.hostera24.com
 NEXT_PUBLIC_SITE_URL=https://hostera24.com
 PUBLIC_UPLOADS_BASE_URL=https://api.hostera24.com/uploads
+
+# Admin site — hash bcrypt; la Docker fiecare $ devine $$
+ADMIN_PASSWORD_HASH=$$2b$$10$$uDsp0Lxgb50/ix94qEvrFO7Og0gTlP0hWOo/5TBA78nx3GFD4bA.W
 ```
+
+Parolă implicită din exemplu: `123456`. Verifică în container:
+
+```bash
+docker compose exec api printenv ADMIN_PASSWORD_HASH | head -c 20
+```
+
+Trebuie să înceapă cu `$2b$10$`, nu gol și nu doar `b.W`.
 
 `docker-compose` montează automat JSON-ul în container la `/app/firebase-service-account.json`.
 

@@ -25,12 +25,12 @@ export function FirmeSection() {
       >
         <div className="max-w-xl">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
-            Cu aplicația Hostera24, aduceți clienți noi din fiecare postare
+            Transformați interesul din postări în clienți la casă
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
-            Creezi coduri în aplicație, le pui în postări sau le dai
-            partenerilor, scanezi la casă — și vezi exact câți clienți aduce
-            fiecare campanie.
+            Creezi coduri QR, le pui în postări sau la parteneri, scanezi când
+            vine cineva — și vezi ce campanie a adus vizita, nu doar
+            like-urile.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a

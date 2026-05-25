@@ -34,6 +34,23 @@ const BENEFIT_ITEMS: {
     ),
   },
   {
+    id: "instagram-reduceri",
+    icon: "instagram-reduceri",
+    title: "Reduceri cadou pentru cei activi pe Instagram",
+    body: (
+      <p>
+        Răsplătiți persoanele interesate de postările voastre — cele care dau
+        like sau lasă un comentariu. Trimiteți-le un cod QR cu reducere ca
+        mulțumire; la magazin,{" "}
+        <strong className="text-[var(--color-text-primary)]">
+          o scanare și reducerea se aplică imediat
+        </strong>
+        . Transformați engagement-ul de pe Instagram în clienți care vin
+        efectiv în locație.
+      </p>
+    ),
+  },
+  {
     id: "affiliat",
     icon: "affiliat",
     title: "Marketing afiliat",
@@ -88,16 +105,24 @@ const BENEFIT_ITEMS: {
       </p>
     ),
   },
+  {
+    id: "concurs",
+    icon: "concurs",
+    title: "Premii la concursuri — foarte simplu",
+    body: (
+      <p>
+        Organizați un concurs pe rețelele sociale și generați un cod QR dedicat
+        câștigătorilor. La magazin,{" "}
+        <strong className="text-[var(--color-text-primary)]">
+          scanarea confirmă premiul pe loc
+        </strong>{" "}
+        — fără liste pe hârtie, fără coduri de verificat manual. Setați câte
+        premii sunt disponibile și pentru cât timp e valid codul; totul se
+        gestionează din aplicație.
+      </p>
+    ),
+  },
 ];
-
-const COMBINED_STEPS = [
-  "Colaborați cu o agenție de marketing — remunerare pe performanță.",
-  "Generați un cod dedicat: primele X scanări beneficiază de 50% reducere.",
-  "Programați codul doar pentru zilele cu mai puțin trafic — aduceți clienți când vin mai puține persoane.",
-  "La casă, validați codul fiecărui client care vine din campanie.",
-  "Reducerea se aplică automat pentru primele X persoane eligibile.",
-  "Rezultat: mai mulți clienți în zilele mai liniștite — magazinul nu mai stă gol când de obicei vin mai puține persoane.",
-] as const;
 
 export function BeneficiiSection() {
   return (
@@ -126,32 +151,6 @@ export function BeneficiiSection() {
             body={item.body}
           />
         ))}
-      </div>
-
-      <div className="mt-10 overflow-hidden rounded-2xl border-2 border-[var(--color-accent)]/30 bg-gradient-to-br from-emerald-50/50 to-[var(--color-surface)] p-6 sm:p-8">
-        <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
-          Campanie combinată — exemplu practic
-        </h3>
-        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-          Marketing afiliat, ofertă pentru primii X clienți și cod activ doar în
-          zilele când vin mai puțini clienți.
-        </p>
-        <ol className="mt-4 list-none space-y-2">
-          {COMBINED_STEPS.map((step, i) => (
-            <li
-              key={step}
-              className="flex gap-3 text-[var(--color-text-secondary)]"
-            >
-              <span
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)]/15 text-xs font-bold text-[var(--color-accent)]"
-                aria-hidden
-              >
-                {i + 1}
-              </span>
-              <span className="pt-0.5">{step}</span>
-            </li>
-          ))}
-        </ol>
       </div>
     </FadeInSection>
   );

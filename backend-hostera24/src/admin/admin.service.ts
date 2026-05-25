@@ -15,10 +15,29 @@ export class AdminService {
     private readonly mesajeRepo: Repository<MesajContact>,
   ) {}
 
+  /** Citește hash bcrypt; suportă ghilimele și $$ (escape Docker Compose pentru $ din hash). */
+  private adminPasswordHash(): string | undefined {
+    const raw = this.config.get<string>('ADMIN_PASSWORD_HASH');
+    if (!raw?.trim()) return undefined;
+    let hash = raw.trim();
+    if (
+      (hash.startsWith("'") && hash.endsWith("'")) ||
+      (hash.startsWith('"') && hash.endsWith('"'))
+    ) {
+      hash = hash.slice(1, -1).trim();
+    }
+    if (hash.includes('$$')) {
+      hash = hash.replace(/\$\$/g, '$');
+    }
+    return hash || undefined;
+  }
+
   async login(parola: string): Promise<{ accessToken: string }> {
-    const hash = this.config.get<string>('ADMIN_PASSWORD_HASH');
+    const hash = this.adminPasswordHash();
     if (!hash) {
-      throw new UnauthorizedException('Admin neconfigurat');
+      throw new UnauthorizedException(
+        'Admin neconfigurat — lipsește ADMIN_PASSWORD_HASH în .env (la Docker: fiecare $ din hash devine $$)',
+      );
     }
 
     const valid = await bcrypt.compare(parola, hash);

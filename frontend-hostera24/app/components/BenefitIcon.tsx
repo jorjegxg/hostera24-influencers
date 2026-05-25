@@ -4,6 +4,8 @@ export type BenefitIconName =
   | "affiliat"
   | "produs-gratis"
   | "primele-x"
+  | "concurs"
+  | "instagram-reduceri"
   | "statistici-scan"
   | "statistici-ore"
   | "statistici-compar";
@@ -114,6 +116,52 @@ function IconPaths({ name }: { name: BenefitIconName }) {
           <circle cx="12" cy="12" r="4" strokeWidth={1.5} />
           <path
             d="M10 12h4"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+          />
+        </>
+      );
+    case "concurs":
+      return (
+        <>
+          <path
+            d="M8 6h8l1 4H7l1-4z"
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+          />
+          <path
+            d="M7 10c0 2.2 2.2 4 5 4s5-1.8 5-4"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+          />
+          <path
+            d="M9 14v2M15 14v2M10 18h4"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+          />
+          <path
+            d="M5 10H4M20 10h-1"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+          />
+        </>
+      );
+    case "instagram-reduceri":
+      return (
+        <>
+          <path
+            d="M12 19s-5-3.5-5-7a3.5 3.5 0 016-2 3.5 3.5 0 016 2c0 3.5-5 7-5 7z"
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 4H10a2 2 0 00-2 2v2l-2 1.5V6a3 3 0 013-3h5"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 7.5h4M9 9.5h2.5"
             strokeWidth={1.5}
             strokeLinecap="round"
           />
