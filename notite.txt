@@ -33,6 +33,11 @@ cd hostera24 && flutter run \
    --dart-define=API_BASE_URL=http://192.168.1.10:3022 \
    --dart-define=WEB_BASE_URL=http://192.168.1.10:3023
 
+
+cd hostera24 && flutter run \
+   --dart-define=API_BASE_URL=http://192.168.80.1:3022 \
+   --dart-define=WEB_BASE_URL=http://192.168.80.1:3023
+
 # Dacă nu se conectează: restart backend, full restart app (nu doar hot reload),
 # verifică launch.json (IP = ipconfig), firewall port 3022, MySQL docker pornit.
 

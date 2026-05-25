@@ -52,9 +52,9 @@ export function FirmeSection() {
         </div>
       </FadeInSection>
 
-      <BeneficiiSection />
-
       <AppStepsSection />
+
+      <BeneficiiSection />
 
       {/* Statistici */}
       <FadeInSection
