@@ -16,9 +16,16 @@ export class Scanare {
   @Column({ name: 'cod_qr_id' })
   codQrId: number;
 
-  /** false = încercare respinsă (ex. limită atinsă), tot apare în istoric */
+  /** false = încercare respinsă (ex. limită atinsă la casă), tot apare în istoric */
   @Column({ default: true })
   reusit: boolean;
+
+  /**
+   * true = scanare Flutter a creatorului codului (consumă limita).
+   * false = vizită pagină publică (statistici, fără impact la limită).
+   */
+  @Column({ name: 'contorizeaza_limita', default: false })
+  contorizeazaLimita: boolean;
 
   @ManyToOne(() => CodQr, (cod) => cod.scanari, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cod_qr_id' })

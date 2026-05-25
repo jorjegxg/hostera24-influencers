@@ -46,6 +46,7 @@ CREATE TABLE scanari (
     id INT PRIMARY KEY AUTO_INCREMENT,
     cod_qr_id INT NOT NULL,
     reusit TINYINT(1) NOT NULL DEFAULT 1,
+    contorizeaza_limita TINYINT(1) NOT NULL DEFAULT 0,
     scanat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cod_qr_id) REFERENCES coduri_qr(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

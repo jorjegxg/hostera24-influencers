@@ -5,17 +5,22 @@ class QrScan {
     required this.id,
     required this.scanatLa,
     this.reusit = true,
+    this.contorizeazaLimita = false,
   });
 
   final int id;
   final DateTime scanatLa;
   final bool reusit;
+  final bool contorizeazaLimita;
+
+  bool get isVizitaPublica => reusit && !contorizeazaLimita;
 
   factory QrScan.fromJson(Map<String, dynamic> json) {
     return QrScan(
       id: json['id'] as int,
       scanatLa: parseApiDateTime(json['scanatLa'] as String),
       reusit: json['reusit'] as bool? ?? true,
+      contorizeazaLimita: json['contorizeazaLimita'] as bool? ?? false,
     );
   }
 

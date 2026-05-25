@@ -117,6 +117,7 @@ class LocalStore {
       'reducere': entry.reducere,
       'creatLa': entry.createdAt.toUtc().toIso8601String(),
       'numarScanari': entry.numarScanari,
+      'numarVizitePublice': entry.numarVizitePublice,
       ...entry.schedule.toApiBody(),
     };
   }

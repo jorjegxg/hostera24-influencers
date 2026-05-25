@@ -8,11 +8,7 @@ import {
   type PublicCodQr,
 } from "@/lib/api";
 import { resolveUploadsMediaUrl } from "@/lib/media-url";
-import {
-  formatBeneficiuCuponLabel,
-  formatPretLabel,
-  formatReducereLabel,
-} from "@/lib/price-format";
+import { formatBeneficiuCuponLabel } from "@/lib/price-format";
 import { CodQrDisplay } from "./CodQrDisplay";
 import { RecordScan } from "./RecordScan";
 
@@ -100,8 +96,6 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   }
 
   const mesajClient = data.numePostareClienti?.trim();
-  const pretLabel = formatPretLabel(data.pret);
-  const reducereLabel = formatReducereLabel(data.reducere);
   const beneficiuLabel = formatBeneficiuCuponLabel(data.pret, data.reducere);
   const limitaScanari = data.limitaScanari;
   const atentionareLimita =
@@ -168,29 +162,11 @@ export default async function CodQrPublicPage({ params }: PageProps) {
           </p>
         ) : null}
 
-        {pretLabel || reducereLabel || beneficiuLabel ? (
-          <div className="mt-4 space-y-2 text-center">
-            {pretLabel ? (
-              <p
-                className={`text-base ${
-                  beneficiuLabel
-                    ? "text-[var(--color-text-secondary)] line-through"
-                    : "font-semibold text-[var(--color-accent)]"
-                }`}
-              >
-                {pretLabel}
-              </p>
-            ) : null}
-            {beneficiuLabel ? (
-              <p className="text-base font-semibold text-[var(--color-accent)]">
-                {beneficiuLabel}
-              </p>
-            ) : null}
-            {reducereLabel && !beneficiuLabel ? (
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                {reducereLabel}
-              </p>
-            ) : null}
+        {beneficiuLabel ? (
+          <div className="mt-4 text-center">
+            <p className="text-base font-semibold text-[var(--color-accent)]">
+              {beneficiuLabel}
+            </p>
           </div>
         ) : null}
 

@@ -353,14 +353,13 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
   bool _isLoadingMore = false;
   bool _hasMore = false;
   int _nextPage = 1;
-  int _numarScanari = 0;
+  int _totalEvenimente = 0;
 
   QrEntry get entry => widget.entry;
 
   @override
   void initState() {
     super.initState();
-    _numarScanari = entry.numarScanari;
     _loadInitial();
   }
 
@@ -373,7 +372,7 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
       );
       if (!mounted) return;
       setState(() {
-        _numarScanari = page.total;
+        _totalEvenimente = page.total;
         _scanari
           ..clear()
           ..addAll(page.scanari);
@@ -627,7 +626,9 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
             _ScanHistorySection(
               isLoading: _isLoading,
               isLoadingMore: _isLoadingMore,
-              numarScanari: _numarScanari,
+              numarScanariLaCasa: entry.numarScanari,
+              numarVizitePublice: entry.numarVizitePublice,
+              numarTotalEvenimente: _totalEvenimente,
               numarScanariRespinse: entry.numarScanariRespinse,
               limitaScanari: entry.limitaScanari,
               scanari: _scanari,
@@ -689,7 +690,9 @@ class _ScanHistorySection extends StatefulWidget {
   const _ScanHistorySection({
     required this.isLoading,
     required this.isLoadingMore,
-    required this.numarScanari,
+    required this.numarScanariLaCasa,
+    this.numarVizitePublice = 0,
+    this.numarTotalEvenimente = 0,
     this.numarScanariRespinse = 0,
     this.limitaScanari,
     required this.scanari,
@@ -699,7 +702,9 @@ class _ScanHistorySection extends StatefulWidget {
 
   final bool isLoading;
   final bool isLoadingMore;
-  final int numarScanari;
+  final int numarScanariLaCasa;
+  final int numarVizitePublice;
+  final int numarTotalEvenimente;
   final int numarScanariRespinse;
   final int? limitaScanari;
   final List<QrScan> scanari;
@@ -760,15 +765,39 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        scanariCountLabelWithLimit(
-                          widget.numarScanari,
-                          widget.limitaScanari,
-                        ),
+                        widget.numarTotalEvenimente > 0
+                            ? scanariCountLabel(widget.numarTotalEvenimente)
+                            : 'Istoric scanări',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
                       ),
+                      if (widget.limitaScanari != null &&
+                          widget.limitaScanari! > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'La casă: ${scanariCountLabelWithLimit(widget.numarScanariLaCasa, widget.limitaScanari)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                      if (widget.numarVizitePublice > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.numarVizitePublice == 1
+                              ? '1 vizită pagină web'
+                              : '${widget.numarVizitePublice} vizite pagină web',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
                       if (widget.numarScanariRespinse > 0)
                         Text(
                           widget.numarScanariRespinse == 1
@@ -839,7 +868,9 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                                 Icon(
                                   rejected
                                       ? Icons.block_outlined
-                                      : Icons.qr_code_scanner,
+                                      : scan.isVizitaPublica
+                                          ? Icons.public_outlined
+                                          : Icons.qr_code_scanner,
                                   size: 18,
                                   color: rejected
                                       ? AppColors.error
@@ -868,6 +899,24 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: AppColors.error,
+                                            height: 1.3,
+                                          ),
+                                        )
+                                      else if (scan.isVizitaPublica)
+                                        const Text(
+                                          'Vizită pagină web',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondary,
+                                            height: 1.3,
+                                          ),
+                                        )
+                                      else if (scan.contorizeazaLimita)
+                                        const Text(
+                                          'Scanare la casă',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.accent,
                                             height: 1.3,
                                           ),
                                         ),

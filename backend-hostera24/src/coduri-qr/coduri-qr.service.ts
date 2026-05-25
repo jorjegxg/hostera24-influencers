@@ -44,13 +44,32 @@ export class CoduriQrService {
         'cod.numarScanari',
         'cod.scanari',
         'scanari_reusite',
-        (qb) => qb.andWhere('scanari_reusite.reusit = :reusit', { reusit: true }),
+        (qb) =>
+          qb.andWhere('scanari_reusite.reusit = :reusit', { reusit: true }).andWhere(
+            'scanari_reusite.contorizeazaLimita = :contorizeaza',
+            { contorizeaza: true },
+          ),
       )
       .loadRelationCountAndMap(
         'cod.numarScanariRespinse',
         'cod.scanari',
         'scanari_respinse',
-        (qb) => qb.andWhere('scanari_respinse.reusit = :reusit', { reusit: false }),
+        (qb) =>
+          qb.andWhere('scanari_respinse.reusit = :reusit', { reusit: false }).andWhere(
+            'scanari_respinse.contorizeazaLimita = :contorizeaza',
+            { contorizeaza: true },
+          ),
+      )
+      .loadRelationCountAndMap(
+        'cod.numarVizitePublice',
+        'cod.scanari',
+        'scanari_publice',
+        (qb) =>
+          qb
+            .andWhere('scanari_publice.reusit = :reusit', { reusit: true })
+            .andWhere('scanari_publice.contorizeazaLimita = :contorizeaza', {
+              contorizeaza: false,
+            }),
       )
       .where('cod.firmaId = :firmaId', { firmaId })
       .andWhere('cod.sters = :sters', { sters: false })
@@ -61,11 +80,13 @@ export class CoduriQrService {
       const extended = cod as CodQr & {
         numarScanari: number;
         numarScanariRespinse: number;
+        numarVizitePublice: number;
       };
       return this.toQrListItem(
         cod,
         extended.numarScanari ?? 0,
         extended.numarScanariRespinse ?? 0,
+        extended.numarVizitePublice ?? 0,
       );
     });
   }
@@ -73,8 +94,10 @@ export class CoduriQrService {
   async findOneForFirma(firmaId: number, id: number) {
     const cod = await this.findActiveOrThrow(firmaId, id);
 
-    const numarScanari = await this.countScanariReusite(id);
-    const numarScanariRespinse = await this.countScanariRespinse(id);
+    const numarScanari = await this.countScanariLaCasă(id);
+    const numarScanariRespinse = await this.countScanariRespinseLaCasă(id);
+
+    const numarVizitePublice = await this.countVizitePublice(id);
 
     return {
       id: cod.id,
@@ -86,6 +109,7 @@ export class CoduriQrService {
       creatLa: cod.creatLa,
       numarScanari,
       numarScanariRespinse,
+      numarVizitePublice,
       ...toProgramareResponse(cod),
       ...toLimitaScanariResponse(cod, numarScanari),
     };
@@ -114,6 +138,7 @@ export class CoduriQrService {
         id: s.id,
         scanatLa: scanatLaForApi(s.scanatLa),
         reusit: s.reusit,
+        contorizeazaLimita: s.contorizeazaLimita,
       })),
       total,
       page,
@@ -180,7 +205,7 @@ export class CoduriQrService {
     }
 
     if (dto.limitaScanari !== undefined) {
-      const numarScanari = await this.countScanariReusite(id);
+      const numarScanari = await this.countScanariLaCasă(id);
       const nextLimit = this.normalizeLimitaScanari(dto.limitaScanari);
       if (nextLimit != null && nextLimit < numarScanari) {
         throw new BadRequestException(
@@ -191,9 +216,15 @@ export class CoduriQrService {
     }
 
     const saved = await this.coduriRepo.save(cod);
-    const numarScanari = await this.countScanariReusite(saved.id);
-    const numarScanariRespinse = await this.countScanariRespinse(saved.id);
-    return this.toQrListItem(saved, numarScanari, numarScanariRespinse);
+    const numarScanari = await this.countScanariLaCasă(saved.id);
+    const numarScanariRespinse = await this.countScanariRespinseLaCasă(saved.id);
+    const numarVizitePublice = await this.countVizitePublice(saved.id);
+    return this.toQrListItem(
+      saved,
+      numarScanari,
+      numarScanariRespinse,
+      numarVizitePublice,
+    );
   }
 
   async scan(firmaId: number, rawPayload: string) {
@@ -217,7 +248,21 @@ export class CoduriQrService {
       };
     }
 
-    const recorded = await this.recordScanAtomic(entry.id);
+    const base = this.toPublicEntry(entry);
+
+    if (entry.firmaId !== firmaId) {
+      return {
+        status: 'other' as const,
+        cod: base.cod,
+        numePostareClienti: base.numePostareClienti,
+        pret: base.pret,
+        reducere: base.reducere,
+      };
+    }
+
+    const recorded = await this.recordScanAtomic(entry.id, {
+      contorizeazaLimita: true,
+    });
     if ('exhausted' in recorded) {
       return {
         status: 'exhausted' as const,
@@ -231,24 +276,12 @@ export class CoduriQrService {
     }
 
     const numarScanari = recorded.numarScanari;
-    const base = this.toPublicEntry(entry);
-
-    if (entry.firmaId === firmaId) {
-      return {
-        status: 'own' as const,
-        ...base,
-        numarScanari,
-        numarScanariRespinse: recorded.numarScanariRespinse,
-        ...toLimitaScanariResponse(entry, numarScanari),
-      };
-    }
-
     return {
-      status: 'other' as const,
-      cod: base.cod,
-      numePostareClienti: base.numePostareClienti,
-      pret: base.pret,
-      reducere: base.reducere,
+      status: 'own' as const,
+      ...base,
+      numarScanari,
+      numarScanariRespinse: recorded.numarScanariRespinse,
+      ...toLimitaScanariResponse(entry, numarScanari),
     };
   }
 
@@ -300,7 +333,7 @@ export class CoduriQrService {
       throw new NotFoundException('Codul QR nu există');
     }
 
-    const numarScanari = await this.countScanariReusite(entry.id);
+    const numarScanari = await this.countScanariLaCasă(entry.id);
 
     return {
       cod: entry.cod,
@@ -334,10 +367,7 @@ export class CoduriQrService {
       throw new UnprocessableEntityException(programareBlockMessage(entry));
     }
 
-    const recorded = await this.recordScanAtomic(entry.id);
-    if ('exhausted' in recorded) {
-      throw new UnprocessableEntityException(scanLimitBlockMessage(entry));
-    }
+    await this.recordScanAtomic(entry.id, { contorizeazaLimita: false });
 
     return { ok: true };
   }
@@ -346,6 +376,7 @@ export class CoduriQrService {
     cod: CodQr,
     numarScanari: number,
     numarScanariRespinse = 0,
+    numarVizitePublice = 0,
   ) {
     return {
       id: cod.id,
@@ -357,20 +388,27 @@ export class CoduriQrService {
       creatLa: cod.creatLa,
       numarScanari,
       numarScanariRespinse,
+      numarVizitePublice,
       ...toProgramareResponse(cod),
       ...toLimitaScanariResponse(cod, numarScanari),
     };
   }
 
-  private countScanariReusite(codQrId: number) {
+  private countScanariLaCasă(codQrId: number) {
     return this.scanariRepo.count({
-      where: { codQrId, reusit: true },
+      where: { codQrId, reusit: true, contorizeazaLimita: true },
     });
   }
 
-  private countScanariRespinse(codQrId: number) {
+  private countScanariRespinseLaCasă(codQrId: number) {
     return this.scanariRepo.count({
-      where: { codQrId, reusit: false },
+      where: { codQrId, reusit: false, contorizeazaLimita: true },
+    });
+  }
+
+  private countVizitePublice(codQrId: number) {
+    return this.scanariRepo.count({
+      where: { codQrId, reusit: true, contorizeazaLimita: false },
     });
   }
 
@@ -381,6 +419,7 @@ export class CoduriQrService {
 
   private async recordScanAtomic(
     codQrId: number,
+    options: { contorizeazaLimita: boolean },
   ): Promise<
     | { ok: true; numarScanari: number; numarScanariRespinse: number }
     | {
@@ -400,35 +439,53 @@ export class CoduriQrService {
         throw new NotFoundException('Codul QR nu există');
       }
 
-      const countReusite = await manager.count(Scanare, {
-        where: { codQrId, reusit: true },
+      const contorizeazaLimita = options.contorizeazaLimita;
+
+      const countReusiteLaCasă = await manager.count(Scanare, {
+        where: { codQrId, reusit: true, contorizeazaLimita: true },
       });
-      const countRespinse = await manager.count(Scanare, {
-        where: { codQrId, reusit: false },
+      const countRespinseLaCasă = await manager.count(Scanare, {
+        where: { codQrId, reusit: false, contorizeazaLimita: true },
       });
 
-      if (isScanLimitReached(cod, countReusite)) {
+      if (
+        contorizeazaLimita &&
+        isScanLimitReached(cod, countReusiteLaCasă)
+      ) {
         await manager.save(
           Scanare,
-          manager.create(Scanare, { codQrId, reusit: false }),
+          manager.create(Scanare, {
+            codQrId,
+            reusit: false,
+            contorizeazaLimita: true,
+          }),
         );
         return {
           exhausted: true,
           limitaScanari: cod.limitaScanari!,
-          numarScanari: countReusite,
-          numarScanariRespinse: countRespinse + 1,
+          numarScanari: countReusiteLaCasă,
+          numarScanariRespinse: countRespinseLaCasă + 1,
           inregistrat: true,
         };
       }
 
       await manager.save(
         Scanare,
-        manager.create(Scanare, { codQrId, reusit: true }),
+        manager.create(Scanare, {
+          codQrId,
+          reusit: true,
+          contorizeazaLimita,
+        }),
       );
+
+      const numarScanari = contorizeazaLimita
+        ? countReusiteLaCasă + 1
+        : countReusiteLaCasă;
+
       return {
         ok: true,
-        numarScanari: countReusite + 1,
-        numarScanariRespinse: countRespinse,
+        numarScanari,
+        numarScanariRespinse: countRespinseLaCasă,
       };
     });
   }

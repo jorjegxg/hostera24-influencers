@@ -247,6 +247,23 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- scanări: doar Flutter creator consumă limita; pagina publică = statistici
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'scanari' AND COLUMN_NAME = 'contorizeaza_limita'
+);
+SET @sql := IF(
+  @col_exists = 0,
+  'ALTER TABLE scanari ADD COLUMN contorizeaza_limita TINYINT(1) NOT NULL DEFAULT 0 AFTER reusit',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- scanări vechi (înainte de separare) rămân la limită ca înainte
+UPDATE scanari SET contorizeaza_limita = 1 WHERE reusit = 1 OR reusit = 0;
+
 -- mesaje_contact (formular site)
 CREATE TABLE IF NOT EXISTS mesaje_contact (
     id INT PRIMARY KEY AUTO_INCREMENT,

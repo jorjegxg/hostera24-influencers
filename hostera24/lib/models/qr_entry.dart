@@ -15,6 +15,7 @@ class QrEntry {
     this.limitaScanari,
     this.scanariRamase,
     this.numarScanariRespinse = 0,
+    this.numarVizitePublice = 0,
     this.schedule = const QrSchedule(),
   });
 
@@ -29,6 +30,7 @@ class QrEntry {
   final int? limitaScanari;
   final int? scanariRamase;
   final int numarScanariRespinse;
+  final int numarVizitePublice;
   final QrSchedule schedule;
 
   bool get hasScanLimit => limitaScanari != null && limitaScanari! > 0;
@@ -59,6 +61,7 @@ class QrEntry {
       limitaScanari: _parseOptionalInt(json['limitaScanari']),
       scanariRamase: _parseOptionalInt(json['scanariRamase']),
       numarScanariRespinse: json['numarScanariRespinse'] as int? ?? 0,
+      numarVizitePublice: json['numarVizitePublice'] as int? ?? 0,
       schedule: QrSchedule.fromEntryFields(
         programareTip: json['programareTip'] as String?,
         programareDeLa: json['programareDeLa'] as String?,
@@ -83,6 +86,7 @@ class QrEntry {
     int? limitaScanari,
     int? scanariRamase,
     int? numarScanariRespinse,
+    int? numarVizitePublice,
     QrSchedule? schedule,
   }) {
     return QrEntry(
@@ -98,6 +102,7 @@ class QrEntry {
       scanariRamase: scanariRamase ?? this.scanariRamase,
       numarScanariRespinse:
           numarScanariRespinse ?? this.numarScanariRespinse,
+      numarVizitePublice: numarVizitePublice ?? this.numarVizitePublice,
       schedule: schedule ?? this.schedule,
     );
   }
