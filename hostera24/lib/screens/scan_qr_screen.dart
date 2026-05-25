@@ -347,6 +347,14 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
                       height: 1.35,
                     ),
                   ),
+                  if (result.pret != null && result.pret!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    _InfoCard(
+                      icon: Icons.payments_outlined,
+                      label: 'Preț serviciu / produs',
+                      text: result.pret!,
+                    ),
+                  ],
                   if (result.pretRedus != null &&
                       result.pretRedus!.trim().isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -583,6 +591,14 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
           ),
         ),
       ),
+      if (result.pret != null && result.pret!.trim().isNotEmpty) ...[
+        const SizedBox(height: 12),
+        _InfoCard(
+          icon: Icons.payments_outlined,
+          label: 'Preț serviciu / produs',
+          text: result.pret!,
+        ),
+      ],
       if (result.pretRedus != null && result.pretRedus!.trim().isNotEmpty) ...[
         const SizedBox(height: 12),
         _InfoCard(
@@ -599,8 +615,8 @@ class _ScanResultPanelState extends State<_ScanResultPanel>
           icon: Icons.business_outlined,
           label: 'Mesaj pentru firmă (intern)',
           text: result.numePostareFirme!,
-          highlighted:
-              result.pretRedus == null || result.pretRedus!.trim().isEmpty,
+          highlighted: (result.pret == null || result.pret!.trim().isEmpty) &&
+              (result.pretRedus == null || result.pretRedus!.trim().isEmpty),
         ),
       ],
     ];

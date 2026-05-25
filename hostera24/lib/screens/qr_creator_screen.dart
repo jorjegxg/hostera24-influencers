@@ -550,6 +550,14 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
             const SizedBox(height: 20),
             _QrImage(data: entry.payload),
             const SizedBox(height: 20),
+            if (entry.pret != null && entry.pret!.trim().isNotEmpty) ...[
+              _DescriptionRow(
+                icon: Icons.payments_outlined,
+                label: 'Preț serviciu / produs',
+                text: entry.pret,
+              ),
+              const SizedBox(height: 12),
+            ],
             if (entry.pretRedus != null && entry.pretRedus!.trim().isNotEmpty) ...[
               _DescriptionRow(
                 icon: Icons.sell_outlined,

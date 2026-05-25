@@ -22,6 +22,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
   late final TextEditingController _firmaController;
   late final TextEditingController _clientController;
   late final TextEditingController _pretController;
+  late final TextEditingController _pretRedusController;
   late final TextEditingController _limitaController;
   late QrSchedule _schedule;
   bool _isSubmitting = false;
@@ -38,6 +39,9 @@ class _AddQrScreenState extends State<AddQrScreen> {
       text: widget.entry?.clientDescription ?? '',
     );
     _pretController = TextEditingController(
+      text: widget.entry?.pret ?? '',
+    );
+    _pretRedusController = TextEditingController(
       text: widget.entry?.pretRedus ?? '',
     );
     _limitaController = TextEditingController(
@@ -51,6 +55,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
     _firmaController.dispose();
     _clientController.dispose();
     _pretController.dispose();
+    _pretRedusController.dispose();
     _limitaController.dispose();
     super.dispose();
   }
@@ -119,7 +124,8 @@ class _AddQrScreenState extends State<AddQrScreen> {
 
     setState(() => _isSubmitting = true);
 
-    final pretRedus = _pretController.text.trim();
+    final pret = _pretController.text.trim();
+    final pretRedus = _pretRedusController.text.trim();
     final limitaScanari = _parseLimitaScanari();
     final hadLimit = widget.entry?.hasScanLimit ?? false;
     final clearLimitaScanari =
@@ -132,6 +138,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
           id: widget.entry!.id,
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
+          pret: pret.isEmpty ? null : pret,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
           limitaScanari: limitaScanari,
           clearLimitaScanari: clearLimitaScanari,
@@ -141,6 +148,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
         entry = await QrRepository().createCodQr(
           numePostareClienti: _clientController.text,
           numePostareFirme: _firmaController.text,
+          pret: pret.isEmpty ? null : pret,
           pretRedus: pretRedus.isEmpty ? null : pretRedus,
           limitaScanari: limitaScanari,
           schedule: _schedule,
@@ -196,7 +204,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
                     Text(
                       _isEditing
                           ? 'Modifică detaliile postării. Codul QR rămâne același.'
-                          : 'Completează ce ai nevoie: texte opționale și preț redus. Codul unic se generează automat.',
+                          : 'Completează ce ai nevoie: texte opționale, preț serviciu și preț redus. Codul unic se generează automat.',
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.35,
@@ -242,7 +250,23 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       textCapitalization: TextCapitalization.sentences,
                       enabled: !_isSubmitting,
                       decoration: const InputDecoration(
-                        labelText: 'Mesaj preț redus — opțional',
+                        labelText: 'Preț serviciu / produs — opțional',
+                        hintText: 'Ex: Cafea 24,99 lei',
+                        alignLabelWithHint: true,
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(bottom: 24),
+                          child: Icon(Icons.payments_outlined),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _pretRedusController,
+                      maxLines: 2,
+                      textCapitalization: TextCapitalization.sentences,
+                      enabled: !_isSubmitting,
+                      decoration: const InputDecoration(
+                        labelText: 'Preț redus — opțional',
                         hintText: 'Ex: Cafea la 15,99 lei',
                         alignLabelWithHint: true,
                         prefixIcon: Padding(

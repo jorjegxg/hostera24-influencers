@@ -28,9 +28,9 @@ export function FirmeSection() {
             Transformați interesul din postări în clienți la casă
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
-            Creezi coduri QR, le pui în postări sau la parteneri, scanezi când
-            vine cineva — și vezi ce campanie a adus vizita, nu doar
-            like-urile.
+            Postarea aduce interesul; reducerea din cod îl aduce la casă.
+            Scanezi la recepție și compari ce oferte transformă curiozitatea
+            în vizită.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
@@ -71,8 +71,9 @@ export function FirmeSection() {
               Statistici — pentru fiecare cod vezi grafice de scanări
             </h2>
             <p className="mt-3 text-lg text-[var(--color-text-secondary)]">
-              Și la ce oră, în ce zi au venit clienții — ca să știi când merită să
-              repeți oferta și ce postare sau partener funcționează cel mai bine.
+              Și la ce oră, în ce zi au venit clienții — ca să știi când merită
+              să repeți oferta și ce postare sau partener funcționează cel mai
+              bine.
             </p>
             <ul className="mt-10 space-y-4 text-[var(--color-text-secondary)]">
               {STAT_ITEMS.map((item) => (

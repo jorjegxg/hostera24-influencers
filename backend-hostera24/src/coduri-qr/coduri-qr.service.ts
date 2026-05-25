@@ -81,6 +81,7 @@ export class CoduriQrService {
       cod: cod.cod,
       numePostareClienti: cod.numePostareClienti,
       numePostareFirme: cod.numePostareFirme,
+      pret: cod.pret,
       pretRedus: cod.pretRedus,
       creatLa: cod.creatLa,
       numarScanari,
@@ -130,6 +131,7 @@ export class CoduriQrService {
       cod,
       numePostareClienti: this.normalizeOptionalText(dto.numePostareClienti),
       numePostareFirme: this.normalizeOptionalText(dto.numePostareFirme),
+      pret: this.normalizeOptionalText(dto.pret),
       pretRedus: this.normalizeOptionalText(dto.pretRedus),
       programareTip: programare.programareTip,
       programareDeLa: programare.programareDeLa,
@@ -151,6 +153,9 @@ export class CoduriQrService {
     }
     if (dto.numePostareFirme !== undefined) {
       cod.numePostareFirme = this.normalizeOptionalText(dto.numePostareFirme);
+    }
+    if (dto.pret !== undefined) {
+      cod.pret = this.normalizeOptionalText(dto.pret);
     }
     if (dto.pretRedus !== undefined) {
       cod.pretRedus = this.normalizeOptionalText(dto.pretRedus);
@@ -242,6 +247,7 @@ export class CoduriQrService {
       status: 'other' as const,
       cod: base.cod,
       numePostareClienti: base.numePostareClienti,
+      pret: base.pret,
       pretRedus: base.pretRedus,
     };
   }
@@ -258,6 +264,7 @@ export class CoduriQrService {
       cod: entry.cod,
       numePostareClienti: entry.numePostareClienti,
       numePostareFirme: entry.numePostareFirme,
+      pret: entry.pret,
       pretRedus: entry.pretRedus,
       creatLa: entry.creatLa,
     };
@@ -293,6 +300,7 @@ export class CoduriQrService {
     return {
       cod: entry.cod,
       numePostareClienti: entry.numePostareClienti,
+      pret: entry.pret,
       pretRedus: entry.pretRedus,
       ...toLimitaScanariResponse(entry, numarScanari),
       firma: {
@@ -339,6 +347,7 @@ export class CoduriQrService {
       cod: cod.cod,
       numePostareClienti: cod.numePostareClienti,
       numePostareFirme: cod.numePostareFirme,
+      pret: cod.pret,
       pretRedus: cod.pretRedus,
       creatLa: cod.creatLa,
       numarScanari,

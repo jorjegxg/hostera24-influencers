@@ -23,6 +23,7 @@ CREATE TABLE coduri_qr (
     cod VARCHAR(255) UNIQUE NOT NULL,
     nume_postare_clienti VARCHAR(255) NULL,
     nume_postare_firme VARCHAR(255) NULL,
+    pret VARCHAR(255) NULL,
     pret_redus VARCHAR(255) NULL,
     programare_tip VARCHAR(16) NULL,
     programare_de_la DATE NULL,

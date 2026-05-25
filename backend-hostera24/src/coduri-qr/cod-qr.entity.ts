@@ -31,6 +31,9 @@ export class CodQr {
   @Column({ name: 'nume_postare_firme', type: 'varchar', length: 255, nullable: true })
   numePostareFirme: string | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  pret: string | null;
+
   @Column({ name: 'pret_redus', type: 'varchar', length: 255, nullable: true })
   pretRedus: string | null;
 

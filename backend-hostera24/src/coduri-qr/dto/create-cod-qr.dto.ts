@@ -23,6 +23,10 @@ export class CreateCodQrDto {
 
   @IsOptional()
   @IsString()
+  pret?: string;
+
+  @IsOptional()
+  @IsString()
   pretRedus?: string;
 
   @IsOptional()

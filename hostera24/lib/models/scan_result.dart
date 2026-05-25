@@ -4,6 +4,7 @@ class ScanResult {
     this.cod,
     this.numePostareClienti,
     this.numePostareFirme,
+    this.pret,
     this.pretRedus,
     this.numarScanari,
     this.mesajProgramare,
@@ -19,6 +20,7 @@ class ScanResult {
   final String? cod;
   final String? numePostareClienti;
   final String? numePostareFirme;
+  final String? pret;
   final String? pretRedus;
   final int? numarScanari;
   final String? mesajProgramare;
@@ -45,6 +47,7 @@ class ScanResult {
       cod: json['cod'] as String?,
       numePostareClienti: json['numePostareClienti'] as String?,
       numePostareFirme: json['numePostareFirme'] as String?,
+      pret: json['pret'] as String?,
       pretRedus: json['pretRedus'] as String?,
       numarScanari: _parseInt(json['numarScanari']),
       mesajProgramare: json['mesajProgramare'] as String?,

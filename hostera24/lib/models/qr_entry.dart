@@ -8,6 +8,7 @@ class QrEntry {
     required this.cod,
     this.firmaDescription,
     this.clientDescription,
+    this.pret,
     this.pretRedus,
     required this.createdAt,
     this.numarScanari = 0,
@@ -21,6 +22,7 @@ class QrEntry {
   final String cod;
   final String? firmaDescription;
   final String? clientDescription;
+  final String? pret;
   final String? pretRedus;
   final DateTime createdAt;
   final int numarScanari;
@@ -50,6 +52,7 @@ class QrEntry {
       cod: json['cod'] as String,
       firmaDescription: json['numePostareFirme'] as String?,
       clientDescription: json['numePostareClienti'] as String?,
+      pret: json['pret'] as String?,
       pretRedus: json['pretRedus'] as String?,
       createdAt: parseApiDateTime(json['creatLa'] as String),
       numarScanari: json['numarScanari'] as int? ?? 0,
@@ -73,6 +76,7 @@ class QrEntry {
     String? cod,
     String? firmaDescription,
     String? clientDescription,
+    String? pret,
     String? pretRedus,
     DateTime? createdAt,
     int? numarScanari,
@@ -86,6 +90,7 @@ class QrEntry {
       cod: cod ?? this.cod,
       firmaDescription: firmaDescription ?? this.firmaDescription,
       clientDescription: clientDescription ?? this.clientDescription,
+      pret: pret ?? this.pret,
       pretRedus: pretRedus ?? this.pretRedus,
       createdAt: createdAt ?? this.createdAt,
       numarScanari: numarScanari ?? this.numarScanari,

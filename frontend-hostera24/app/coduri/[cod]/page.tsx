@@ -95,6 +95,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
   }
 
   const mesajClient = data.numePostareClienti?.trim();
+  const pret = data.pret?.trim();
   const pretRedus = data.pretRedus?.trim();
   const limitaScanari = data.limitaScanari;
   const atentionareLimita =
@@ -161,10 +162,25 @@ export default async function CodQrPublicPage({ params }: PageProps) {
           </p>
         ) : null}
 
-        {pretRedus ? (
-          <p className="mt-4 text-center text-base font-semibold text-[var(--color-accent)]">
-            {pretRedus}
-          </p>
+        {pret || pretRedus ? (
+          <div className="mt-4 space-y-2 text-center">
+            {pret ? (
+              <p
+                className={`text-base ${
+                  pretRedus
+                    ? "text-[var(--color-text-secondary)] line-through"
+                    : "font-semibold text-[var(--color-accent)]"
+                }`}
+              >
+                {pret}
+              </p>
+            ) : null}
+            {pretRedus ? (
+              <p className="text-base font-semibold text-[var(--color-accent)]">
+                {pretRedus}
+              </p>
+            ) : null}
+          </div>
         ) : null}
 
         {atentionareLimita ? (

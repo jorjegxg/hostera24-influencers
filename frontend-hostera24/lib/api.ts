@@ -3,6 +3,7 @@ import { isLocalhostUrl, publicSiteUrl } from "@/lib/site";
 export type PublicCodQr = {
   cod: string;
   numePostareClienti: string | null;
+  pret: string | null;
   pretRedus: string | null;
   limitaScanari: number | null;
   scanariRamase: number | null;

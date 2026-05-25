@@ -137,6 +137,7 @@ class ApiClient {
   Future<QrEntry> createCodQr({
     String? numePostareClienti,
     String? numePostareFirme,
+    String? pret,
     String? pretRedus,
     int? limitaScanari,
     QrSchedule? schedule,
@@ -147,6 +148,7 @@ class ApiClient {
       body: jsonEncode(_codQrBody(
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
+        pret: pret,
         pretRedus: pretRedus,
         limitaScanari: limitaScanari,
         schedule: schedule,
@@ -164,6 +166,7 @@ class ApiClient {
     required int id,
     String? numePostareClienti,
     String? numePostareFirme,
+    String? pret,
     String? pretRedus,
     int? limitaScanari,
     bool clearLimitaScanari = false,
@@ -175,6 +178,7 @@ class ApiClient {
       body: jsonEncode(_codQrBody(
         numePostareClienti: numePostareClienti,
         numePostareFirme: numePostareFirme,
+        pret: pret,
         pretRedus: pretRedus,
         limitaScanari: limitaScanari,
         clearLimitaScanari: clearLimitaScanari,
@@ -286,6 +290,7 @@ class ApiClient {
   Map<String, dynamic> _codQrBody({
     String? numePostareClienti,
     String? numePostareFirme,
+    String? pret,
     String? pretRedus,
     int? limitaScanari,
     bool clearLimitaScanari = false,
@@ -294,6 +299,7 @@ class ApiClient {
     final body = <String, dynamic>{
       'numePostareClienti': numePostareClienti?.trim(),
       'numePostareFirme': numePostareFirme?.trim(),
+      'pret': pret?.trim(),
       'pretRedus': pretRedus?.trim(),
       if (schedule != null) ...schedule.toApiBody(),
     };

@@ -25,7 +25,8 @@ class QrEntryCard extends StatelessWidget {
 
     final firma = entry.firmaDescription?.trim();
     final client = entry.clientDescription?.trim();
-    final pret = entry.pretRedus?.trim();
+    final pret = entry.pret?.trim();
+    final pretRedus = entry.pretRedus?.trim();
 
     return Card(
       child: InkWell(
@@ -90,6 +91,22 @@ class QrEntryCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         pret,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: pretRedus != null && pretRedus.isNotEmpty
+                              ? AppColors.textSecondary
+                              : AppColors.accent,
+                          decoration: pretRedus != null && pretRedus.isNotEmpty
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                    ],
+                    if (pretRedus != null && pretRedus.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        pretRedus,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.accent,
@@ -123,7 +140,8 @@ class QrEntryCard extends StatelessWidget {
                     ],
                     if ((firma == null || firma.isEmpty) &&
                         (client == null || client.isEmpty) &&
-                        (pret == null || pret.isEmpty)) ...[
+                        (pret == null || pret.isEmpty) &&
+                        (pretRedus == null || pretRedus.isEmpty)) ...[
                       const SizedBox(height: 4),
                       const Text(
                         'Fără descrieri',
