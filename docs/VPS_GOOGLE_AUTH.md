@@ -58,8 +58,15 @@ docker compose exec -T mysql mysql -u hostera24 -p hostera24 \
 ```bash
 cd ~/hostera24-influencers
 git pull   # sau așteaptă GitHub Actions după push pe main
+docker compose build web   # obligatoriu după schimbări NEXT_PUBLIC_* în .env
 docker compose build api
 docker compose up -d
+```
+
+Verifică că URL-ul API e în bundle-ul Next (altfel admin/contact din browser eșuează):
+
+```bash
+docker compose exec web sh -c "grep -r 'api.hostera24.com' .next/static 2>/dev/null | head -1"
 ```
 
 Verifică logurile:

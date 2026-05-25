@@ -62,6 +62,10 @@ services:
     build:
       context: .
       dockerfile: frontend-hostera24/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        WEB_BASE_URL: ${WEB_BASE_URL}
     container_name: hostera24-web
     restart: unless-stopped
     env_file: .env
