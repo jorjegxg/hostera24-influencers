@@ -76,9 +76,18 @@ class _AddQrScreenState extends State<AddQrScreen> {
     return int.tryParse(raw);
   }
 
-  String? _validateAmount(String? value, {required String fieldLabel}) {
+  String? _validateNumePostareClienti(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Introdu numele postării pentru client.';
+    }
+    return null;
+  }
+
+  String? _validateRequiredAmount(String? value, {required String fieldLabel}) {
     final raw = value?.trim() ?? '';
-    if (raw.isEmpty) return null;
+    if (raw.isEmpty) {
+      return 'Introdu $fieldLabel.';
+    }
     final parsed = parseOptionalLei(raw);
     if (parsed == null) {
       return 'Introdu un număr valid pentru $fieldLabel (ex. 24,99).';
@@ -146,7 +155,8 @@ class _AddQrScreenState extends State<AddQrScreen> {
 
     final pret = parseOptionalLei(_pretController.text);
     final reducere = parseOptionalLei(_reducereController.text);
-    if (pret != null && reducere != null && reducere > pret) {
+    if (pret == null || reducere == null) return;
+    if (reducere > pret) {
       showErrorSnackBar(
         context,
         'Reducerea nu poate fi mai mare decât prețul serviciului.',
@@ -234,7 +244,7 @@ class _AddQrScreenState extends State<AddQrScreen> {
                     Text(
                       _isEditing
                           ? 'Modifică detaliile postării. Codul QR rămâne același.'
-                          : 'Completează ce ai nevoie: texte opționale, preț serviciu și reducere în lei. Codul unic se generează automat.',
+                          : 'Nume postare, preț și reducere sunt obligatorii. Codul unic se generează automat.',
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.35,
@@ -242,10 +252,28 @@ class _AddQrScreenState extends State<AddQrScreen> {
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
-                      controller: _firmaController,
+                      controller: _clientController,
                       maxLines: 3,
                       textCapitalization: TextCapitalization.sentences,
                       autofocus: !_isEditing,
+                      enabled: !_isSubmitting,
+                      validator: _validateNumePostareClienti,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Nume postare (client)',
+                        hintText: 'Ex: Urmărește-ne pe Instagram',
+                        alignLabelWithHint: true,
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(bottom: 48),
+                          child: Icon(Icons.person_outline),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _firmaController,
+                      maxLines: 3,
+                      textCapitalization: TextCapitalization.sentences,
                       enabled: !_isSubmitting,
                       decoration: const InputDecoration(
                         labelText: 'Descriere internă cod — opțional',
@@ -254,22 +282,6 @@ class _AddQrScreenState extends State<AddQrScreen> {
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(bottom: 48),
                           child: Icon(Icons.description_outlined),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _clientController,
-                      maxLines: 3,
-                      textCapitalization: TextCapitalization.sentences,
-                      enabled: !_isSubmitting,
-                      decoration: const InputDecoration(
-                        labelText: 'Nume postare (client) — opțional',
-                        hintText: 'Ex: Urmărește-ne pe Instagram',
-                        alignLabelWithHint: true,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(bottom: 48),
-                          child: Icon(Icons.person_outline),
                         ),
                       ),
                     ),
@@ -286,12 +298,12 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       ],
                       textInputAction: TextInputAction.next,
                       enabled: !_isSubmitting,
-                      validator: (v) => _validateAmount(
+                      validator: (v) => _validateRequiredAmount(
                         v,
-                        fieldLabel: 'prețul serviciului',
+                        fieldLabel: 'prețul serviciului / produsului',
                       ),
                       decoration: const InputDecoration(
-                        labelText: 'Preț serviciu / produs — opțional',
+                        labelText: 'Preț serviciu / produs',
                         hintText: 'Ex: 24,99',
                         suffixText: 'lei',
                         prefixIcon: Icon(Icons.payments_outlined),
@@ -310,12 +322,12 @@ class _AddQrScreenState extends State<AddQrScreen> {
                       ],
                       textInputAction: TextInputAction.next,
                       enabled: !_isSubmitting,
-                      validator: (v) => _validateAmount(
+                      validator: (v) => _validateRequiredAmount(
                         v,
                         fieldLabel: 'reducerea',
                       ),
                       decoration: const InputDecoration(
-                        labelText: 'Reducere — opțional',
+                        labelText: 'Reducere',
                         hintText: 'Ex: 5',
                         suffixText: 'lei',
                         prefixIcon: Icon(Icons.sell_outlined),

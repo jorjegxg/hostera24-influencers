@@ -550,19 +550,17 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
             const SizedBox(height: 20),
             _QrImage(data: entry.payload),
             const SizedBox(height: 20),
-            if (formatPretLabel(entry.pret) != null) ...[
-              _DescriptionRow(
-                icon: Icons.payments_outlined,
-                label: 'Preț serviciu / produs',
-                text: formatPretLabel(entry.pret),
-              ),
-              const SizedBox(height: 12),
-            ],
-            if (formatReducereLabel(entry.reducere) != null) ...[
+            _DescriptionRow(
+              icon: Icons.person_outline,
+              label: 'Nume postare (client)',
+              text: entry.clientDescription,
+            ),
+            const SizedBox(height: 12),
+            if (formatBeneficiuCuponLabel(entry.pret, entry.reducere) != null) ...[
               _DescriptionRow(
                 icon: Icons.sell_outlined,
-                label: 'Reducere',
-                text: formatReducereLabel(entry.reducere),
+                label: 'Beneficiu cupon',
+                text: formatBeneficiuCuponLabel(entry.pret, entry.reducere),
               ),
               const SizedBox(height: 12),
             ],
@@ -570,12 +568,6 @@ class _QrPreviewSheetState extends State<_QrPreviewSheet> {
               icon: Icons.description_outlined,
               label: 'Descriere internă cod',
               text: entry.firmaDescription,
-            ),
-            const SizedBox(height: 12),
-            _DescriptionRow(
-              icon: Icons.person_outline,
-              label: 'Nume postare (client)',
-              text: entry.clientDescription,
             ),
             if (entry.schedule.mode != QrScheduleMode.none) ...[
               const SizedBox(height: 12),
@@ -766,8 +758,8 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                     children: [
                       Text(
                         widget.numarTotalEvenimente > 0
-                            ? scanariCountLabel(widget.numarTotalEvenimente)
-                            : 'Istoric scanări',
+                            ? '${scanariCountLabel(widget.numarTotalEvenimente)} la casă'
+                            : 'Scanări la casă',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -868,9 +860,7 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                                 Icon(
                                   rejected
                                       ? Icons.block_outlined
-                                      : scan.isVizitaPublica
-                                          ? Icons.public_outlined
-                                          : Icons.qr_code_scanner,
+                                      : Icons.qr_code_scanner,
                                   size: 18,
                                   color: rejected
                                       ? AppColors.error
@@ -902,16 +892,7 @@ class _ScanHistorySectionState extends State<_ScanHistorySection> {
                                             height: 1.3,
                                           ),
                                         )
-                                      else if (scan.isVizitaPublica)
-                                        const Text(
-                                          'Vizită pagină web',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.textSecondary,
-                                            height: 1.3,
-                                          ),
-                                        )
-                                      else if (scan.contorizeazaLimita)
+                                      else
                                         const Text(
                                           'Scanare la casă',
                                           style: TextStyle(

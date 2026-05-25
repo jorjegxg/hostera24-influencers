@@ -26,10 +26,9 @@ class QrEntryCard extends StatelessWidget {
 
     final firma = entry.firmaDescription?.trim();
     final client = entry.clientDescription?.trim();
-    final pretLabel = formatPretLabel(entry.pret);
-    final reducereLabel = formatReducereLabel(entry.reducere);
-    final pretFinalLabel = formatPretFinalLabel(entry.pret, entry.reducere);
-    final hasPretInfo = pretLabel != null || reducereLabel != null;
+    final beneficiuLabel =
+        formatBeneficiuCuponLabel(entry.pret, entry.reducere);
+    final hasBeneficiu = beneficiuLabel != null;
 
     return Card(
       child: InkWell(
@@ -90,26 +89,10 @@ class QrEntryCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (pretLabel != null) ...[
+                    if (beneficiuLabel != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        pretLabel,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: reducereLabel != null
-                              ? AppColors.textSecondary
-                              : AppColors.accent,
-                          decoration: reducereLabel != null
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                    ],
-                    if (pretFinalLabel != null && reducereLabel != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        pretFinalLabel,
+                        beneficiuLabel,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.accent,
@@ -143,7 +126,7 @@ class QrEntryCard extends StatelessWidget {
                     ],
                     if ((firma == null || firma.isEmpty) &&
                         (client == null || client.isEmpty) &&
-                        !hasPretInfo) ...[
+                        !hasBeneficiu) ...[
                       const SizedBox(height: 4),
                       const Text(
                         'Fără descrieri',

@@ -6,38 +6,39 @@ import {
   IsIn,
   IsInt,
   IsNumber,
+  IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
   Max,
   Min,
+  MinLength,
   ValidateIf,
 } from 'class-validator';
 
 export class CreateCodQrDto {
-  @IsOptional()
   @IsString()
-  numePostareClienti?: string;
+  @IsNotEmpty()
+  @MinLength(1)
+  numePostareClienti: string;
 
   @IsOptional()
   @IsString()
   numePostareFirme?: string;
 
   /** Preț serviciu / produs (lei). */
-  @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @Max(999_999.99)
-  pret?: number;
+  pret: number;
 
   /** Reducere în lei. */
-  @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @Max(999_999.99)
-  reducere?: number;
+  reducere: number;
 
   @IsOptional()
   @IsIn(['interval', 'zile'])

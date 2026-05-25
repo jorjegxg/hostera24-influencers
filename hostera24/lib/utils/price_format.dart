@@ -25,6 +25,13 @@ String? formatPretFinalLabel(double? pret, double? reducere) {
   return formatLei(finalPret);
 }
 
+/// Beneficiu cupon (listă / pagină publică): doar reducerea, fără preț produs.
+String? formatBeneficiuCuponLabel(double? pret, double? reducere) {
+  if (reducere == null || reducere <= 0) return null;
+  if (pret != null && pret - reducere <= 0) return 'Gratis';
+  return 'Economisești ${formatLei(reducere)}';
+}
+
 double? parseOptionalLei(String raw) {
   final trimmed = raw.trim().replaceAll(',', '.');
   if (trimmed.isEmpty) return null;

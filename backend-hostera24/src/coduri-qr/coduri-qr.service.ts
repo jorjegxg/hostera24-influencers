@@ -12,6 +12,7 @@ import { normalizePublicUploadsUrl } from '../common/uploads.util';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import { Scanare } from '../scanari/scanare.entity';
+import { VizitaPaginaQr } from '../vizite-pagina/vizita-pagina-qr.entity';
 import { CodQr } from './cod-qr.entity';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
 import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
@@ -34,6 +35,8 @@ export class CoduriQrService {
     private readonly coduriRepo: Repository<CodQr>,
     @InjectRepository(Scanare)
     private readonly scanariRepo: Repository<Scanare>,
+    @InjectRepository(VizitaPaginaQr)
+    private readonly vizitePaginaRepo: Repository<VizitaPaginaQr>,
     private readonly config: ConfigService,
   ) {}
 
@@ -44,49 +47,31 @@ export class CoduriQrService {
         'cod.numarScanari',
         'cod.scanari',
         'scanari_reusite',
-        (qb) =>
-          qb.andWhere('scanari_reusite.reusit = :reusit', { reusit: true }).andWhere(
-            'scanari_reusite.contorizeazaLimita = :contorizeaza',
-            { contorizeaza: true },
-          ),
+        (qb) => qb.andWhere('scanari_reusite.reusit = :reusit', { reusit: true }),
       )
       .loadRelationCountAndMap(
         'cod.numarScanariRespinse',
         'cod.scanari',
         'scanari_respinse',
-        (qb) =>
-          qb.andWhere('scanari_respinse.reusit = :reusit', { reusit: false }).andWhere(
-            'scanari_respinse.contorizeazaLimita = :contorizeaza',
-            { contorizeaza: true },
-          ),
-      )
-      .loadRelationCountAndMap(
-        'cod.numarVizitePublice',
-        'cod.scanari',
-        'scanari_publice',
-        (qb) =>
-          qb
-            .andWhere('scanari_publice.reusit = :reusit', { reusit: true })
-            .andWhere('scanari_publice.contorizeazaLimita = :contorizeaza', {
-              contorizeaza: false,
-            }),
+        (qb) => qb.andWhere('scanari_respinse.reusit = :reusit', { reusit: false }),
       )
       .where('cod.firmaId = :firmaId', { firmaId })
       .andWhere('cod.sters = :sters', { sters: false })
       .orderBy('cod.creatLa', 'DESC')
       .getMany();
 
+    const viziteByCod = await this.viziteCountByCodIds(rows.map((c) => c.id));
+
     return rows.map((cod) => {
       const extended = cod as CodQr & {
         numarScanari: number;
         numarScanariRespinse: number;
-        numarVizitePublice: number;
       };
       return this.toQrListItem(
         cod,
         extended.numarScanari ?? 0,
         extended.numarScanariRespinse ?? 0,
-        extended.numarVizitePublice ?? 0,
+        viziteByCod.get(cod.id) ?? 0,
       );
     });
   }
@@ -138,7 +123,6 @@ export class CoduriQrService {
         id: s.id,
         scanatLa: scanatLaForApi(s.scanatLa),
         reusit: s.reusit,
-        contorizeazaLimita: s.contorizeazaLimita,
       })),
       total,
       page,
@@ -150,14 +134,15 @@ export class CoduriQrService {
   async create(firmaId: number, dto: CreateCodQrDto) {
     const cod = await this.generateUniqueCod();
     const programare = normalizeProgramareDto(dto);
+    this.assertReducereNotGreaterThanPret(dto.pret, dto.reducere);
 
     const entry = this.coduriRepo.create({
       firmaId,
       cod,
-      numePostareClienti: this.normalizeOptionalText(dto.numePostareClienti),
+      numePostareClienti: dto.numePostareClienti.trim(),
       numePostareFirme: this.normalizeOptionalText(dto.numePostareFirme),
-      pret: this.normalizeOptionalNumber(dto.pret),
-      reducere: this.normalizeOptionalNumber(dto.reducere),
+      pret: dto.pret,
+      reducere: dto.reducere,
       programareTip: programare.programareTip,
       programareDeLa: programare.programareDeLa,
       programarePanaLa: programare.programarePanaLa,
@@ -174,16 +159,19 @@ export class CoduriQrService {
     const cod = await this.findActiveOrThrow(firmaId, id);
 
     if (dto.numePostareClienti !== undefined) {
-      cod.numePostareClienti = this.normalizeOptionalText(dto.numePostareClienti);
+      cod.numePostareClienti = dto.numePostareClienti.trim();
     }
     if (dto.numePostareFirme !== undefined) {
       cod.numePostareFirme = this.normalizeOptionalText(dto.numePostareFirme);
     }
     if (dto.pret !== undefined) {
-      cod.pret = this.normalizeOptionalNumber(dto.pret);
+      cod.pret = dto.pret;
     }
     if (dto.reducere !== undefined) {
-      cod.reducere = this.normalizeOptionalNumber(dto.reducere);
+      cod.reducere = dto.reducere;
+    }
+    if (cod.pret != null && cod.reducere != null) {
+      this.assertReducereNotGreaterThanPret(cod.pret, cod.reducere);
     }
 
     if (
@@ -260,9 +248,7 @@ export class CoduriQrService {
       };
     }
 
-    const recorded = await this.recordScanAtomic(entry.id, {
-      contorizeazaLimita: true,
-    });
+    const recorded = await this.recordScanAtomic(entry.id);
     if ('exhausted' in recorded) {
       return {
         status: 'exhausted' as const,
@@ -312,6 +298,14 @@ export class CoduriQrService {
   private normalizeOptionalNumber(value?: number | null): number | null {
     if (value == null || Number.isNaN(value)) return null;
     return value;
+  }
+
+  private assertReducereNotGreaterThanPret(pret: number, reducere: number) {
+    if (reducere > pret) {
+      throw new BadRequestException(
+        'Reducerea nu poate fi mai mare decât prețul serviciului.',
+      );
+    }
   }
 
   private async findActiveOrThrow(firmaId: number, id: number) {
@@ -367,7 +361,7 @@ export class CoduriQrService {
       throw new UnprocessableEntityException(programareBlockMessage(entry));
     }
 
-    await this.recordScanAtomic(entry.id, { contorizeazaLimita: false });
+    await this.incrementVizitaPagina(entry.id);
 
     return { ok: true };
   }
@@ -396,19 +390,50 @@ export class CoduriQrService {
 
   private countScanariLaCasă(codQrId: number) {
     return this.scanariRepo.count({
-      where: { codQrId, reusit: true, contorizeazaLimita: true },
+      where: { codQrId, reusit: true },
     });
   }
 
   private countScanariRespinseLaCasă(codQrId: number) {
     return this.scanariRepo.count({
-      where: { codQrId, reusit: false, contorizeazaLimita: true },
+      where: { codQrId, reusit: false },
     });
   }
 
-  private countVizitePublice(codQrId: number) {
-    return this.scanariRepo.count({
-      where: { codQrId, reusit: true, contorizeazaLimita: false },
+  private async countVizitePublice(codQrId: number) {
+    const row = await this.vizitePaginaRepo.findOne({ where: { codQrId } });
+    return row?.numarVizite ?? 0;
+  }
+
+  private async viziteCountByCodIds(codQrIds: number[]) {
+    const map = new Map<number, number>();
+    if (codQrIds.length === 0) return map;
+
+    const rows = await this.vizitePaginaRepo
+      .createQueryBuilder('v')
+      .select('v.codQrId', 'codQrId')
+      .addSelect('v.numarVizite', 'numarVizite')
+      .where('v.codQrId IN (:...ids)', { ids: codQrIds })
+      .getRawMany<{ codQrId: number; numarVizite: string }>();
+
+    for (const row of rows) {
+      map.set(Number(row.codQrId), Number(row.numarVizite));
+    }
+    return map;
+  }
+
+  private async incrementVizitaPagina(codQrId: number) {
+    await this.vizitePaginaRepo.manager.transaction(async (manager) => {
+      let row = await manager.findOne(VizitaPaginaQr, {
+        where: { codQrId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!row) {
+        row = manager.create(VizitaPaginaQr, { codQrId, numarVizite: 1 });
+      } else {
+        row.numarVizite += 1;
+      }
+      await manager.save(VizitaPaginaQr, row);
     });
   }
 
@@ -417,10 +442,7 @@ export class CoduriQrService {
     return value;
   }
 
-  private async recordScanAtomic(
-    codQrId: number,
-    options: { contorizeazaLimita: boolean },
-  ): Promise<
+  private async recordScanAtomic(codQrId: number): Promise<
     | { ok: true; numarScanari: number; numarScanariRespinse: number }
     | {
         exhausted: true;
@@ -439,26 +461,17 @@ export class CoduriQrService {
         throw new NotFoundException('Codul QR nu există');
       }
 
-      const contorizeazaLimita = options.contorizeazaLimita;
-
       const countReusiteLaCasă = await manager.count(Scanare, {
-        where: { codQrId, reusit: true, contorizeazaLimita: true },
+        where: { codQrId, reusit: true },
       });
       const countRespinseLaCasă = await manager.count(Scanare, {
-        where: { codQrId, reusit: false, contorizeazaLimita: true },
+        where: { codQrId, reusit: false },
       });
 
-      if (
-        contorizeazaLimita &&
-        isScanLimitReached(cod, countReusiteLaCasă)
-      ) {
+      if (isScanLimitReached(cod, countReusiteLaCasă)) {
         await manager.save(
           Scanare,
-          manager.create(Scanare, {
-            codQrId,
-            reusit: false,
-            contorizeazaLimita: true,
-          }),
+          manager.create(Scanare, { codQrId, reusit: false }),
         );
         return {
           exhausted: true,
@@ -471,20 +484,12 @@ export class CoduriQrService {
 
       await manager.save(
         Scanare,
-        manager.create(Scanare, {
-          codQrId,
-          reusit: true,
-          contorizeazaLimita,
-        }),
+        manager.create(Scanare, { codQrId, reusit: true }),
       );
-
-      const numarScanari = contorizeazaLimita
-        ? countReusiteLaCasă + 1
-        : countReusiteLaCasă;
 
       return {
         ok: true,
-        numarScanari,
+        numarScanari: countReusiteLaCasă + 1,
         numarScanariRespinse: countRespinseLaCasă,
       };
     });

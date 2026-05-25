@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Migrări idempotente (Google auth, profil firmă, logo). Safe de rulat de mai multe ori.
+# Migrări idempotente (Google auth, profil firmă, logo, vizite pagină). Safe de rulat de mai multe ori.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -12,7 +12,8 @@ fi
 
 set -a
 # shellcheck disable=SC1091
-source .env
+# .env pe Windows poate avea CRLF — compatibil Git Bash / WSL
+source <(sed 's/\r$//' .env)
 set +a
 
 CONTAINER="${MYSQL_CONTAINER:-hostera24-mysql}"
@@ -25,7 +26,7 @@ fi
 
 if ! docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
   echo "Containerul $CONTAINER nu rulează. Pornește-l:"
-  echo "  docker compose up -d"
+  echo "  docker compose up -d mysql"
   exit 1
 fi
 
@@ -38,8 +39,9 @@ if ! docker exec -i "$CONTAINER" mysql \
   exit 1
 fi
 
-echo "✓ Migrări aplicate. Verificare coloane profil:"
+echo "✓ Migrări aplicate."
+echo "Verificare tabele scanări / vizite:"
 docker exec -i "$CONTAINER" mysql \
   -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" \
   "$MYSQL_DATABASE" \
-  -e "SHOW COLUMNS FROM firme WHERE Field IN ('nume','telefon','firebase_uid','logo_url');"
+  -e "SHOW TABLES LIKE '%scan%'; SHOW TABLES LIKE 'vizite%'; SHOW COLUMNS FROM vizite_pagina_qr;"

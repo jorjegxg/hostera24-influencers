@@ -14,6 +14,7 @@ import { MesajContact } from './contact/mesaj-contact.entity';
 import { Firma } from './firme/firma.entity';
 import { FirmeModule } from './firme/firme.module';
 import { Scanare } from './scanari/scanare.entity';
+import { VizitaPaginaQr } from './vizite-pagina/vizita-pagina-qr.entity';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { Scanare } from './scanari/scanare.entity';
         database: config.get<string>('DATABASE_NAME', 'hostera24'),
         charset: 'utf8mb4',
         timezone: 'Z',
-        entities: [Firma, CodQr, Scanare, MesajContact],
+        entities: [Firma, CodQr, Scanare, VizitaPaginaQr, MesajContact],
         synchronize: false,
       }),
     }),

@@ -264,6 +264,52 @@ DEALLOCATE PREPARE stmt;
 -- scanări vechi (înainte de separare) rămân la limită ca înainte
 UPDATE scanari SET contorizeaza_limita = 1 WHERE reusit = 1 OR reusit = 0;
 
+-- vizite pagină publică (tabel separat, un rând per cod)
+CREATE TABLE IF NOT EXISTS vizite_pagina_qr (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    cod_qr_id INT NOT NULL UNIQUE,
+    numar_vizite INT UNSIGNED NOT NULL DEFAULT 0,
+    actualizat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (cod_qr_id) REFERENCES coduri_qr(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET @has_contorizeaza := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'scanari' AND COLUMN_NAME = 'contorizeaza_limita'
+);
+
+-- agregă vizite web vechi din scanari → vizite_pagina_qr
+SET @sql := IF(
+  @has_contorizeaza > 0,
+  'INSERT INTO vizite_pagina_qr (cod_qr_id, numar_vizite)
+   SELECT cod_qr_id, COUNT(*) FROM scanari
+   WHERE contorizeaza_limita = 0 AND reusit = 1
+   GROUP BY cod_qr_id
+   ON DUPLICATE KEY UPDATE numar_vizite = numar_vizite + VALUES(numar_vizite)',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @has_contorizeaza > 0,
+  'DELETE FROM scanari WHERE contorizeaza_limita = 0',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql := IF(
+  @has_contorizeaza > 0,
+  'ALTER TABLE scanari DROP COLUMN contorizeaza_limita',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- mesaje_contact (formular site)
 CREATE TABLE IF NOT EXISTS mesaje_contact (
     id INT PRIMARY KEY AUTO_INCREMENT,

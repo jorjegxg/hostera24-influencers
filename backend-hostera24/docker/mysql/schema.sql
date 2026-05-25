@@ -40,8 +40,16 @@ CREATE TABLE scanari (
     id INT PRIMARY KEY AUTO_INCREMENT,
     cod_qr_id INT NOT NULL,
     reusit TINYINT(1) NOT NULL DEFAULT 1,
-    contorizeaza_limita TINYINT(1) NOT NULL DEFAULT 0,
     scanat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cod_qr_id) REFERENCES coduri_qr(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Vizite pagină publică: un rând per cod, counter (fără oră per vizită)
+CREATE TABLE vizite_pagina_qr (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    cod_qr_id INT NOT NULL UNIQUE,
+    numar_vizite INT UNSIGNED NOT NULL DEFAULT 0,
+    actualizat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (cod_qr_id) REFERENCES coduri_qr(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

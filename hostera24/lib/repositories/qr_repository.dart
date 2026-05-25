@@ -90,8 +90,8 @@ class QrRepository {
   Future<QrEntry> createCodQr({
     String? numePostareClienti,
     String? numePostareFirme,
-    double? pret,
-    double? reducere,
+    required double pret,
+    required double reducere,
     int? limitaScanari,
     QrSchedule? schedule,
   }) async {
@@ -112,8 +112,8 @@ class QrRepository {
     required int id,
     String? numePostareClienti,
     String? numePostareFirme,
-    double? pret,
-    double? reducere,
+    required double pret,
+    required double reducere,
     int? limitaScanari,
     bool clearLimitaScanari = false,
     QrSchedule? schedule,

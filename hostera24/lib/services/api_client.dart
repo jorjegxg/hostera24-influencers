@@ -137,8 +137,8 @@ class ApiClient {
   Future<QrEntry> createCodQr({
     String? numePostareClienti,
     String? numePostareFirme,
-    double? pret,
-    double? reducere,
+    required double pret,
+    required double reducere,
     int? limitaScanari,
     QrSchedule? schedule,
   }) async {
@@ -166,8 +166,8 @@ class ApiClient {
     required int id,
     String? numePostareClienti,
     String? numePostareFirme,
-    double? pret,
-    double? reducere,
+    required double pret,
+    required double reducere,
     int? limitaScanari,
     bool clearLimitaScanari = false,
     QrSchedule? schedule,
@@ -290,8 +290,8 @@ class ApiClient {
   Map<String, dynamic> _codQrBody({
     String? numePostareClienti,
     String? numePostareFirme,
-    double? pret,
-    double? reducere,
+    required double pret,
+    required double reducere,
     int? limitaScanari,
     bool clearLimitaScanari = false,
     QrSchedule? schedule,
