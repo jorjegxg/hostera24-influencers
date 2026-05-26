@@ -53,7 +53,7 @@ export function publicSiteUrl(): string {
 }
 
 export const DEFAULT_DESCRIPTION =
-  "Coduri QR pentru cupoane, postări, marketing affiliat și statistici de scanări. Formular de contact direct pe site.";
+  "Cupoane QR pentru firme medii: coduri în postări, scanare la casă și statistici — vezi ce campanii aduc clienți noi.";
 
 export const DEFAULT_TITLE =
-  "HOSTERA24 — Descarcă aplicația și adu-ți clienți noi";
+  "HOSTERA24 — Cupoane QR pentru firme medii";

@@ -24,7 +24,10 @@ export function FirmeSection() {
         className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12"
       >
         <div className="max-w-xl">
-          <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
+          <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-accent)] sm:text-base">
+            Cupoane QR pentru firme medii
+          </p>
+          <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
             Transformați interesul din postări în clienți la casă
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
