@@ -36,7 +36,7 @@ const BENEFIT_ITEMS: {
   {
     id: "instagram-reduceri",
     icon: "instagram-reduceri",
-    title: "Reduceri cadou pentru cei activi pe Instagram",
+    title: "Cupoane pentru fanii activi pe Instagram",
     body: (
       <p>
         Răsplătiți persoanele interesate de postările voastre — cele care dau
@@ -111,8 +111,8 @@ const BENEFIT_ITEMS: {
     title: "Premii la concursuri — foarte simplu",
     body: (
       <p>
-        Organizați un concurs pe rețelele sociale și generați un cod QR dedicat
-        câștigătorilor. La magazin,{" "}
+        Organizați un concurs — online, în magazin, la eveniment sau pe orice
+        canal — și generați un cod QR dedicat câștigătorilor. La magazin,{" "}
         <strong className="text-[var(--color-text-primary)]">
           scanarea confirmă premiul pe loc
         </strong>{" "}
