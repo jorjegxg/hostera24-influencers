@@ -9,6 +9,7 @@ import {
 } from "@/lib/api";
 import { resolveUploadsMediaUrl } from "@/lib/media-url";
 import { formatBeneficiuCuponLabel } from "@/lib/price-format";
+import { formatValabilitateLabel } from "@/lib/qr-schedule";
 import { CodQrDisplay } from "./CodQrDisplay";
 import { RecordScan } from "./RecordScan";
 
@@ -18,9 +19,7 @@ type PageProps = {
 
 function firmaDisplayName(email: string): string {
   const local = email.split("@")[0] ?? email;
-  return local
-    .replace(/[._-]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return local.replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function resolveFirmaName(firma: PublicCodQr["firma"]): string {
@@ -41,7 +40,10 @@ function websiteLabel(website: string): string {
   return website.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
 }
 
-function limitaReducereMesaj(limita: number, ramase: number | null): {
+function limitaReducereMesaj(
+  limita: number,
+  ramase: number | null,
+): {
   titlu: string;
   detaliu?: string;
   epuizat: boolean;
@@ -97,6 +99,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
 
   const mesajClient = data.numePostareClienti?.trim();
   const beneficiuLabel = formatBeneficiuCuponLabel(data.pret, data.reducere);
+  const valabilitateLabel = formatValabilitateLabel(data);
   const limitaScanari = data.limitaScanari;
   const atentionareLimita =
     limitaScanari != null && limitaScanari > 0
@@ -202,21 +205,23 @@ export default async function CodQrPublicPage({ params }: PageProps) {
         <div className="mt-8 flex justify-center">
           <CodQrDisplay
             url={qrUrl}
-            label="Dacă folosești codul acesta când cumperi serviciul, ți se aplică reducerea"
+            // label="Dacă folosești codul acesta când cumperi serviciul, ți se aplică reducerea"
           />
         </div>
 
-        <p className="mt-6 text-center text-xs text-[var(--color-text-secondary)]">
+        {/* <p className="mt-6 text-center text-xs text-[var(--color-text-secondary)]">
           Cod: <span className="font-mono">{data.cod}</span>
-        </p>
+        </p> */}
+        {valabilitateLabel ? (
+          <p className="mt-4 text-center text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            {valabilitateLabel}
+          </p>
+        ) : null}
       </article>
 
       <p className="mt-4 text-center text-xs text-[var(--color-text-secondary)] md:mt-8">
         powered by{" "}
-        <Link
-          href="/"
-          className="text-[var(--color-accent)] hover:underline"
-        >
+        <Link href="/" className="text-[var(--color-accent)] hover:underline">
           hostera24
         </Link>
       </p>

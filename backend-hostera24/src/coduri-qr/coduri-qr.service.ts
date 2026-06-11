@@ -334,6 +334,7 @@ export class CoduriQrService {
       numePostareClienti: entry.numePostareClienti,
       pret: entry.pret,
       reducere: entry.reducere,
+      ...toProgramareResponse(entry),
       ...toLimitaScanariResponse(entry, numarScanari),
       firma: {
         email: entry.firma.email,

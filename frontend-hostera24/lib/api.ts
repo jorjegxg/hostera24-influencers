@@ -6,6 +6,10 @@ export type PublicCodQr = {
   numePostareClienti: string | null;
   pret: number | null;
   reducere: number | null;
+  programareTip: "interval" | "zile" | null;
+  programareDeLa: string | null;
+  programarePanaLa: string | null;
+  programareZile: number[];
   limitaScanari: number | null;
   scanariRamase: number | null;
   firma: {
