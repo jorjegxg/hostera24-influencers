@@ -121,23 +121,32 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- reducere în lei (fost pret_redus)
+-- reducere în lei (fost pret_redus text — nu redenumim direct; valorile text rămân în pret_redus)
 SET @col_reducere := (
   SELECT COUNT(*) FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'reducere'
 );
+SET @sql := IF(
+  @col_reducere = 0,
+  'ALTER TABLE coduri_qr ADD COLUMN reducere DECIMAL(10, 2) NULL AFTER pret',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 SET @col_pret_redus := (
   SELECT COUNT(*) FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'pret_redus'
 );
+SET @col_reducere := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db AND TABLE_NAME = 'coduri_qr' AND COLUMN_NAME = 'reducere'
+);
 SET @sql := IF(
-  @col_reducere = 0 AND @col_pret_redus > 0,
-  'ALTER TABLE coduri_qr CHANGE COLUMN pret_redus reducere DECIMAL(10, 2) NULL',
-  IF(
-    @col_reducere = 0,
-    'ALTER TABLE coduri_qr ADD COLUMN reducere DECIMAL(10, 2) NULL AFTER pret',
-    'SELECT 1'
-  )
+  @col_reducere > 0 AND @col_pret_redus > 0,
+  'UPDATE coduri_qr SET reducere = CAST(REPLACE(pret_redus, '','', ''.'') AS DECIMAL(10, 2)) WHERE reducere IS NULL AND pret_redus IS NOT NULL AND pret_redus REGEXP ''^[0-9]+([.,][0-9]+)?$''',
+  'SELECT 1'
 );
 PREPARE stmt FROM @sql;
 EXECUTE stmt;

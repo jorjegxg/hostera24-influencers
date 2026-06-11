@@ -25,15 +25,15 @@ export function FirmeSection() {
       >
         <div className="max-w-xl">
           <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-accent)] sm:text-base">
-            Cupoane QR pentru firme medii
+            Cupoane QR 
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
             Transformați interesul din postări în clienți la casă
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
             Postarea aduce interesul; reducerea din cod îl aduce la casă.
-            Scanezi la recepție și compari ce oferte transformă curiozitatea
-            în vizită.
+            Scanezi la recepție și compari ce oferte transformă curiozitatea în
+            vizită.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
