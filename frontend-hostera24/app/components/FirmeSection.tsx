@@ -46,7 +46,7 @@ export function FirmeSection() {
               href="#beneficii"
               className="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-[var(--color-surface)] px-5 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-accent)]"
             >
-              Cum mă ajută
+              Cum ma ajuta hostera24
             </a>
           </div>
         </div>

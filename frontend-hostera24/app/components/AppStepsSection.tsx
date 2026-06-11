@@ -14,7 +14,7 @@ const STEPS = [
     step: 2,
     title: "Distribuiți codul",
     description:
-      "Îl atașați la postări, story-uri, parteneri sau materiale în magazin — clienții vin la casă cu oferta.",
+      "Îl atașați la postări, story-uri, parteneri sau materiale în magazin — sau le trimiteți mesaj în privat — clienții vin la casă cu oferta.",
     imageSrc: "/screenshot-exemplu.jpeg",
     imageAlt: "Exemplu distribuire cod QR în postare sau magazin",
   },
@@ -62,10 +62,6 @@ export function AppStepsSection() {
         >
           Cum funcționează în 3 pași
         </h2>
-        <p className="mt-3 text-lg text-[var(--color-text-secondary)]">
-          Configurați campania, distribuiți codul — la casă, colegul scanează din
-          aplicația Hostera24 și vedeți rezultatele măsurate.
-        </p>
       </div>
 
       <ol className="mt-12 flex list-none flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-0">

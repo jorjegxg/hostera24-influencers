@@ -74,8 +74,12 @@ export default function RootLayout({
       id="top"
       lang="ro"
       className={`${geistSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[var(--color-page-bg)] text-[var(--color-text-primary)]">
+      <body
+        className="min-h-full flex flex-col bg-[var(--color-page-bg)] text-[var(--color-text-primary)]"
+        suppressHydrationWarning
+      >
         <JsonLdOrganization />
         {children}
       </body>
