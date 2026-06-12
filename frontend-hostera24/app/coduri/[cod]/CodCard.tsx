@@ -81,8 +81,13 @@ export function CodCard({
   }, [cod]);
 
   return (
-    <article className="w-full max-w-md rounded-2xl border border-[var(--color-placeholder-border)] bg-[var(--color-surface)] p-5 shadow-sm md:p-8">
-      <div ref={cardRef} className="bg-[var(--color-surface)] p-2">
+    <article className="w-full max-w-md">
+      <div
+        ref={cardRef}
+        className="rounded-2xl p-0.5 shadow-sm"
+        style={{ backgroundColor: "#d1d5db" }}
+      >
+        <div className="overflow-hidden rounded-[calc(1rem-2px)] bg-[var(--color-surface)] p-5 md:p-8">
         <header className="flex flex-col items-center text-center">
           {logoSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -184,6 +189,7 @@ export function CodCard({
             hostera24
           </Link>
         </p>
+        </div>
       </div>
 
       <button
