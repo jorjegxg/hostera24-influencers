@@ -88,107 +88,110 @@ export function CodCard({
         style={{ backgroundColor: "#d1d5db" }}
       >
         <div className="overflow-hidden rounded-[calc(1rem-2px)] bg-[var(--color-surface)] p-5 md:p-8">
-        <header className="flex flex-col items-center text-center">
-          {logoSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoSrc}
-              alt={`Logo ${numeFirma}`}
-              width={96}
-              height={96}
-              className="h-24 w-24 rounded-2xl object-cover"
-            />
-          ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-[var(--color-accent)]/10 text-2xl font-bold text-[var(--color-accent)]">
-              {numeFirma.charAt(0)}
-            </div>
-          )}
-          <h1 className="mt-4 text-xl font-bold text-[var(--color-text-primary)]">
-            {numeFirma}
-          </h1>
-          {descriere ? (
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              {descriere}
-            </p>
-          ) : null}
-          {websiteHref && websiteLabel ? (
-            <p className="mt-4 text-sm">
-              <a
-                href={websiteHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--color-accent)] hover:underline"
-              >
-                {websiteLabel}
-              </a>
-            </p>
-          ) : null}
-        </header>
-
-        <div
-          className="my-8 h-px w-full bg-[var(--color-placeholder-border)]"
-          aria-hidden
-        />
-
-        {mesajClient ? (
-          <p className="text-center text-lg leading-relaxed font-medium">
-            {mesajClient}
-          </p>
-        ) : null}
-
-        {beneficiuLabel ? (
-          <div className="mt-4 text-center">
-            <p className="text-base font-semibold text-[var(--color-accent)]">
-              {beneficiuLabel}
-            </p>
-          </div>
-        ) : null}
-
-        {atentionareLimita ? (
-          <div
-            className={`mt-6 rounded-xl border px-4 py-3 text-sm leading-relaxed ${
-              atentionareLimita.epuizat
-                ? "border-amber-300 bg-amber-50 text-amber-950"
-                : "border-[var(--color-accent)]/35 bg-[var(--color-accent)]/8 text-[var(--color-text-primary)]"
-            }`}
-            role="note"
-          >
-            <p className="flex gap-2 font-semibold">
-              <span className="shrink-0" aria-hidden>
-                ⚠
-              </span>
-              <span>{atentionareLimita.titlu}</span>
-            </p>
-            {atentionareLimita.detaliu ? (
-              <p
-                className={`mt-2 pl-7 ${
-                  atentionareLimita.epuizat
-                    ? "text-amber-900/90"
-                    : "text-[var(--color-text-secondary)]"
-                }`}
-              >
-                {atentionareLimita.detaliu}
+          <header className="flex flex-col items-center text-center">
+            {logoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoSrc}
+                alt={`Logo ${numeFirma}`}
+                width={96}
+                height={96}
+                className="h-24 w-24 rounded-2xl object-cover"
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-[var(--color-accent)]/10 text-2xl font-bold text-[var(--color-accent)]">
+                {numeFirma.charAt(0)}
+              </div>
+            )}
+            <h1 className="mt-4 text-xl font-bold text-[var(--color-text-primary)]">
+              {numeFirma}
+            </h1>
+            {descriere ? (
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
+                {descriere}
               </p>
             ) : null}
+            {websiteHref && websiteLabel ? (
+              <p className="mt-4 text-sm">
+                <a
+                  href={websiteHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-accent)] hover:underline"
+                >
+                  {websiteLabel}
+                </a>
+              </p>
+            ) : null}
+          </header>
+
+          <div
+            className="my-8 h-px w-full bg-[var(--color-placeholder-border)]"
+            aria-hidden
+          />
+
+          {mesajClient ? (
+            <p className="text-center text-lg leading-relaxed font-medium">
+              {mesajClient}
+            </p>
+          ) : null}
+
+          {beneficiuLabel ? (
+            <div className="mt-4 text-center">
+              <p className="text-base font-semibold text-[var(--color-accent)]">
+                {beneficiuLabel}
+              </p>
+            </div>
+          ) : null}
+
+          {atentionareLimita ? (
+            <div
+              className={`mt-6 rounded-xl border px-4 py-3 text-sm leading-relaxed ${
+                atentionareLimita.epuizat
+                  ? "border-amber-300 bg-amber-50 text-amber-950"
+                  : "border-[var(--color-accent)]/35 bg-[var(--color-accent)]/8 text-[var(--color-text-primary)]"
+              }`}
+              role="note"
+            >
+              <p className="flex gap-2 font-semibold">
+                <span className="shrink-0" aria-hidden>
+                  ⚠
+                </span>
+                <span>{atentionareLimita.titlu}</span>
+              </p>
+              {atentionareLimita.detaliu ? (
+                <p
+                  className={`mt-2 pl-7 ${
+                    atentionareLimita.epuizat
+                      ? "text-amber-900/90"
+                      : "text-[var(--color-text-secondary)]"
+                  }`}
+                >
+                  {atentionareLimita.detaliu}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="mt-8 flex justify-center">
+            <CodQrDisplay url={qrUrl} />
           </div>
-        ) : null}
 
-        <div className="mt-8 flex justify-center">
-          <CodQrDisplay url={qrUrl} />
-        </div>
+          {valabilitateLabel ? (
+            <p className="mt-4 text-center text-sm leading-relaxed text-[var(--color-text-secondary)]">
+              {valabilitateLabel}
+            </p>
+          ) : null}
 
-        {valabilitateLabel ? (
-          <p className="mt-4 text-center text-sm leading-relaxed text-[var(--color-text-secondary)]">
-            {valabilitateLabel}
+          <p className="mt-6 text-center text-xs text-[var(--color-text-secondary)]">
+            powered by{" "}
+            <Link
+              href="/"
+              className="text-[var(--color-accent)] hover:underline"
+            >
+              hostera24
+            </Link>
           </p>
-        ) : null}
-
-        <p className="mt-6 text-center text-xs text-[var(--color-text-secondary)]">
-          powered by{" "}
-          <Link href="/" className="text-[var(--color-accent)] hover:underline">
-            hostera24
-          </Link>
-        </p>
         </div>
       </div>
 

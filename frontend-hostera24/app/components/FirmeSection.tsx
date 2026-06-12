@@ -25,7 +25,7 @@ export function FirmeSection() {
       >
         <div className="max-w-xl">
           <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-accent)] sm:text-base">
-            Cupoane QR pentru firme medii
+            Cupoane online pentru firme reale
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
             Transformați interesul din postări în clienți la casă
