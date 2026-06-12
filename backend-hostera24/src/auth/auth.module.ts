@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Angajat } from '../angajati/angajat.entity';
 import { Firma } from '../firme/firma.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -11,7 +12,7 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Firma]),
+    TypeOrmModule.forFeature([Firma, Angajat]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

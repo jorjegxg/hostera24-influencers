@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:hostera24/config/api_config.dart';
+import 'package:hostera24/models/angajat.dart';
 import 'package:hostera24/models/firma_profile.dart';
 import 'package:hostera24/models/qr_entry.dart';
 import 'package:hostera24/models/qr_schedule.dart';
@@ -270,6 +271,58 @@ class ApiClient {
       return FirmaProfile.fromJson(data);
     }
     throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
+  Future<List<Angajat>> fetchAngajati() async {
+    final response = await _http.get(
+      Uri.parse('${ApiConfig.baseUrl}/firma/angajati'),
+      headers: _authHeaders(),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final list = jsonDecode(response.body) as List<dynamic>;
+      return list
+          .map((item) => Angajat.fromJson(item as Map<String, dynamic>))
+          .toList();
+    }
+
+    final data = _tryDecodeMap(response.body);
+    throw ApiException(
+      _messageFromBody(data),
+      statusCode: response.statusCode,
+    );
+  }
+
+  Future<Angajat> createAngajat({required String email, String? nume}) async {
+    final response = await _http.post(
+      Uri.parse('${ApiConfig.baseUrl}/firma/angajati'),
+      headers: _authHeaders(),
+      body: jsonEncode({
+        'email': email.trim().toLowerCase(),
+        if (nume != null && nume.trim().isNotEmpty) 'nume': nume.trim(),
+      }),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return Angajat.fromJson(data);
+    }
+    throw ApiException(_messageFromBody(data), statusCode: response.statusCode);
+  }
+
+  Future<void> deleteAngajat(int id) async {
+    final response = await _http.delete(
+      Uri.parse('${ApiConfig.baseUrl}/firma/angajati/$id'),
+      headers: _authHeaders(),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) return;
+
+    final data = _tryDecodeMap(response.body);
+    throw ApiException(
+      _messageFromBody(data),
+      statusCode: response.statusCode,
+    );
   }
 
   Future<void> deleteCodQr(int id) async {

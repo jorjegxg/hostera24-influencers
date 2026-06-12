@@ -319,6 +319,17 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- angajați (pot doar valida coduri prin scanare, nu le pot vedea/crea)
+CREATE TABLE IF NOT EXISTS angajati (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    firma_id INT NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    nume VARCHAR(255) NULL,
+    firebase_uid VARCHAR(128) NULL UNIQUE,
+    creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (firma_id) REFERENCES firme(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- mesaje_contact (formular site)
 CREATE TABLE IF NOT EXISTS mesaje_contact (
     id INT PRIMARY KEY AUTO_INCREMENT,

@@ -6,12 +6,28 @@ import 'package:hostera24/services/network_service.dart';
 import 'package:hostera24/services/sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum UserRole { firma, angajat }
+
 class AuthSession {
-  const AuthSession({required this.token, required this.firmaId, required this.email});
+  const AuthSession({
+    required this.token,
+    required this.firmaId,
+    required this.email,
+    this.role = UserRole.firma,
+    this.firmaNume,
+  });
 
   final String token;
+
+  /// ID-ul firmei (pentru angajați: firma la care lucrează).
   final int firmaId;
   final String email;
+  final UserRole role;
+
+  /// Numele firmei — afișat în profilul angajatului.
+  final String? firmaNume;
+
+  bool get isAngajat => role == UserRole.angajat;
 }
 
 class AuthService {
@@ -21,6 +37,8 @@ class AuthService {
   static const _tokenKey = 'auth_token';
   static const _firmaIdKey = 'firma_id';
   static const _emailKey = 'firma_email';
+  static const _roleKey = 'auth_role';
+  static const _firmaNumeKey = 'firma_nume';
 
   final ApiClient api = ApiClient();
   AuthSession? _session;
@@ -33,6 +51,10 @@ class AuthService {
     final token = prefs.getString(_tokenKey);
     final firmaId = prefs.getInt(_firmaIdKey);
     final email = prefs.getString(_emailKey);
+    final role = prefs.getString(_roleKey) == 'angajat'
+        ? UserRole.angajat
+        : UserRole.firma;
+    final firmaNume = prefs.getString(_firmaNumeKey);
 
     if (token == null || firmaId == null || email == null) {
       _session = null;
@@ -40,7 +62,13 @@ class AuthService {
       return;
     }
 
-    _session = AuthSession(token: token, firmaId: firmaId, email: email);
+    _session = AuthSession(
+      token: token,
+      firmaId: firmaId,
+      email: email,
+      role: role,
+      firmaNume: firmaNume,
+    );
     api.setToken(token);
   }
 
@@ -90,11 +118,18 @@ class AuthService {
 
   Future<AuthSession> _persistSession(Map<String, dynamic> data) async {
     final token = data['accessToken'] as String;
+    final role = data['role'] == 'angajat' ? UserRole.angajat : UserRole.firma;
     final firma = data['firma'] as Map<String, dynamic>;
+    final angajat = data['angajat'] as Map<String, dynamic>?;
+    final email = role == UserRole.angajat && angajat != null
+        ? angajat['email'] as String
+        : firma['email'] as String;
     final session = AuthSession(
       token: token,
       firmaId: firma['id'] as int,
-      email: firma['email'] as String,
+      email: email,
+      role: role,
+      firmaNume: firma['nume'] as String?,
     );
 
     _session = session;
@@ -104,13 +139,25 @@ class AuthService {
     await prefs.setString(_tokenKey, token);
     await prefs.setInt(_firmaIdKey, session.firmaId);
     await prefs.setString(_emailKey, session.email);
+    await prefs.setString(
+      _roleKey,
+      role == UserRole.angajat ? 'angajat' : 'firma',
+    );
+    if (session.firmaNume != null) {
+      await prefs.setString(_firmaNumeKey, session.firmaNume!);
+    } else {
+      await prefs.remove(_firmaNumeKey);
+    }
 
     if (NetworkService.instance.isOnline) {
       await SyncService.instance.syncPendingScans();
-      try {
-        final entries = await api.fetchCoduriQr();
-        await LocalStore.instance.saveQrList(session.firmaId, entries);
-      } catch (_) {}
+      // Angajații nu au acces la lista codurilor — nu o pot pune în cache.
+      if (role == UserRole.firma) {
+        try {
+          final entries = await api.fetchCoduriQr();
+          await LocalStore.instance.saveQrList(session.firmaId, entries);
+        } catch (_) {}
+      }
     }
 
     return session;
@@ -124,5 +171,7 @@ class AuthService {
     await prefs.remove(_tokenKey);
     await prefs.remove(_firmaIdKey);
     await prefs.remove(_emailKey);
+    await prefs.remove(_roleKey);
+    await prefs.remove(_firmaNumeKey);
   }
 }

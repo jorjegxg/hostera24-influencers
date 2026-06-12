@@ -13,13 +13,16 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { UpdateFirmaProfilDto } from './dto/update-firma-profil.dto';
 import { FirmeService } from './firme.service';
 
 type AuthRequest = { user: { firmaId: number; email: string } };
 
 @Controller('firma')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('firma')
 export class FirmeController {
   constructor(private readonly firmeService: FirmeService) {}
 

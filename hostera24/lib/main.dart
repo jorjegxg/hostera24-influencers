@@ -51,7 +51,7 @@ class _Hostera24AppState extends State<Hostera24App> {
     setState(() {
       final session = AuthService.instance.session;
       _home = session != null
-          ? HomeShell(email: session.email)
+          ? HomeShell(session: session)
           : const LoginScreen();
     });
   }

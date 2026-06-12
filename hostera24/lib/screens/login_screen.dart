@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _goToHome(AuthSession session) async {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => HomeShell(email: session.email)),
+      MaterialPageRoute<void>(builder: (_) => HomeShell(session: session)),
     );
   }
 

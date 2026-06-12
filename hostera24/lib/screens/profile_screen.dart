@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hostera24/models/firma_profile.dart';
+import 'package:hostera24/screens/angajati_screen.dart';
 import 'package:hostera24/screens/login_screen.dart';
 import 'package:hostera24/services/api_exception.dart';
 import 'package:hostera24/services/auth_service.dart';
@@ -247,6 +248,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       )
                     : const Text('Salvează profilul'),
+              ),
+              const SizedBox(height: 28),
+              Text(
+                'Echipă',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Angajații se conectează cu Google și pot doar valida codurile prin scanare, fără să le vadă.',
+                style: TextStyle(color: AppColors.textSecondary, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const AngajatiScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.group_outlined),
+                label: const Text('Gestionează angajații'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(

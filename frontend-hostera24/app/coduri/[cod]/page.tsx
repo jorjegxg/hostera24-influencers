@@ -1,5 +1,3 @@
-import Image from "next/image";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -7,10 +5,11 @@ import {
   resolvePublicCodUrl,
   type PublicCodQr,
 } from "@/lib/api";
+import { fetchImageDataUrl } from "@/lib/image-data-url";
 import { resolveUploadsMediaUrl } from "@/lib/media-url";
 import { formatBeneficiuCuponLabel } from "@/lib/price-format";
 import { formatValabilitateLabel } from "@/lib/qr-schedule";
-import { CodQrDisplay } from "./CodQrDisplay";
+import { CodCard } from "./CodCard";
 import { RecordScan } from "./RecordScan";
 
 type PageProps = {
@@ -107,6 +106,7 @@ export default async function CodQrPublicPage({ params }: PageProps) {
       : null;
   const { firma } = data;
   const logoUrl = resolveUploadsMediaUrl(firma.logoUrl);
+  const logoSrc = (await fetchImageDataUrl(logoUrl)) ?? logoUrl;
   const numeFirma = resolveFirmaName(firma);
   const descriere = firma.descriere?.trim();
   const website = firma.website?.trim();
@@ -116,115 +116,19 @@ export default async function CodQrPublicPage({ params }: PageProps) {
     <main className="flex min-h-dvh flex-col items-center justify-center px-5 py-5 md:min-h-full md:py-12">
       <RecordScan cod={data.cod} />
 
-      <article className="w-full max-w-md rounded-2xl border border-[var(--color-placeholder-border)] bg-[var(--color-surface)] p-5 md:p-8 shadow-sm">
-        <header className="flex flex-col items-center text-center">
-          {logoUrl ? (
-            <Image
-              src={logoUrl}
-              alt={`Logo ${numeFirma}`}
-              width={96}
-              height={96}
-              className="h-24 w-24 rounded-2xl object-cover"
-              unoptimized
-            />
-          ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-[var(--color-accent)]/10 text-2xl font-bold text-[var(--color-accent)]">
-              {numeFirma.charAt(0)}
-            </div>
-          )}
-          <h1 className="mt-4 text-xl font-bold text-[var(--color-text-primary)]">
-            {numeFirma}
-          </h1>
-          {descriere ? (
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              {descriere}
-            </p>
-          ) : null}
-          {website ? (
-            <p className="mt-4 text-sm">
-              <a
-                href={websiteHref(website)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--color-accent)] hover:underline"
-              >
-                {websiteLabel(website)}
-              </a>
-            </p>
-          ) : null}
-        </header>
-
-        <div
-          className="my-8 h-px w-full bg-[var(--color-placeholder-border)]"
-          aria-hidden
-        />
-
-        {mesajClient ? (
-          <p className="text-center text-lg leading-relaxed font-medium">
-            {mesajClient}
-          </p>
-        ) : null}
-
-        {beneficiuLabel ? (
-          <div className="mt-4 text-center">
-            <p className="text-base font-semibold text-[var(--color-accent)]">
-              {beneficiuLabel}
-            </p>
-          </div>
-        ) : null}
-
-        {atentionareLimita ? (
-          <div
-            className={`mt-6 rounded-xl border px-4 py-3 text-sm leading-relaxed ${
-              atentionareLimita.epuizat
-                ? "border-amber-300 bg-amber-50 text-amber-950"
-                : "border-[var(--color-accent)]/35 bg-[var(--color-accent)]/8 text-[var(--color-text-primary)]"
-            }`}
-            role="note"
-          >
-            <p className="flex gap-2 font-semibold">
-              <span className="shrink-0" aria-hidden>
-                ⚠
-              </span>
-              <span>{atentionareLimita.titlu}</span>
-            </p>
-            {atentionareLimita.detaliu ? (
-              <p
-                className={`mt-2 pl-7 ${
-                  atentionareLimita.epuizat
-                    ? "text-amber-900/90"
-                    : "text-[var(--color-text-secondary)]"
-                }`}
-              >
-                {atentionareLimita.detaliu}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
-        <div className="mt-8 flex justify-center">
-          <CodQrDisplay
-            url={qrUrl}
-            // label="Dacă folosești codul acesta când cumperi serviciul, ți se aplică reducerea"
-          />
-        </div>
-
-        {/* <p className="mt-6 text-center text-xs text-[var(--color-text-secondary)]">
-          Cod: <span className="font-mono">{data.cod}</span>
-        </p> */}
-        {valabilitateLabel ? (
-          <p className="mt-4 text-center text-sm leading-relaxed text-[var(--color-text-secondary)]">
-            {valabilitateLabel}
-          </p>
-        ) : null}
-      </article>
-
-      <p className="mt-4 text-center text-xs text-[var(--color-text-secondary)] md:mt-8">
-        powered by{" "}
-        <Link href="/" className="text-[var(--color-accent)] hover:underline">
-          hostera24
-        </Link>
-      </p>
+      <CodCard
+        cod={data.cod}
+        qrUrl={qrUrl}
+        logoSrc={logoSrc}
+        numeFirma={numeFirma}
+        descriere={descriere}
+        websiteHref={website ? websiteHref(website) : undefined}
+        websiteLabel={website ? websiteLabel(website) : undefined}
+        mesajClient={mesajClient}
+        beneficiuLabel={beneficiuLabel}
+        valabilitateLabel={valabilitateLabel}
+        atentionareLimita={atentionareLimita}
+      />
     </main>
   );
 }

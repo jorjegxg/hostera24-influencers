@@ -11,19 +11,33 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { AngajatiService } from '../angajati/angajati.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { CoduriQrService } from './coduri-qr.service';
 import { CreateCodQrDto } from './dto/create-cod-qr.dto';
 import { ScanCodQrDto } from './dto/scan-cod-qr.dto';
 import { ScanariPageQueryDto } from './dto/scanari-page-query.dto';
 import { UpdateCodQrDto } from './dto/update-cod-qr.dto';
 
-type AuthRequest = { user: { firmaId: number; email: string } };
+type AuthRequest = {
+  user: {
+    role: 'firma' | 'angajat';
+    firmaId: number;
+    angajatId?: number;
+    email: string;
+  };
+};
 
 @Controller('coduri-qr')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('firma')
 export class CoduriQrController {
-  constructor(private readonly coduriQrService: CoduriQrService) {}
+  constructor(
+    private readonly coduriQrService: CoduriQrService,
+    private readonly angajatiService: AngajatiService,
+  ) {}
 
   @Get()
   findAll(@Req() req: AuthRequest) {
@@ -36,7 +50,14 @@ export class CoduriQrController {
   }
 
   @Post('scan')
-  scan(@Req() req: AuthRequest, @Body() dto: ScanCodQrDto) {
+  @Roles('firma', 'angajat')
+  async scan(@Req() req: AuthRequest, @Body() dto: ScanCodQrDto) {
+    if (req.user.role === 'angajat') {
+      await this.angajatiService.verifyActive(
+        req.user.angajatId!,
+        req.user.firmaId,
+      );
+    }
     return this.coduriQrService.scan(req.user.firmaId, dto.payload);
   }
 

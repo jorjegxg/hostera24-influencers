@@ -2,6 +2,8 @@
 
 import { QRCodeSVG } from "qrcode.react";
 
+const QR_SIZE = 200;
+
 type Props = {
   url: string;
   label?: string;
@@ -13,7 +15,7 @@ export function CodQrDisplay({ url, label }: Props) {
       <div className="rounded-2xl border border-[var(--color-placeholder-border)] bg-white p-4 shadow-sm">
         <QRCodeSVG
           value={url}
-          size={200}
+          size={QR_SIZE}
           level="M"
           marginSize={2}
           fgColor="#111111"

@@ -16,6 +16,17 @@ CREATE TABLE firme (
     creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Angajați (pot doar scana/valida coduri, nu le pot vedea sau crea)
+CREATE TABLE angajati (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    firma_id INT NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    nume VARCHAR(255) NULL,
+    firebase_uid VARCHAR(128) NULL UNIQUE,
+    creat_la TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (firma_id) REFERENCES firme(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Tabela codurilor QR (create de firme pentru fiecare postare)
 CREATE TABLE coduri_qr (
     id INT PRIMARY KEY AUTO_INCREMENT,

@@ -4,6 +4,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { getUploadsRoot } from './common/uploads.util';
+import { Angajat } from './angajati/angajat.entity';
+import { AngajatiModule } from './angajati/angajati.module';
 import { AuthModule } from './auth/auth.module';
 import { HttpLoggerMiddleware } from './common/http-logger.middleware';
 import { CodQr } from './coduri-qr/cod-qr.entity';
@@ -45,12 +47,13 @@ import { VizitaPaginaQr } from './vizite-pagina/vizita-pagina-qr.entity';
         database: config.get<string>('DATABASE_NAME', 'hostera24'),
         charset: 'utf8mb4',
         timezone: 'Z',
-        entities: [Firma, CodQr, Scanare, VizitaPaginaQr, MesajContact],
+        entities: [Firma, Angajat, CodQr, Scanare, VizitaPaginaQr, MesajContact],
         synchronize: false,
       }),
     }),
     AuthModule,
     AdminModule,
+    AngajatiModule,
     CoduriQrModule,
     ContactModule,
     FirmeModule,

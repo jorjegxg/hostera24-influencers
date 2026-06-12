@@ -45,8 +45,11 @@ class SyncService {
 
   Future<void> _refreshQrCache() async {
     if (!_network.isOnline) return;
-    final firmaId = AuthService.instance.session?.firmaId;
-    if (firmaId == null) return;
+    final session = AuthService.instance.session;
+    final firmaId = session?.firmaId;
+    if (session == null || firmaId == null) return;
+    // Angajații nu au acces la lista codurilor.
+    if (session.isAngajat) return;
     try {
       final entries = await AuthService.instance.api.fetchCoduriQr();
       await _store.saveQrList(firmaId, entries);

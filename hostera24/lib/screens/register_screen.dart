@@ -35,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(
-        builder: (_) => HomeShell(email: session.email),
+        builder: (_) => HomeShell(session: session),
       ),
       (_) => false,
     );

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AngajatiModule } from '../angajati/angajati.module';
 import { AuthModule } from '../auth/auth.module';
 import { Firma } from '../firme/firma.entity';
 import { Scanare } from '../scanari/scanare.entity';
@@ -13,6 +14,7 @@ import { CoduriQrService } from './coduri-qr.service';
   imports: [
     TypeOrmModule.forFeature([CodQr, Scanare, VizitaPaginaQr, Firma]),
     AuthModule,
+    AngajatiModule,
   ],
   controllers: [CoduriQrController, CoduriQrPublicController],
   providers: [CoduriQrService],
